@@ -105,7 +105,7 @@ extern void array_entry(int32 i, assembly_operand VAL)
   if (!glulx_mode) {
     /*  Array entry i (initial entry has i=0) is set to Z-machine value j    */
 
-    if (dynamic_array_area_size+i*array_entry_size >= MAX_STATIC_DATA)
+    if (dynamic_array_area_size+(i+1)*array_entry_size > MAX_STATIC_DATA)
         memoryerror("MAX_STATIC_DATA", MAX_STATIC_DATA);
 
     if (array_entry_size==1)
@@ -131,7 +131,7 @@ extern void array_entry(int32 i, assembly_operand VAL)
   else {
     /*  Array entry i (initial entry has i=0) is set to value j              */
 
-    if (dynamic_array_area_size+i*array_entry_size >= MAX_STATIC_DATA)
+    if (dynamic_array_area_size+(i+1)*array_entry_size > MAX_STATIC_DATA)
         memoryerror("MAX_STATIC_DATA", MAX_STATIC_DATA);
 
     if (array_entry_size==1)
@@ -246,8 +246,7 @@ extern void make_global(int array_flag, int name_only)
             return;
         }
         if (glulx_mode && no_globals==MAX_GLOBAL_VARIABLES)
-        {   error_numbered("All global variables already declared; max is",
-                MAX_GLOBAL_VARIABLES);
+        {   memoryerror("MAX_GLOBAL_VARIABLES", MAX_GLOBAL_VARIABLES);
             panic_mode_error_recovery();
             return;
         }

@@ -30,7 +30,7 @@
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
-#define RELEASE_DATE "7th January 2011"
+#define RELEASE_DATE "2nd November 2011"
 #define RELEASE_NUMBER 1632
 #define GLULX_RELEASE_NUMBER 38
 #define MODULE_VERSION_NUMBER 1
@@ -2349,7 +2349,7 @@ extern int32 requested_glulx_version;
 
 extern int error_format,    store_the_text,       asm_trace_setting,
     double_space_setting,   trace_fns_setting,    character_set_setting,
-    header_ext_setting;
+    character_set_unicode,  header_ext_setting;
 
 extern char Debugging_Name[];
 extern char Transcript_Name[];
@@ -2439,9 +2439,9 @@ extern int MAX_QTEXT_SIZE,  MAX_SYMBOLS,    HASH_TAB_SIZE,   MAX_DICT_ENTRIES,
            MAX_OBJECTS,     MAX_ACTIONS,    MAX_ADJECTIVES,   MAX_ABBREVS,
            MAX_STATIC_DATA,      MAX_PROP_TABLE_SIZE,   SYMBOLS_CHUNK_SIZE,
            MAX_EXPRESSION_NODES, MAX_LABELS,            MAX_LINESPACE,
-           MAX_LOW_STRINGS,      MAX_CLASSES,           MAX_CLASS_TABLE_SIZE,
-           MAX_VERBS,            MAX_VERBSPACE,         MAX_ARRAYS,
-           MAX_INCLUSION_DEPTH,  MAX_SOURCE_FILES;
+           MAX_LOW_STRINGS,      MAX_CLASSES,           MAX_VERBS,
+           MAX_VERBSPACE,        MAX_ARRAYS,            MAX_INCLUSION_DEPTH,
+           MAX_SOURCE_FILES;
 
 extern int32 MAX_STATIC_STRINGS, MAX_ZCODE_SIZE, MAX_LINK_DATA_SIZE,
            MAX_TRANSCRIPT_SIZE,  MAX_INDIV_PROP_TABLE_SIZE,

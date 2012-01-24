@@ -448,6 +448,20 @@ extern uchar *translate_text(uchar *p, uchar *p_limit, char *s_text)
             }
         }
 
+        /* If Unicode switch set, use text_to_unicode to perform UTF-8
+           decoding */
+        if (character_set_unicode && (text_in[i] & 0x80))
+        {   unicode = text_to_unicode((char *) (text_in+i));
+            zscii = unicode_to_zscii(unicode);
+            if (zscii != 5) write_zscii(zscii);
+            else
+            {   unicode_char_error(
+                    "Character can only be used if declared in \
+advance as part of 'Zcharacter table':", unicode);
+            }
+            i += textual_form_length - 1;
+        }
+
         /*  '@' is the escape character in Inform string notation: the various
             possibilities are:
 
@@ -674,6 +688,34 @@ string; substituting '?'.");
         write_z_char_g(0x0A);
       else if (text_in[i] == '~')
         write_z_char_g('"');
+      else if (character_set_unicode) {
+        if (text_in[i] & 0x80) {
+          unicode = text_to_unicode((char *) (text_in+i));
+          i += textual_form_length - 1;
+          if (unicode >= 0 && unicode < 256) {
+            write_z_char_g(unicode);
+          }
+          else {
+            if (!compression_switch) {
+              warning("Unicode characters will not work in non-compressed \
+string; substituting '?'.");
+              write_z_char_g('?');
+            }
+            else {
+              j = unicode_entity_index(unicode);
+              write_z_char_g('@');
+              write_z_char_g('U');
+              write_z_char_g('A' + ((j >>12) & 0x0F));
+              write_z_char_g('A' + ((j >> 8) & 0x0F));
+              write_z_char_g('A' + ((j >> 4) & 0x0F));
+              write_z_char_g('A' + ((j     ) & 0x0F));
+            }
+          }
+        }
+        else {
+          write_z_char_g(text_in[i]);
+        }
+      }
       else {
         unicode = iso_to_unicode_grid[text_in[i]];
         if (unicode >= 0 && unicode < 256) {
@@ -948,8 +990,6 @@ void compress_game_text()
     compression_table_size = 12;
     
     compress_makebits(huff_entity_root, 0, -1, &bits);
-    /* compress_dumptable(huff_entity_root, 0); */
-    
   }
 
   /* Now, sadly, we have to compute the size of the string section,
@@ -1464,12 +1504,38 @@ extern void optimise_abbreviations(void)
 /*   construct_storyfile() stage in "tables.c") and then a sequence of       */
 /*   records, one per word, in the form                                      */
 /*                                                                           */
-/*        <Z-coded text>    <flags>  <adjectivenumber>  <verbnumber>         */
-/*        4 or 6 bytes       byte          byte             byte             */
+/*        <Z-coded text>    <flags>   <verbnumber>     <adjectivenumber>     */
+/*        4 or 6 bytes       byte        byte             byte               */
+/*                                                                           */
+/*   For Glulx, the form is instead: (But see below about Unicode-valued     */
+/*   dictionaries and my heinie.)                                            */
+/*                                                                           */
+/*        <plain text>      <flags>   <verbnumber>     <adjectivenumber>     */
+/*        DICT_WORD_SIZE     short       short            short              */
 /*                                                                           */
 /*   These records are stored in "accession order" (i.e. in order of their   */
 /*   first being received by these routines) and only alphabetically sorted  */
 /*   by construct_storyfile() (using the array below).                       */
+/* ------------------------------------------------------------------------- */
+/*                                                                           */
+/*   Further notes about the data fields...                                  */
+/*   The flags are currently:                                                */
+/*     bit 0: word is used as a verb (in verb grammar)                       */
+/*     bit 1: word is used as a meta verb                                    */
+/*     bit 2: word is plural (set by '//p')                                  */
+/*     bit 3: word is used as a preposition (in verb grammar)                */
+/*     bit 6: set for all verbs, but not used by the parser?                 */
+/*     bit 7: word is used as a noun (set for every word that appears in     */
+/*       code or in an object property)                                      */
+/*                                                                           */
+/*   In grammar version 2, the third field (adjectivenumber) is unused (and  */
+/*   zero).                                                                  */
+/*                                                                           */
+/*   The compiler generates special constants #dict_par1, #dict_par2,        */
+/*   #dict_par3 to refer to the byte offsets of the three fields. In         */
+/*   Z-code v3, these are 4/5/6; in v4+, they are 6/7/8. In Glulx, they      */
+/*   are $DICT_WORD_SIZE+2/4/6, referring to the *low* bytes of the three    */
+/*   fields. (The high bytes are $DICT_WORD_SIZE+1/3/5.)                     */
 /* ------------------------------------------------------------------------- */
 
 uchar *dictionary,                    /* (These two pointers are externally
@@ -1553,7 +1619,7 @@ apostrophe in", dword);
         if (k==(int) '^') k=(int) '\'';
         if (k=='\"') k='~';
 
-        if (k==(int) '@')
+        if (k==(int) '@' || (character_set_unicode && (k & 0x80)))
         {   int unicode = text_to_unicode(dword+j);
             if ((unicode < 128) && isupper(unicode)) unicode = tolower(unicode);
             k = unicode_to_zscii(unicode);
@@ -1647,7 +1713,7 @@ apostrophe in", dword);
     if (k=='~') /* as in iso_to_alphabet_grid */
       k='\"';
 
-    if (k=='@') {
+    if (k=='@' || (character_set_unicode && (k & 0x80))) {
       unicode = text_to_unicode(dword+j);
       j += textual_form_length - 1;
     }
@@ -1795,8 +1861,10 @@ static int dictionary_find(char *dword)
 }
 
 /* ------------------------------------------------------------------------- */
-/*  Add "dword" to the dictionary with (x,y,z) as its data bytes; unless     */
+/*  Add "dword" to the dictionary with (x,y,z) as its data fields; unless    */
 /*  it already exists, in which case OR the data with (x,y,z)                */
+/*                                                                           */
+/*  These fields are one byte each in Z-code, two bytes each in Glulx.       */
 /*                                                                           */
 /*  Returns: the accession number.                                           */
 /* ------------------------------------------------------------------------- */
@@ -1825,7 +1893,9 @@ extern int dictionary_add(char *dword, int x, int y, int z)
             }
             else {
                 p = dictionary+4 + at*DICT_ENTRY_BYTE_LENGTH + DICT_ENTRY_FLAG_POS;
-                p[1]=(p[1])|x; p[2]=(p[2])|(y/256); p[3]=(p[3])|(y%256); p[5]=(p[5])|z;
+                p[0]=(p[0])|(x/256); p[1]=(p[1])|(x%256); 
+                p[2]=(p[2])|(y/256); p[3]=(p[3])|(y%256); 
+                p[4]=(p[4])|(z/256); p[5]=(p[5])|(z%256);
                 if (x & 128) p[1] = (p[1]) | number_and_case;
             }
             return at;

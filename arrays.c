@@ -199,14 +199,12 @@ extern void make_global(int array_flag, int name_only)
         array_flag is always FALSE in that case.                             */
 
     int32 i;
-    /*  char *varname;  */
     int array_type, data_type;
     assembly_operand AO;
 
     directive_keywords.enabled = FALSE;
     get_next_token();
     i = token_value;
-    /*  varname = token_text;  */
 
     if (!glulx_mode) {
         if ((token_type==SYMBOL_TT) && (stypes[i]==GLOBAL_VARIABLE_T)
@@ -470,7 +468,7 @@ extern void make_global(int array_flag, int name_only)
                     {
                         if (unicode < 0 || unicode >= 256)
                         {
-                            error("Unicode characters beyond Latin-1 are not yet supported in Glulx");
+                            error("Unicode characters beyond Latin-1 are not yet supported in Glulx array literals");
                         }
                         else
                         {

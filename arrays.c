@@ -3,7 +3,7 @@
 /*               likewise global variables, which are in some ways a         */
 /*               simpler form of the same thing.                             */
 /*                                                                           */
-/*   Part of Inform 6.31                                                     */
+/*   Part of Inform 6.40                                                     */
 /*   copyright (c) Graham Nelson 1993 - 2006                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
@@ -35,7 +35,7 @@ int no_globals;                        /* Number of global variables used
                                           by the programmer (Inform itself
                                           uses the top seven -- but these do
                                           not count)                         */
-                                       /* In Glulx, Inform uses the bottom 
+                                       /* In Glulx, Inform uses the bottom
                                           ten.                               */
 
 int dynamic_array_area_size;           /* Size in bytes                      */
@@ -78,7 +78,7 @@ extern void finish_array(int32 i)
   else {
     if (array_base!=dynamic_array_area_size)
     {   if (dynamic_array_area_size-array_base==4)
-        {   
+        {
             dynamic_array_area[array_base]   = (i >> 24) & 0xFF;
             dynamic_array_area[array_base+1] = (i >> 16) & 0xFF;
             dynamic_array_area[array_base+2] = (i >> 8) & 0xFF;
@@ -90,7 +90,7 @@ extern void finish_array(int32 i)
             dynamic_array_area[array_base] = i;
         }
     }
-    
+
   }
 
   /*  Move on the dynamic array size so that it now points to the next
@@ -222,18 +222,19 @@ extern void make_global(int array_flag, int name_only)
     {   if (array_flag)
             ebf_error("new array name", token_text);
         else ebf_error("new global variable name", token_text);
-        panic_mode_error_recovery(); return;
+        duplicate_error();
+        panic_mode_error_recovery(); put_token_back(); return;
     }
 
     if ((!array_flag) && (sflags[i] & USED_SFLAG))
         error_named("Variable must be defined before use:", token_text);
 
     if (array_flag)
-    {   
+    {
         if (!glulx_mode)
             assign_symbol(i, dynamic_array_area_size, ARRAY_T);
         else
-            assign_symbol(i, 
+            assign_symbol(i,
                 dynamic_array_area_size - 4*MAX_GLOBAL_VARIABLES, ARRAY_T);
         if (no_arrays == MAX_ARRAYS)
             memoryerror("MAX_ARRAYS", MAX_ARRAYS);
@@ -242,13 +243,13 @@ extern void make_global(int array_flag, int name_only)
     else
     {   if (!glulx_mode && no_globals==233)
         {   error("All 233 global variables already declared");
-            panic_mode_error_recovery();
+            panic_mode_error_recovery(); put_token_back();
             return;
         }
         if (glulx_mode && no_globals==MAX_GLOBAL_VARIABLES)
         {   error_numbered("All global variables already declared; max is",
                 MAX_GLOBAL_VARIABLES);
-            panic_mode_error_recovery();
+            panic_mode_error_recovery(); put_token_back();
             return;
         }
 
@@ -336,7 +337,7 @@ extern void make_global(int array_flag, int name_only)
                ebf_error("'->', '-->', 'string', 'table' or 'buffer'", token_text);
              else
                ebf_error("'=', '->', '-->', 'string', 'table' or 'buffer'", token_text);
-             panic_mode_error_recovery();
+             panic_mode_error_recovery(); put_token_back();
              return;
          }
 
@@ -479,7 +480,7 @@ extern void make_global(int array_flag, int name_only)
                         }
                     }
                     else  /* Z-code */
-                    {                          
+                    {
                         zscii = unicode_to_zscii(unicode);
                         if ((zscii != 5) && (zscii < 0x100)) chars.value = zscii;
                         else
@@ -572,21 +573,21 @@ extern void init_arrays_vars(void)
 }
 
 extern void arrays_begin_pass(void)
-{   no_arrays = 0; 
+{   no_arrays = 0;
     if (!glulx_mode)
-        no_globals=0; 
+        no_globals=0;
     else
         no_globals=11;
     dynamic_array_area_size = WORDSIZE * MAX_GLOBAL_VARIABLES;
 }
 
 extern void arrays_allocate_arrays(void)
-{   dynamic_array_area = my_calloc(sizeof(int), MAX_STATIC_DATA, 
+{   dynamic_array_area = my_calloc(sizeof(int), MAX_STATIC_DATA,
         "static data");
     array_sizes = my_calloc(sizeof(int), MAX_ARRAYS, "array sizes");
     array_types = my_calloc(sizeof(int), MAX_ARRAYS, "array types");
     array_symbols = my_calloc(sizeof(int32), MAX_ARRAYS, "array symbols");
-    global_initial_value = my_calloc(sizeof(int32), MAX_GLOBAL_VARIABLES, 
+    global_initial_value = my_calloc(sizeof(int32), MAX_GLOBAL_VARIABLES,
         "global values");
 }
 

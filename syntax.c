@@ -1,7 +1,7 @@
 /* ------------------------------------------------------------------------- */
 /*   "syntax" : Syntax analyser and compiler                                 */
 /*                                                                           */
-/*   Part of Inform 6.31                                                     */
+/*   Part of Inform 6.40                                                     */
 /*   copyright (c) Graham Nelson 1993 - 2006                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
@@ -59,6 +59,88 @@ extern void panic_mode_error_recovery(void)
         get_next_token();
 }
 
+/*  Routine used by process_line_directive to make
+    sure each element appears no more than once.      */
+static int once_only(int *flags, int onebit, char *msg)
+{
+    if (*flags & onebit)
+    {
+        error(msg);
+        return 1;
+    }
+    *flags |= onebit;
+    return 0;
+}
+
+/* message text for ebf_error() */
+static char *pld_msg_1 = "filename, line number, or 'additive'";
+
+/* flags used with 'once_only()' */
+#define PLD_NUMBER   0x0001
+#define PLD_DQ       0x0002
+#define PLD_ADDITIVE 0x0004
+
+static void process_line_directive(void)
+{
+    int source_line = 0;
+    char *filename = NULL;
+    int increment = 0;
+    int flags = 0;
+    int preserve = directive_keywords.enabled;
+
+    /* Make sure we recognize 'additive' if we see it. */
+    directive_keywords.enabled = TRUE;
+    while (1)
+    {   switch (token_type)
+        {   case NUMBER_TT:
+                if (once_only(&flags, PLD_NUMBER,
+                        "Multiple line numbers in same directive"))
+                    break;
+                /* save the line number */
+                source_line = token_value;
+                break;
+            case DQ_TT:
+                if (once_only(&flags, PLD_DQ,
+                        "Multiple file names in same directive"))
+                    break;
+                /* save the file name */
+                filename = my_malloc(strlen(token_text)+1, "fake filename");
+                strcpy(filename, token_text);
+                break;
+            case DIR_KEYWORD_TT:
+                switch (token_value)
+                {   case ADDITIVE_DK:
+                        if (once_only(&flags, PLD_ADDITIVE,
+                                "Multiple uses of 'additive' in directive"))
+                            break;
+                        /* keyword 'additive' */
+                        increment = 1;
+                        break;
+                    default:
+                        ebf_error(pld_msg_1, token_text);
+                        break;
+                }
+                break;
+            case SEP_TT:
+                switch (token_value)
+                {   case SEMICOLON_SEP:
+                        /* all done */
+                        declare_alternate_source(filename, source_line, increment);
+                        directive_keywords.enabled = preserve;
+                        return;
+                    default:
+                        ebf_error(pld_msg_1, token_text);
+                        break;
+                }
+                break;
+            default:
+                ebf_error(pld_msg_1, token_text);
+                break;
+        }
+        get_next_token();
+    }
+}
+
 extern void parse_program(char *source)
 {
     lexical_source = source;
@@ -72,7 +154,9 @@ extern int parse_directive(int internal_flag)
 
         Returns: TRUE if program continues, FALSE if end of file reached.    */
 
+    int leading_hash = internal_flag;
     int routine_symbol;
+    int is_aliased = FALSE;
 
     begin_syntax_line(FALSE);
     get_next_token();
@@ -80,7 +164,20 @@ extern int parse_directive(int internal_flag)
     if (token_type == EOF_TT) return(FALSE);
 
     if ((token_type == SEP_TT) && (token_value == HASH_SEP))
-        get_next_token();
+    {   get_next_token();
+        leading_hash = TRUE;
+    }
+
+    /*  Line directives operate similarly to the C preprocessor's '#line'
+        directive, except in our case, there isn't a keyword.
+        Instead (for now at least) we recognize them by context:
+            "# NUMBER ..." or "# DOUBLE_QUOTED_STRING ..."                   */
+    if (leading_hash)
+    {   if ((token_type == NUMBER_TT) || (token_type == DQ_TT))
+        {   process_line_directive();
+            return(TRUE);
+        }
+    }
 
     if ((token_type == SEP_TT) && (token_value == OPEN_SQUARE_SEP))
     {   if (internal_flag)
@@ -97,13 +194,20 @@ extern int parse_directive(int internal_flag)
             || ((!(sflags[token_value] & UNKNOWN_SFLAG))
                 && (!(sflags[token_value] & REPLACE_SFLAG))))
         {   ebf_error("routine name", token_text);
-            return(FALSE);
+            duplicate_error();
+            goto IgnoreRoutine;
+        }
+
+        if (sflags[token_value] & ALIASED_SFLAG && is_systemfile())
+        {   token_value++;
+            is_aliased = TRUE;
         }
 
         routine_symbol = token_value;
 
         if ((sflags[routine_symbol] & REPLACE_SFLAG) && (is_systemfile()))
-        {   dont_enter_into_symbol_table = TRUE;
+        {   IgnoreRoutine:
+            dont_enter_into_symbol_table = TRUE;
             do
             {   get_next_token();
             } while (!((token_type == EOF_TT)
@@ -117,7 +221,8 @@ extern int parse_directive(int internal_flag)
                 parse_routine(lexical_source, FALSE,
                     (char *) symbs[routine_symbol], FALSE, routine_symbol),
                 ROUTINE_T);
-            slines[routine_symbol] = routine_starts_line;
+            if (!is_aliased)
+                slines[routine_symbol] = routine_starts_line;
         }
         get_next_token();
         if ((token_type != SEP_TT) || (token_value != SEMICOLON_SEP))
@@ -140,6 +245,44 @@ extern int parse_directive(int internal_flag)
     }
 
     return !(parse_given_directive());
+}
+
+extern void get_next_token_not_directive(void)
+{
+    int s1 = directives.enabled;
+    int s2 = segment_markers.enabled;
+    int s3 = statements.enabled;
+    int not_directive = FALSE;
+
+    while (TRUE)
+    {
+        get_next_token();
+        if ((token_type != SEP_TT) || (token_value != HASH_SEP) || not_directive)
+            return;
+        directives.enabled = TRUE;
+        segment_markers.enabled = FALSE;
+        statements.enabled = FALSE;
+        conditions.enabled = FALSE;
+        local_variables.enabled = FALSE;
+        system_functions.enabled = FALSE;
+
+        get_next_token();
+
+        if (token_type == DIRECTIVE_TT)
+            parse_given_directive();
+        else
+        {
+            put_token_back(); put_token_back(); put_token_back();
+            not_directive = TRUE;
+        }
+        directive_keywords.enabled = FALSE;
+        directives.enabled = s1;
+        segment_markers.enabled = s2;
+        statements.enabled =
+            conditions.enabled =
+            local_variables.enabled =
+            system_functions.enabled = s3;
+    }
 }
 
 static int switch_sign(void)
@@ -174,13 +317,13 @@ static void compile_alternatives_z(assembly_operand switch_value, int n,
 
 static void compile_alternatives_g(assembly_operand switch_value, int n,
     int stack_level, int label, int flag)
-{   
+{
     int the_zc = (flag) ? jeq_gc : jne_gc;
 
     if (n == 1) {
       assembleg_2_branch(the_zc, switch_value,
         spec_stack[stack_level],
-        label); 
+        label);
     }
     else {
       error("*** Cannot generate multi-equality tests in Glulx ***");
@@ -213,11 +356,16 @@ static void parse_switch_spec(assembly_operand switch_value, int label,
 
         if (action_switch)
         {   get_next_token();
-            spec_stack[spec_sp].type = 
+            spec_stack[spec_sp].type =
                 ((!glulx_mode) ? LONG_CONSTANT_OT : CONSTANT_OT);
             spec_stack[spec_sp].value = 0;
             spec_stack[spec_sp].marker = 0;
-            spec_stack[spec_sp] = action_of_name(token_text);
+            if (token_type == SYMBOL_TT || token_type >= STATEMENT_TT)
+                spec_stack[spec_sp] = action_of_name(token_text);
+            else
+            {   spec_stack[spec_sp].value = -1;
+                warning("Extraneous comma or 'to'? This looks like a switch() case.");
+            }
 
             if (spec_stack[spec_sp].value == -1)
             {   spec_stack[spec_sp].value = 0;
@@ -269,7 +417,7 @@ static void parse_switch_spec(assembly_operand switch_value, int label,
              i=j;
          }
          else
-         {   
+         {
            if (!glulx_mode) {
              if (i == spec_sp - 2)
              {   assemblez_2_branch(jl_zc, switch_value, spec_stack[i],
@@ -336,7 +484,7 @@ extern int32 parse_routine(char *source, int embedded_flag, char *name,
         {   debug_flag = TRUE; continue;
         }
 
-        if (token_type != DQ_TT)
+        if (token_type != DQ_TT || token_value != 1)
         {   if ((token_type == SEP_TT)
                 && (token_value == SEMICOLON_SEP)) break;
             ebf_error("local variable name or ';'", token_text);
@@ -402,7 +550,7 @@ extern int32 parse_routine(char *source, int embedded_flag, char *name,
                     if (!glulx_mode)
                         assemblez_0((embedded_flag)?rfalse_zc:rtrue_zc);
                     else
-                        assembleg_1(return_gc, 
+                        assembleg_1(return_gc,
                             ((embedded_flag)?zero_operand:one_operand));
                 }
                 assemble_label_no(switch_label);
@@ -419,7 +567,7 @@ extern int32 parse_routine(char *source, int embedded_flag, char *name,
 
         /*  Only check for the form of a case switch if the initial token
             isn't double-quoted text, as that would mean it was a print_ret
-            statement: this is a mild ambiguity in the grammar. 
+            statement: this is a mild ambiguity in the grammar.
             Action statements also cannot be cases. */
 
         if ((token_type != DQ_TT) && (token_type != SEP_TT))
@@ -435,7 +583,7 @@ extern int32 parse_routine(char *source, int embedded_flag, char *name,
                         if (!glulx_mode)
                             assemblez_0((embedded_flag)?rfalse_zc:rtrue_zc);
                         else
-                            assembleg_1(return_gc, 
+                            assembleg_1(return_gc,
                                 ((embedded_flag)?zero_operand:one_operand));
                     }
                     assemble_label_no(switch_label);

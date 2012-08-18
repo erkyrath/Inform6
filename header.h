@@ -1,7 +1,7 @@
 /* ------------------------------------------------------------------------- */
 /*   Header file for Inform:  Z-machine ("Infocom" format) compiler          */
 /*                                                                           */
-/*                              Inform 6.31                                  */
+/*                              Inform 6.40                                  */
 /*                                                                           */
 /*   This header file and the others making up the Inform source code are    */
 /*   copyright (c) Graham Nelson 1993 - 2006                                 */
@@ -30,8 +30,8 @@
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
-#define RELEASE_DATE "10th Feb 2006"
-#define RELEASE_NUMBER 1631
+#define RELEASE_DATE "23 April 2006 development version"
+#define RELEASE_NUMBER 1640
 #define GLULX_RELEASE_NUMBER 38
 #define MODULE_VERSION_NUMBER 1
 #define VNUMBER RELEASE_NUMBER
@@ -480,6 +480,13 @@ static int32 unique_task_id(void)
 #define Debugging_File "gamedebug"
 #endif
 #endif
+#ifndef Translation_File
+#ifdef FILE_EXTENSIONS
+#define Translation_File "informtx.txt"
+#else
+#define Translation_File "informtx"
+#endif
+#endif
 
 #ifdef FILE_EXTENSIONS
 #ifndef Source_Extension
@@ -506,6 +513,9 @@ static int32 unique_task_id(void)
 #ifndef V8Code_Extension
 #define V8Code_Extension  ".z8"
 #endif
+#ifndef V9Code_Extension
+#define V9Code_Extension  ".z9"
+#endif
 #ifndef GlulxCode_Extension
 #define GlulxCode_Extension  ".ulx"
 #endif
@@ -526,6 +536,7 @@ static int32 unique_task_id(void)
 #define V6Code_Extension  ""
 #define V7Code_Extension  ""
 #define V8Code_Extension  ""
+#define V9Code_Extension  ""
 #define GlulxCode_Extension  ""
 #define Module_Extension  ""
 #define ICL_Extension     ""
@@ -582,7 +593,7 @@ static int32 unique_task_id(void)
 #endif
 
 #ifndef PATHLEN
-#define PATHLEN 128
+#define PATHLEN 192
 #endif
 
 #ifndef Temporary_File
@@ -739,7 +750,7 @@ typedef struct objecttz {
 
 typedef struct propg {
     int num;
-    int continuation; 
+    int continuation;
     int flags;
     int32 datastart;
     int32 datalen;
@@ -747,7 +758,7 @@ typedef struct propg {
 
 /* Only one of this object. */
 typedef struct fproptg {
-    uchar atts[MAX_NUM_ATTR_BYTES]; 
+    uchar atts[MAX_NUM_ATTR_BYTES];
     int numprops;
     propg *props;
     int propdatasize;
@@ -796,6 +807,8 @@ typedef struct ErrorPosition_s
     char *source;
     int  line_number;
     int  main_flag;
+    char *fakename;
+    int  fake_number;
 } ErrorPosition;
 
 /*  A memory block can hold at most 640K:  */
@@ -1120,7 +1133,7 @@ typedef struct operator_s
 
 #define SYMBOL_TT    0                      /* value = index in symbol table */
 #define NUMBER_TT    1                      /* value = the number            */
-#define DQ_TT        2                      /* no value                      */
+#define DQ_TT        2                      /* value = 0 if quoted, 1 if not */
 #define SQ_TT        3                      /* no value                      */
 #define SEP_TT       4                      /* value = the _SEP code         */
 #define EOF_TT       5                      /* no value                      */
@@ -1159,9 +1172,10 @@ typedef struct operator_s
 #define ARRAY_CONTEXT      7
 #define FORINIT_CONTEXT    8
 #define RETURN_Q_CONTEXT   9
+#define IFDEF_CONTEXT      10
 
 #define LOWEST_SYSTEM_VAR_NUMBER 249        /* globals 249 to 255 are used
-                                               in compiled code (Z-code 
+                                               in compiled code (Z-code
                                                only; in Glulx, the range can
                                                change) */
 
@@ -1250,46 +1264,48 @@ typedef struct operator_s
 #define STUB_CODE        32
 #define SYSTEM_CODE      33
 #define TRACE_CODE       34
-#define VERB_CODE        35
-#define VERSION_CODE     36
-#define ZCHARACTER_CODE  37
+#define UNDEF_CODE       35
+#define VERB_CODE        36
+#define VERSION_CODE     37
+#define ZCHARACTER_CODE  38
 
 #define OPENBLOCK_CODE   100
 #define CLOSEBLOCK_CODE  101
 
 /*  Index numbers into the keyword group "statements" (see "lexer.c")  */
 
-#define BOX_CODE         0
-#define BREAK_CODE       1
-#define CONTINUE_CODE    2
-#define SDEFAULT_CODE    3
-#define DO_CODE          4
-#define ELSE_CODE        5
-#define FONT_CODE        6
-#define FOR_CODE         7
-#define GIVE_CODE        8
-#define IF_CODE          9
-#define INVERSION_CODE   10
-#define JUMP_CODE        11
-#define MOVE_CODE        12
-#define NEW_LINE_CODE    13
-#define OBJECTLOOP_CODE  14
-#define PRINT_CODE       15
-#define PRINT_RET_CODE   16
-#define QUIT_CODE        17
-#define READ_CODE        18
-#define REMOVE_CODE      19
-#define RESTORE_CODE     20
-#define RETURN_CODE      21
-#define RFALSE_CODE      22
-#define RTRUE_CODE       23
-#define SAVE_CODE        24
-#define SPACES_CODE      25
-#define STRING_CODE      26
-#define STYLE_CODE       27
-#define SWITCH_CODE      28
-#define UNTIL_CODE       29
-#define WHILE_CODE       30
+#define ASSERT_CODE      0
+#define BOX_CODE         1
+#define BREAK_CODE       2
+#define CONTINUE_CODE    3
+#define SDEFAULT_CODE    4
+#define DO_CODE          5
+#define ELSE_CODE        6
+#define FONT_CODE        7
+#define FOR_CODE         8
+#define GIVE_CODE        9
+#define IF_CODE          10
+#define INVERSION_CODE   11
+#define JUMP_CODE        12
+#define MOVE_CODE        13
+#define NEW_LINE_CODE    14
+#define OBJECTLOOP_CODE  15
+#define PRINT_CODE       16
+#define PRINT_RET_CODE   17
+#define QUIT_CODE        18
+#define READ_CODE        19
+#define REMOVE_CODE      20
+#define RESTORE_CODE     21
+#define RETURN_CODE      22
+#define RFALSE_CODE      23
+#define RTRUE_CODE       24
+#define SAVE_CODE        25
+#define SPACES_CODE      26
+#define STRING_CODE      27
+#define STYLE_CODE       28
+#define SWITCH_CODE      29
+#define UNTIL_CODE       30
+#define WHILE_CODE       31
 
 #define ASSIGNMENT_CODE  100
 #define FUNCTION_CODE    101
@@ -1648,7 +1664,7 @@ typedef struct operator_s
 /*   (must correspond to entries in the table in "veneer.c")                 */
 /* ------------------------------------------------------------------------- */
 
-#define VENEER_ROUTINES 48
+#define VENEER_ROUTINES   54
 
 #define Box__Routine_VR    0
 
@@ -1686,23 +1702,29 @@ typedef struct operator_s
 #define RT__ChG_VR        30
 #define RT__ChGt_VR       31
 #define RT__ChPS_VR       32
-#define RT__ChPR_VR       33 
+#define RT__ChPR_VR       33
 #define RT__TrPS_VR       34
 #define RT__ChLDB_VR      35
 #define RT__ChLDW_VR      36
 #define RT__ChSTB_VR      37
 #define RT__ChSTW_VR      38
-#define RT__ChPrintC_VR   39
-#define RT__ChPrintA_VR   40
-#define RT__ChPrintS_VR   41
-#define RT__ChPrintO_VR   42
+#define RT__ChLDPrB_VR    39
+#define RT__ChLDPrW_VR    40
+#define RT__ChSTPrB_VR    41
+#define RT__ChSTPrW_VR    42
+#define RT__ChPrintC_VR   43
+#define RT__ChPrintA_VR   44
+#define RT__ChPrintS_VR   45
+#define RT__ChPrintO_VR   46
+#define AssertFailed_VR   47
+#define VerboseDebugMessages_VR 48
 
 /* Glulx-only veneer routines */
-#define OB__Move_VR       43
-#define OB__Remove_VR     44
-#define Print__Addr_VR    45
-#define Glk__Wrap_VR      46
-#define Dynam__String_VR  47
+#define OB__Move_VR       49
+#define OB__Remove_VR     50
+#define Print__Addr_VR    51
+#define Glk__Wrap_VR      52
+#define Dynam__String_VR  53
 
 /* ------------------------------------------------------------------------- */
 /*   Run-time-error numbers (must correspond with RT__Err code in veneer)    */
@@ -1836,8 +1858,9 @@ typedef struct operator_s
 
 #define LABEL_MV              36     /* Ditto: marks "jump" operands */
 #define DELETED_MV            37     /* Ditto: marks bytes deleted from code */
-#define BRANCH_MV             38     /* Used in "asm.c" for routine coding */
-#define BRANCHMAX_MV          58     /* In fact, the range BRANCH_MV to 
+#define EXPANDED_MV           38     /* asm.c again: marks branch to invert */
+#define BRANCH_MV             39     /* Used in "asm.c" for routine coding */
+#define BRANCHMAX_MV          59     /* In fact, the range BRANCH_MV to
                                         BRANCHMAX_MV all means the same thing.
                                         The position within the range means
                                         how far back from the label to go
@@ -2067,6 +2090,17 @@ extern void assemblez_inc(assembly_operand o1);
 extern void assemblez_dec(assembly_operand o1);
 extern void assemblez_store(assembly_operand o1, assembly_operand o2);
 extern void assemblez_jump(int n);
+extern void assemblez_call_1(assembly_operand o1);
+extern void assemblez_call_1_to(assembly_operand o1, assembly_operand st);
+extern void assemblez_call_2(assembly_operand o1, assembly_operand o2);
+extern void assemblez_call_3(assembly_operand o1, assembly_operand o2,
+  assembly_operand o3);
+extern void assemblez_call_3_to(assembly_operand o1, assembly_operand o2,
+  assembly_operand o3, assembly_operand st);
+extern void assemblez_call_4(assembly_operand o1, assembly_operand o2,
+  assembly_operand o3, assembly_operand o4);
+extern void assemblez_call_4_to(assembly_operand o1, assembly_operand o2,
+  assembly_operand o3, assembly_operand o4, assembly_operand st);
 
 extern void assembleg_0(int internal_number);
 extern void assembleg_1(int internal_number, assembly_operand o1);
@@ -2080,11 +2114,11 @@ extern void assembleg_1_branch(int internal_number,
   assembly_operand o1, int label);
 extern void assembleg_2_branch(int internal_number,
   assembly_operand o1, assembly_operand o2, int label);
-extern void assembleg_call_1(assembly_operand oaddr, assembly_operand o1, 
+extern void assembleg_call_1(assembly_operand oaddr, assembly_operand o1,
   assembly_operand odest);
-extern void assembleg_call_2(assembly_operand oaddr, assembly_operand o1, 
+extern void assembleg_call_2(assembly_operand oaddr, assembly_operand o1,
   assembly_operand o2, assembly_operand odest);
-extern void assembleg_call_3(assembly_operand oaddr, assembly_operand o1, 
+extern void assembleg_call_3(assembly_operand oaddr, assembly_operand o1,
   assembly_operand o2, assembly_operand o3, assembly_operand odest);
 extern void assembleg_inc(assembly_operand o1);
 extern void assembleg_dec(assembly_operand o1);
@@ -2141,8 +2175,9 @@ extern void  make_upper_case(char *str);
 
 extern int32 routine_starts_line;
 
-extern int  no_routines, no_named_routines, no_locals, no_termcs;
-extern int  terminating_characters[];
+extern int   no_routines, no_named_routines, no_locals, no_termcs, no_sepcs;
+extern int   terminating_characters[];
+extern uchar separating_characters[];
 
 extern int  parse_given_directive(void);
 
@@ -2169,6 +2204,7 @@ extern void ebf_error(char *s1, char *s2);
 extern void char_error(char *s, int ch);
 extern void unicode_char_error(char *s, int32 uni);
 extern void no_such_label(char *lname);
+extern void duplicate_error(void);
 extern void warning(char *s);
 extern void warning_numbered(char *s1, int val);
 extern void warning_named(char *s1, char *s2);
@@ -2179,6 +2215,7 @@ extern void link_error_named(char *s1, char *s2);
 extern int  compiler_error(char *s);
 extern int  compiler_error_named(char *s1, char *s2);
 extern void print_sorry_message(void);
+extern char *tx(char *native);
 
 #ifdef ARC_THROWBACK
 extern int  throwback_switch;
@@ -2195,7 +2232,7 @@ extern void throwback_end(void);
 extern int vivc_flag;
 extern operator operators[];
 
-extern assembly_operand stack_pointer, temp_var1, temp_var2, temp_var3, 
+extern assembly_operand stack_pointer, temp_var1, temp_var2, temp_var3,
     temp_var4, zero_operand, one_operand, two_operand, three_operand,
     valueless_operand;
 
@@ -2245,9 +2282,10 @@ extern void write_debug_string(char *s);
 extern void close_debug_file(void);
 extern void add_to_checksum(void *address);
 
-extern void load_sourcefile(char *story_name, int style);
+extern void load_sourcefile(char *story_name, int style, int ignore_missing);
 extern int file_load_chars(int file_number, char *buffer, int length);
 extern void close_all_source(void);
+extern char *file_read_line(char *buf, int maxlen, FILE *f);
 
 extern void output_file(void);
 
@@ -2277,7 +2315,7 @@ extern int
     version_set_switch,     nowarnings_switch,    hash_switch,
     memory_map_switch,      module_switch,        temporary_files_switch,
     define_DEBUG_switch,    define_USE_MODULES_switch, define_INFIX_switch,
-    runtime_error_checking_switch;
+    runtime_error_checking_switch, incompatibility_switch;
 
 extern int oddeven_packing_switch;
 
@@ -2285,17 +2323,21 @@ extern int glulx_mode, compression_switch;
 
 extern int error_format,    store_the_text,       asm_trace_setting,
     double_space_setting,   trace_fns_setting,    character_set_setting,
-    header_ext_setting;
+    header_ext_setting,     optimise_setting;
 
 extern char Debugging_Name[];
 extern char Transcript_Name[];
 extern char Language_Name[];
 extern char Charset_Map[];
+extern char Translation_Name[];
+extern char Include_Path[];
 
 extern char banner_line[];
 
 extern void select_version(int vn);
 extern void switches(char *, int);
+extern int write_translated_name(char *new_name, char *old_name,
+    char *prefix_path, int start_pos, char *extension);
 extern int translate_in_filename(int last_value, char *new_name, char *old_name,
     int same_directory_flag, int command_line_flag);
 extern void translate_out_filename(char *new_name, char *old_name);
@@ -2323,6 +2365,7 @@ extern int  dont_enter_into_symbol_table;
 extern int  return_sp_as_variable;
 extern int  next_token_begins_syntax_line;
 extern char **local_variable_texts;
+extern int  File_sp;
 
 extern int32 token_value;
 extern int   token_type;
@@ -2334,10 +2377,13 @@ extern void describe_token(token_data t);
 extern void construct_local_variable_tables(void);
 extern void declare_systemfile(void);
 extern int  is_systemfile(void);
+extern void declare_alternate_source(char *name, int line, int flag);
 extern void report_errors_at_current_line(void);
 extern dbgl get_current_dbgl(void);
 extern dbgl get_error_report_dbgl(void);
 extern int32 get_current_line_start(void);
+extern void terminate_file(void);
+extern void print_main_line(void);
 
 extern void put_token_back(void);
 extern void get_next_token(void);
@@ -2382,8 +2428,8 @@ extern int32 MAX_STATIC_STRINGS, MAX_ZCODE_SIZE, MAX_LINK_DATA_SIZE,
            MAX_TRANSCRIPT_SIZE,  MAX_INDIV_PROP_TABLE_SIZE,
            MAX_NUM_STATIC_STRINGS;
 
-extern int32 MAX_OBJ_PROP_COUNT, MAX_OBJ_PROP_TABLE_SIZE;
-extern int MAX_LOCAL_VARIABLES, MAX_GLOBAL_VARIABLES;
+extern int32 MAX_OBJ_PROP_TABLE_SIZE;
+extern int MAX_LOCAL_VARIABLES, MAX_GLOBAL_VARIABLES, MAX_OBJ_PROP_COUNT;
 extern int DICT_WORD_SIZE, NUM_ATTR_BYTES;
 
 extern void *my_malloc(int32 size, char *whatfor);
@@ -2430,7 +2476,7 @@ extern void make_object(int nearby_flag,
 extern void make_class(char *metaclass_name);
 extern int  object_provides(int obj, int id);
 extern void list_object_tree(void);
-extern void write_the_identifier_names(void);
+extern void make_objectloop_lists(void);
 
 /* ------------------------------------------------------------------------- */
 /*   Extern definitions for "symbols"                                        */
@@ -2457,11 +2503,13 @@ extern char *typename(int type);
 extern int hash_code_from_string(char *p);
 extern int strcmpcis(char *p, char *q);
 extern int symbol_index(char *lexeme_text, int hashcode);
+extern void end_symbol_scope(int k);
 extern void describe_symbol(int k);
 extern void list_symbols(int level);
 extern void assign_marked_symbol(int index, int marker, int32 value, int type);
 extern void assign_symbol(int index, int32 value, int type);
 extern void issue_unused_warnings(void);
+extern void write_the_identifier_names(void);
 
 /* ------------------------------------------------------------------------- */
 /*   Extern definitions for "syntax"                                         */
@@ -2471,6 +2519,7 @@ extern int   no_syntax_lines;
 
 extern void  panic_mode_error_recovery(void);
 extern int   parse_directive(int internal_flag);
+extern void  get_next_token_not_directive(void);
 extern void  parse_program(char *source);
 extern int32 parse_routine(char *source, int embedded_flag, char *name,
                  int veneer_flag, int r_symbol);
@@ -2525,6 +2574,7 @@ extern char  *all_text,    *all_text_top;
 extern int   no_abbreviations;
 extern int   abbrevs_lookup_table_made, is_abbreviation;
 extern uchar *abbreviations_at;
+extern uchar *abbreviations_gl;
 extern int  *abbrev_values;
 extern int  *abbrev_quality;
 extern int  *abbrev_freqs;

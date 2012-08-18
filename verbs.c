@@ -2,7 +2,7 @@
 /*   "verbs" :  Manages actions and grammar tables; parses the directives    */
 /*              Verb and Extend.                                             */
 /*                                                                           */
-/*   Part of Inform 6.31                                                     */
+/*   Part of Inform 6.40                                                     */
 /*   copyright (c) Graham Nelson 1993 - 2006                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
@@ -135,6 +135,7 @@ extern void make_fake_action(void)
 
     if (!(sflags[i] & UNKNOWN_SFLAG))
     {   ebf_error("new fake action name", token_text);
+        duplicate_error();
         panic_mode_error_recovery(); return;
     }
 
@@ -197,7 +198,7 @@ extern assembly_operand action_of_name(char *name)
 }
 
 extern void find_the_actions(void)
-{   int i; int32 j;
+{   int i; int32 j, k;
     char action_sub[MAX_IDENTIFIER_LENGTH+4];
 
     if (module_switch)
@@ -205,10 +206,16 @@ extern void find_the_actions(void)
     else
     for (i=0; i<no_actions; i++)
     {   strcpy(action_sub, (char *) symbs[action_symbol[i]]);
+        k = symbol_index(action_sub, -1);
         strcpy(action_sub + strlen(action_sub) - 3, "Sub");
         j = symbol_index(action_sub, -1);
-        if (sflags[j] & UNKNOWN_SFLAG)
-            error_named("There is no action routine called", action_sub);
+        if (sflags[j] & UNKNOWN_SFLAG) {
+            if (!(sflags[j] & UERROR_SFLAG))
+                {   sflags[j] |= UERROR_SFLAG;
+                    error_named_at("There is no action routine called",
+                        action_sub, slines[k]);
+                }
+        }
         else
         if (stypes[j] != ROUTINE_T)
             error_named("Not an action routine:", action_sub);
@@ -234,7 +241,7 @@ static int make_adjective(char *English_word)
         This routine is used only in grammar version 1: the corresponding
         table is left empty in GV2.                                          */
 
-    int i; 
+    int i;
     uchar new_sort_code[MAX_DICT_WORD_SIZE];
 
     if (no_adjectives >= MAX_ADJECTIVES)
@@ -321,6 +328,13 @@ static void register_verb(char *English_verb, int number)
     English_verb_list_top += English_verb_list_top[0];
 }
 
+static int token_quoted(void)
+{
+    if (incompatibility_switch && (token_type == DQ_TT))
+        ebf_error("single-quoted string", "double-quoted string");
+    return ((token_type == DQ_TT) || (token_type == SQ_TT));
+}
+
 static int get_verb(void)
 {
     /*  Look at the last-read token: if it's the name of an English verb
@@ -329,7 +343,7 @@ static int get_verb(void)
 
     int j;
 
-    if ((token_type == DQ_TT) || (token_type == SQ_TT))
+    if (token_quoted())
     {   j = find_or_renumber_verb(token_text, NULL);
         if (j==-1)
             error_named("There is no previous grammar for the verb",
@@ -445,7 +459,7 @@ into Inform, so suggest rewriting grammar using general parsing routines");
         }
         else last_was_slash = FALSE;
 
-        if ((token_type == DQ_TT) || (token_type == SQ_TT))
+        if (token_quoted())
         {    if (grammar_version_number == 1)
                  bytecode = make_adjective(token_text);
              else
@@ -596,7 +610,7 @@ tokens in any line (unless you're compiling with library 6/3 or later)");
     get_next_token();
     dont_enter_into_symbol_table = FALSE;
 
-    if (token_type != DQ_TT)
+    if (token_type != DQ_TT || token_value != 1)
     {   ebf_error("name of new or existing action", token_text);
         panic_mode_error_recovery();
         return FALSE;
@@ -660,7 +674,7 @@ extern void make_verb(void)
         get_next_token();
     }
 
-    while ((token_type == DQ_TT) || (token_type == SQ_TT))
+    while (token_quoted())
     {   English_verbs_given[no_given++] = token_text;
         get_next_token();
     }
@@ -731,7 +745,7 @@ extern void extend_verb(void)
         if (no_Inform_verbs == MAX_VERBS)
             memoryerror("MAX_VERBS", MAX_VERBS);
         while (get_next_token(),
-               ((token_type == DQ_TT) || (token_type == SQ_TT)))
+               token_quoted())
         {   Inform_verb = get_verb();
             if (Inform_verb == -1) return;
             if ((l!=-1) && (Inform_verb!=l))

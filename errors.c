@@ -2,7 +2,7 @@
 /*   "errors" : Warnings, errors and fatal errors                            */
 /*              (with error throwback code for RISC OS machines)             */
 /*                                                                           */
-/*   Part of Inform 6.31                                                     */
+/*   Part of Inform 6.40                                                     */
 /*   copyright (c) Graham Nelson 1993 - 2006                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
@@ -10,6 +10,13 @@
 #include "header.h"
 
 static char error_message_buff[256];
+
+#define MAX_MESSAGES 600
+char **message_native;
+char **message_translated;
+static char *translations;
+static char *translations_end;
+int no_translations;
 
 /* ------------------------------------------------------------------------- */
 /*   Error preamble printing.                                                */
@@ -33,29 +40,88 @@ static void print_preamble(void)
     else p = InputFiles[j-1].filename;
 
     if (!p) p = ""; /* ###-call me paranoid */
-    
+
     switch(error_format)
     {
         case 0:  /* RISC OS error message format */
+        case 5:  /* Reversed RISC OS format */
 
-            if (!(ErrorReport.main_flag)) printf("\"%s\", ", p);
-            printf("line %d: ", ErrorReport.line_number);
+            if (ErrorReport.fakename)
+                if (error_format < 5)
+                    printf("\"%s\", line %d: [via \"%s\", line %d] ",
+                        ErrorReport.fakename, ErrorReport.fake_number,
+                        p, ErrorReport.line_number);
+                else
+                    printf("\"%s\", line %d: [from \"%s\", line %d] ",
+                        p, ErrorReport.line_number,
+                        ErrorReport.fakename, ErrorReport.fake_number);
+            else
+            {   if (!(ErrorReport.main_flag))
+                    printf("\"%s\", ", p);
+                printf(tx("line %d: "), ErrorReport.line_number);
+            }
             break;
 
         case 1:  /* Microsoft error message format */
+        case 6:  /* Reversed Microsoft format */
 
-            for (j=0; p[j]!=0; j++)
-            {   if (p[j] == FN_SEP) with_extension_flag = TRUE;
-                if (p[j] == '.') with_extension_flag = FALSE;
+            if (ErrorReport.fakename)
+                if (error_format < 5)
+                    printf("%s(%d): [via %s(%d)] ",
+                        ErrorReport.fakename, ErrorReport.fake_number,
+                        p, ErrorReport.line_number);
+                else
+                    printf("%s(%d): [from %s(%d)] ",
+                        p, ErrorReport.line_number,
+                        ErrorReport.fakename, ErrorReport.fake_number);
+            else
+            {   for (j=0; p[j]!=0; j++)
+                {   if (p[j] == FN_SEP) with_extension_flag = TRUE;
+                    if (p[j] == '.') with_extension_flag = FALSE;
+                }
+                printf("%s", p);
+                if (with_extension_flag) printf("%s", Source_Extension);
+                printf("(%d): ", ErrorReport.line_number);
             }
-            printf("%s", p);
-            if (with_extension_flag) printf("%s", Source_Extension);
-            printf("(%d): ", ErrorReport.line_number);
             break;
 
         case 2:  /* Macintosh Programmer's Workshop error message format */
+        case 7:  /* Reversed Macintosh Programmer's Workshop format */
 
-            printf("File \"%s\"; Line %d\t# ", p, ErrorReport.line_number);
+            if (ErrorReport.fakename)
+                if (error_format < 5)
+                    printf("File \"%s\"; Line %d\t# [via \"%s\"; %d] ",
+                        ErrorReport.fakename, ErrorReport.fake_number,
+                        p, ErrorReport.line_number);
+                else
+                    printf("File \"%s\"; Line %d\t# [from \"%s\"; %d] ",
+                        p, ErrorReport.line_number,
+                        ErrorReport.fakename, ErrorReport.fake_number);
+            else
+                printf(tx("File \"%s\"; Line %d\t# "), p, ErrorReport.line_number);
+            break;
+
+        case 3:  /* GCC error message format */
+        case 8:  /* Reversed GCC format */
+
+            if (ErrorReport.fakename)
+                if (error_format < 5)
+                    printf("%s:%d: [via %s:%d] ",
+                        ErrorReport.fakename, ErrorReport.fake_number,
+                        p, ErrorReport.line_number);
+                else
+                    printf("%s:%d: [from %s:%d] ",
+                        p, ErrorReport.line_number,
+                        ErrorReport.fakename, ErrorReport.fake_number);
+            else
+            {   for (j=0; p[j]!=0; j++)
+                {   if (p[j] == FN_SEP) with_extension_flag = TRUE;
+                    if (p[j] == '.') with_extension_flag = FALSE;
+                }
+                printf("%s", p);
+                if (with_extension_flag) printf("%s", Source_Extension);
+                printf(":%d: ", ErrorReport.line_number);
+            }
             break;
     }
 }
@@ -80,7 +146,7 @@ static void trim_text(char *s)
 extern void fatalerror(char *s)
 {   print_preamble();
 
-    printf("Fatal error: %s\n",s);
+    printf("%s %s\n",tx("Fatal error:"),tx(s));
     if (no_compiler_errors > 0) print_sorry_message();
 
 #ifdef ARC_THROWBACK
@@ -101,27 +167,27 @@ extern void fatalerror(char *s)
 
 extern void fatalerror_named(char *m, char *fn)
 {   trim_text(fn);
-    sprintf(error_message_buff, "%s \"%s\"", m, trimmed_text);
+    sprintf(error_message_buff, "%s \"%s\"", tx(m), trimmed_text);
     fatalerror(error_message_buff);
 }
 
 extern void memory_out_error(int32 size, int32 howmany, char *name)
 {   if (howmany == 1)
         sprintf(error_message_buff,
-            "Run out of memory allocating %d bytes for %s", size, name);
+            tx("Run out of memory allocating %d bytes for %s"), size, tx(name));
     else
         sprintf(error_message_buff,
-            "Run out of memory allocating array of %dx%d bytes for %s",
-                howmany, size, name);
+            tx("Run out of memory allocating array of %dx%d bytes for %s"),
+                howmany, size, tx(name));
     fatalerror(error_message_buff);
 }
 
 extern void memoryerror(char *s, int32 size)
 {
     sprintf(error_message_buff,
-        "The memory setting %s (which is %ld at present) has been \
+        tx("The memory setting %s (which is %ld at present) has been \
 exceeded.  Try running Inform again with $%s=<some-larger-number> on the \
-command line.",s,(long int) size,s);
+command line."),s,(long int) size,s);
     fatalerror(error_message_buff);
 }
 
@@ -148,14 +214,14 @@ static void message(int style, char *s)
     hash_printed_since_newline = FALSE;
     print_preamble();
     switch(style)
-    {   case 1: printf("Error: "); no_errors++; break;
-        case 2: printf("Warning: "); no_warnings++; break;
+    {   case 1: printf(tx("Error: ")); no_errors++; break;
+        case 2: printf(tx("Warning: ")); no_warnings++; break;
         case 3: printf("Error:  [linking '%s']  ", current_module_filename);
                 no_link_errors++; no_errors++; throw_style=1; break;
         case 4: printf("*** Compiler error: ");
                 no_compiler_errors++; throw_style=1; break;
     }
-    printf(" %s\n", s);
+    printf(" %s\n", tx(s));
 #ifdef ARC_THROWBACK
     throwback(throw_style, s);
 #endif
@@ -183,7 +249,8 @@ static void message(int style, char *s)
 /* ------------------------------------------------------------------------- */
 
 extern void error(char *s)
-{   if (no_errors == MAX_ERRORS)
+{   if (dont_enter_into_symbol_table <= -2) return;
+    if (no_errors == MAX_ERRORS)
         fatalerror("Too many errors: giving up");
     errors[no_errors] = no_syntax_lines;
     message(1,s);
@@ -191,13 +258,13 @@ extern void error(char *s)
 
 extern void error_named(char *s1, char *s2)
 {   trim_text(s2);
-    sprintf(error_message_buff,"%s \"%s\"",s1,trimmed_text);
+    sprintf(error_message_buff,"%s \"%s\"",tx(s1),trimmed_text);
     error(error_message_buff);
 }
 
 extern void error_numbered(char *s1, int val)
 {
-    sprintf(error_message_buff,"%s %d.",s1,val);
+    sprintf(error_message_buff,"%s %d.",tx(s1),val);
     error(error_message_buff);
 }
 
@@ -212,7 +279,7 @@ extern void error_named_at(char *s1, char *s2, int32 report_line)
     }
 
     trim_text(s2);
-    sprintf(error_message_buff,"%s \"%s\"",s1,trimmed_text);
+    sprintf(error_message_buff,"%s \"%s\"",tx(s1),trimmed_text);
 
     i = concise_switch; concise_switch = TRUE;
     error(error_message_buff);
@@ -225,7 +292,7 @@ extern void no_such_label(char *lname)
 
 extern void ebf_error(char *s1, char *s2)
 {   trim_text(s2);
-    sprintf(error_message_buff, "Expected %s but found %s", s1, trimmed_text);
+    sprintf(error_message_buff, tx("Expected %s but found %s"), tx(s1), tx(trimmed_text));
     error(error_message_buff);
 }
 
@@ -234,6 +301,7 @@ extern void char_error(char *s, int ch)
 
     uni = iso_to_unicode(ch);
 
+    s = tx(s);
     if (uni >= 0x100)
     {   sprintf(error_message_buff,
             "%s (unicode) $%04x = (ISO %s) $%02x", s, uni,
@@ -252,6 +320,7 @@ extern void char_error(char *s, int ch)
 
 extern void unicode_char_error(char *s, int32 uni)
 {
+    s = tx(s);
     if (uni >= 0x100)
         sprintf(error_message_buff, "%s (unicode) $%04x", s, uni);
     else
@@ -265,6 +334,18 @@ extern void unicode_char_error(char *s, int32 uni)
     error(error_message_buff);
 }
 
+extern void duplicate_error(void)
+/* #CK# - redo as a standard error and move calls before other error */
+{   char * j;
+    if (token_type == SYMBOL_TT) {
+        if (slines[token_value]>0) j=InputFiles[slines[token_value]/0x10000-1].filename;
+        else j="";
+        printf("> \"%s\" is a previously declared %s at \"%s\" line %d.\n",
+            (char *) symbs[token_value], typename(stypes[token_value]), j,
+            slines[token_value]%0x10000);
+    }
+}
+
 /* ------------------------------------------------------------------------- */
 /*   Style 2: Warning message routines                                       */
 /* ------------------------------------------------------------------------- */
@@ -276,7 +357,7 @@ extern void warning(char *s1)
 
 extern void warning_numbered(char *s1, int val)
 {   if (nowarnings_switch) { no_suppressed_warnings++; return; }
-    sprintf(error_message_buff,"%s %d.", s1, val);
+    sprintf(error_message_buff,"%s %d.", tx(s1), val);
     message(2,error_message_buff);
 }
 
@@ -284,7 +365,7 @@ extern void warning_named(char *s1, char *s2)
 {
     trim_text(s2);
     if (nowarnings_switch) { no_suppressed_warnings++; return; }
-    sprintf(error_message_buff,"%s \"%s\"", s1, trimmed_text);
+    sprintf(error_message_buff,"%s \"%s\"", tx(s1), trimmed_text);
     message(2,error_message_buff);
 }
 
@@ -297,7 +378,7 @@ extern void dbnu_warning(char *type, char *name, int32 report_line)
         ErrorReport.line_number = report_line%0x10000;
         ErrorReport.main_flag = (ErrorReport.file_number == 1);
     }
-    sprintf(error_message_buff, "%s \"%s\" declared but not used", type, name);
+    sprintf(error_message_buff, tx("%s \"%s\" declared but not used"), tx(type), name);
     i = concise_switch; concise_switch = TRUE;
     message(2,error_message_buff);
     concise_switch = i;
@@ -308,8 +389,11 @@ extern void obsolete_warning(char *s1)
 {   if (is_systemfile()==1) return;
     if (obsolete_switch || nowarnings_switch)
     {   no_suppressed_warnings++; return; }
-    sprintf(error_message_buff, "Obsolete usage: %s",s1);
-    message(2,error_message_buff);
+    sprintf(error_message_buff, tx("Obsolete usage: %s"),tx(s1));
+    if (incompatibility_switch)
+        error(error_message_buff);
+    else
+        message(2,error_message_buff);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -324,7 +408,7 @@ extern void link_error(char *s)
 
 extern void link_error_named(char *s1, char *s2)
 {   trim_text(s2);
-    sprintf(error_message_buff,"%s \"%s\"",s1,trimmed_text);
+    sprintf(error_message_buff,"%s \"%s\"",tx(s1),trimmed_text);
     link_error(error_message_buff);
 }
 
@@ -339,7 +423,7 @@ extern void print_sorry_message(void)
 * This is version %d.%02d of Inform, dated %20s: so      *\n\
 * if that was more than six months ago, there may be a more recent    *\n\
 * version available, from which the problem may have been removed.    *\n\
-* If not, please report this fault to:   graham@gnelson.demon.co.uk   *\n\
+* If not, please report this fault to: inform-maintenance@plover.net  *\n\
 * and if at all possible, please include your source code, as faults  *\n\
 * such as these are rare and often difficult to reproduce.  Sorry.    *\n\
 ***********************************************************************\n",
@@ -359,7 +443,7 @@ extern int compiler_error_named(char *s1, char *s2)
 {   if (no_link_errors > 0) return FALSE;
     if (no_errors > 0) return FALSE;
     trim_text(s2);
-    sprintf(error_message_buff,"%s \"%s\"",s1,trimmed_text);
+    sprintf(error_message_buff,"%s \"%s\"",tx(s1),trimmed_text);
     compiler_error(error_message_buff);
     return TRUE;
 }
@@ -412,6 +496,89 @@ extern void throwback(int severity, char * error)
 
 #endif
 
+/* ------------------------------------------------------------------------- */
+/*   Message translation for non-English compilation                         */
+/* ------------------------------------------------------------------------- */
+
+static void read_translation_file(void)
+{   FILE *translation;
+    char tline[260];
+    int32 tsize;
+    int expect_new = 0;
+
+    no_translations = 0;
+    translation = fopen(Translation_Name, "r");
+    if (translation == NULL)
+    {   char trans_name[PATHLEN];
+        int start = 0;
+        do
+        {   start = write_translated_name(
+                trans_name, Translation_Name, Include_Path, start, "");
+            translation = fopen(trans_name, "r");
+        } while ((translation == NULL) && (start != 0));
+    }
+
+    translations = NULL;
+    message_translated = NULL;
+    message_native = NULL;
+    if (translation==NULL) return;
+
+    fseek(translation, 0, SEEK_END); tsize=ftell(translation);
+    fseek(translation, 0, SEEK_SET);
+    translations
+            = my_malloc(tsize + 100, "error message translations");
+    translations_end = translations;
+    message_translated = my_calloc(sizeof(char *), MAX_MESSAGES, "translation results");
+    message_native = my_calloc(sizeof(char *), MAX_MESSAGES, "translation keys");
+
+    while (!feof(translation))
+    {   if (file_read_line(tline,260,translation)==0) break;
+        if (tline[strlen(tline)-1] == '_')
+            tline[strlen(tline)-1] = ' ';
+        /*if (translations_end + strlen(tline) >= translations+tsize)
+        {   compiler_error("Exceeded translation buffer maximum.");
+            break;
+        }*/
+        if (no_translations >= MAX_MESSAGES)
+        {   error("Exceeded translation maximum.");
+            break;
+        }
+        switch (tline[0])
+        {   case '!':
+            case 0:
+            case '\n':
+                break;
+            case '>':
+                if (strlen(tline) < 2) break;
+                if (!expect_new)
+                {   printf("Multiple-line translations not allowed in %s:\n %s\n", Translation_Name, tline);
+                    break;
+                }
+                strcpy((char *) translations_end, tline+1);
+                message_translated[no_translations++] = translations_end;
+                translations_end += strlen(tline) + 1;
+                expect_new = FALSE;
+                break;
+            default:
+                if (tx(tline) != tline) printf("Duplicate message: %s\n", tline);
+                strcpy((char *) translations_end, tline);
+                message_native[no_translations] = translations_end;
+                translations_end += strlen(tline) + 1;
+                expect_new = TRUE;
+                break;
+        }
+    }
+    fclose(translation);
+}
+
+extern char *tx(char *native)
+{   int i;
+    for (i=0; i<no_translations; i++)
+        if (strcmp(native, message_native[i]) == 0)
+            return message_translated[i];
+    return native;
+}
+
 /* ========================================================================= */
 /*   Data structure management routines                                      */
 /* ------------------------------------------------------------------------- */
@@ -420,6 +587,7 @@ extern void init_errors_vars(void)
 {   forerrors_buff = NULL;
     no_errors = 0; no_warnings = 0; no_suppressed_warnings = 0;
     no_compiler_errors = 0;
+    read_translation_file();
 }
 
 extern void errors_begin_pass(void)
@@ -435,6 +603,9 @@ extern void errors_allocate_arrays(void)
 
 extern void errors_free_arrays(void)
 {   my_free(&forerrors_buff, "errors buffer");
+    my_free(&translations, "error message translations");
+    my_free(&message_translated, "translation results");
+    my_free(&message_native, "translation keys");
 }
 
 /* ========================================================================= */

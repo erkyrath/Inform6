@@ -1,7 +1,7 @@
 /* ------------------------------------------------------------------------- */
 /*   "lexer" : Lexical analyser                                              */
 /*                                                                           */
-/*   Part of Inform 6.31                                                     */
+/*   Part of Inform 6.40                                                     */
 /*   copyright (c) Graham Nelson 1993 - 2006                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
@@ -250,20 +250,20 @@ static char *opcode_list_z[] = {
 static char *opcode_list_g[] = {
     "nop", "add", "sub", "mul", "div", "mod", "neg", "bitand", "bitor",
     "bitxor", "bitnot", "shiftl", "sshiftr", "ushiftr", "jump", "jz",
-    "jnz", "jeq", "jne", "jlt", "jge", "jgt", "jle", 
-    "jltu", "jgeu", "jgtu", "jleu", 
+    "jnz", "jeq", "jne", "jlt", "jge", "jgt", "jle",
+    "jltu", "jgeu", "jgtu", "jleu",
     "call", "return",
-    "catch", "throw", "tailcall", 
+    "catch", "throw", "tailcall",
     "copy", "copys", "copyb", "sexs", "sexb", "aload",
     "aloads", "aloadb", "aloadbit", "astore", "astores", "astoreb",
     "astorebit", "stkcount", "stkpeek", "stkswap", "stkroll", "stkcopy",
-    "streamchar", "streamnum", "streamstr", 
+    "streamchar", "streamnum", "streamstr",
     "gestalt", "debugtrap", "getmemsize", "setmemsize", "jumpabs",
     "random", "setrandom", "quit", "verify",
     "restart", "save", "restore", "saveundo", "restoreundo", "protect",
     "glk", "getstringtbl", "setstringtbl", "getiosys", "setiosys",
     "linearsearch", "binarysearch", "linkedsearch",
-    "callf", "callfi", "callfii", "callfiii", 
+    "callf", "callfi", "callfii", "callfiii",
     ""
 };
 
@@ -274,7 +274,7 @@ keyword_group directives =
     "iffalse", "import", "include", "link", "lowstring", "message",
     "nearby", "object", "property", "release", "replace",
     "serial", "switches", "statusline", "stub", "system_file", "trace",
-    "verb", "version", "zcharacter",
+    "undef", "verb", "version", "zcharacter",
     "" },
     DIRECTIVE_TT, FALSE, FALSE
 };
@@ -313,11 +313,11 @@ keyword_group misc_keywords =
 };
 
 keyword_group statements =
-{ { "box", "break", "continue", "default", "do", "else", "font", "for",
-    "give", "if", "inversion", "jump", "move", "new_line", "objectloop",
-    "print", "print_ret", "quit", "read", "remove", "restore", "return",
-    "rfalse", "rtrue", "save", "spaces", "string", "style", "switch",
-    "until", "while", "" },
+{ { "assert", "box", "break", "continue", "default", "do", "else", "font",
+    "for", "give", "if", "inversion", "jump", "move", "new_line",
+    "objectloop", "print", "print_ret", "quit", "read", "remove", "restore",
+    "return", "rfalse", "rtrue", "save", "spaces", "string", "style",
+    "switch", "until", "while", "" },
     STATEMENT_TT, FALSE, TRUE
 };
 
@@ -487,7 +487,7 @@ extern void construct_local_variable_tables(void)
         strcpy(p, q);
         p += strlen(p)+1;
     }
-    for (;i<MAX_LOCAL_VARIABLES-1;i++) 
+    for (;i<MAX_LOCAL_VARIABLES-1;i++)
       local_variable_texts[i] = "<no such local variable>";
 }
 
@@ -600,7 +600,7 @@ static int tokeniser_grid[256];
 /*  This list cannot safely be changed without also changing the header
     separator #defines.  The ordering is significant in that (i) all entries
     beginning with the same character must be adjacent and (ii) that if
-    X is a an initial substring of Y then X must come before Y.
+    X is an initial substring of Y then X must come before Y.
 
     E.g. --> must occur before -- to prevent "-->0" being tokenised
     wrongly as "--", ">", "0" rather than "-->", "0".                        */
@@ -713,10 +713,15 @@ static void make_tokeniser_grid(void)
 
 typedef struct LexicalBlock_s
 {   char *filename;                              /*  Full translated name    */
+    char *fakename;                              /*  Alternative file name   */
     int   main_flag;                             /*  TRUE if the main file
                                                      (the first one opened)  */
     int   sys_flag;                              /*  TRUE if a System_File   */
+    int   fake_incr;                             /*  amount by which to
+                                                     increment fake_line
+                                                     for each line read      */
     int   source_line;                           /*  Line number count       */
+    int   fake_line;                             /*  Alternative line number */
     int   line_start;                            /*  Char number within file
                                                      where the current line
                                                      starts                  */
@@ -727,13 +732,13 @@ typedef struct LexicalBlock_s
 } LexicalBlock;
 
 static LexicalBlock NoFileOpen =
-{   "<before compilation>", FALSE, FALSE, 0, 0, 0, 255 };
+{   "<before compilation>", NULL, FALSE, FALSE, 0, 0, 0, 0, 0, 255 };
 
 static LexicalBlock MakingOutput =
-{   "<constructing output>", FALSE, FALSE, 0, 0, 0, 255 };
+{   "<constructing output>", NULL, FALSE, FALSE, 0, 0, 0, 0, 0, 255 };
 
 static LexicalBlock StringLB =
-{   "<veneer routine>", FALSE, TRUE, 0, 0, 0, 255 };
+{   "<veneer routine>", NULL, FALSE, TRUE, 0, 0, 0, 0, 0, 255 };
 
 static LexicalBlock *CurrentLB;                  /*  The current lexical
                                                      block of input text     */
@@ -744,6 +749,28 @@ extern void declare_systemfile(void)
 
 extern int is_systemfile(void)
 {   return ((CurrentLB->sys_flag)?1:0);
+}
+
+extern void declare_alternate_source(char *name, int line, int flag)
+{
+    if (name && line < 0)
+        fatalerror("bad call to declare_alternate_source()");
+    if (line == -1)
+    {
+        if (CurrentLB->fakename)
+            my_free(CurrentLB->fakename, "fake filename");
+        CurrentLB->fakename = NULL;
+        CurrentLB->fake_line = 0;
+    }
+    else {
+        if (name != NULL)
+        {   if (CurrentLB->fakename)
+                my_free(&CurrentLB->fakename, "fake filename");
+            CurrentLB->fakename = name;
+        }
+        if (line != 0) CurrentLB->fake_line = line;
+        CurrentLB->fake_incr = flag;
+    }
 }
 
 extern dbgl get_current_dbgl(void)
@@ -761,10 +788,12 @@ static dbgl ErrorReport_dbgl;
 
 extern void report_errors_at_current_line(void)
 {   ErrorReport.line_number = CurrentLB->source_line;
+    ErrorReport.fake_number = CurrentLB->fake_line;
     ErrorReport.file_number = CurrentLB->file_no;
     if (ErrorReport.file_number == 255)
         ErrorReport.file_number = -1;
     ErrorReport.source      = CurrentLB->filename;
+    ErrorReport.fakename    = CurrentLB->fakename;
     ErrorReport.main_flag   = CurrentLB->main_flag;
     if (debugfile_switch)
         ErrorReport_dbgl = get_current_dbgl();
@@ -808,6 +837,7 @@ static void reached_new_line(void)
     forerrors_pointer = 0;
 
     CurrentLB->source_line++;
+    if (CurrentLB->fake_line) CurrentLB->fake_line += CurrentLB->fake_incr;
     CurrentLB->line_start = CurrentLB->chars_read;
 
     total_source_line_count++;
@@ -837,7 +867,11 @@ static void reached_new_line(void)
 }
 
 static void new_syntax_line(void)
-{   if (source_to_analyse != NULL) forerrors_pointer = 0;
+{   if (source_to_analyse != NULL) {
+        forerrors_pointer = 1;
+        forerrors_buff[0] = current;
+        CurrentLB->source_line++;
+    }
     report_errors_at_current_line();
 }
 
@@ -854,7 +888,7 @@ static void new_syntax_line(void)
 /*                                                                           */
 /*   Note that file_load_chars(p, size) loads "size" bytes into buffer "p"   */
 /*   from the current input file.  If the file runs out, then if it was      */
-/*   the last source file 4 EOF characters are placed in the buffer: if it   */
+/*   the last source file 4 NUL characters are placed in the buffer: if it   */
 /*   was only an Include file ending, then a '\n' character is placed there  */
 /*   (essentially to force termination of any comment line) followed by      */
 /*   three harmless spaces.                                                  */
@@ -879,7 +913,7 @@ typedef struct Sourcefile_s
 } Sourcefile;
 
 static Sourcefile *FileStack;
-static int File_sp;                              /*  Stack pointer           */
+int File_sp;                                     /*  Stack pointer           */
 
 static Sourcefile *CF;                           /*  Top entry on stack      */
 
@@ -888,7 +922,7 @@ static int last_no_files;
 static void begin_buffering_file(int i, int file_no)
 {   int j, cnt; uchar *p;
 
-    if (i >= MAX_INCLUSION_DEPTH) 
+    if (i >= MAX_INCLUSION_DEPTH)
        memoryerror("MAX_INCLUSION_DEPTH",MAX_INCLUSION_DEPTH);
 
     p = (uchar *) FileStack[i].buffer;
@@ -907,9 +941,11 @@ static void begin_buffering_file(int i, int file_no)
     lookahead3 = source_to_iso_grid[p[2]];
     FileStack[i].read_pos = 3;
 
+    FileStack[i].LB.fake_line = 0;
     if (file_no==1) FileStack[i].LB.main_flag = TRUE;
                else FileStack[i].LB.main_flag = FALSE;
     FileStack[i].LB.sys_flag = FALSE;
+    FileStack[i].LB.fakename = NULL;
     FileStack[i].LB.source_line = 1;
     FileStack[i].LB.line_start = 0;
     FileStack[i].LB.chars_read = 3;
@@ -935,6 +971,17 @@ static void create_char_pipeline(void)
     File_sp = 0;
     begin_buffering_file(File_sp++, 1);
     pipeline_made = TRUE; last_no_files = input_file;
+}
+
+extern void terminate_file(void)
+{
+    CF->size = -(CF->read_pos);
+}
+
+extern void print_main_line(void)
+{
+    if (File_sp>0)
+        printf (tx(" from line %d"), FileStack[0].LB.source_line);
 }
 
 static int get_next_char_from_pipeline(void)
@@ -1008,7 +1055,7 @@ static int get_next_char_from_string(void)
     CurrentLB->chars_read++;
     if (forerrors_pointer < 511)
         forerrors_buff[forerrors_pointer++] = current;
-    if (current == '\n') reached_new_line();
+
     return(current);
 }
 
@@ -1060,6 +1107,13 @@ extern void get_next_token(void)
         {   j = circle[i].type;
             if ((j==0) || ((j>=100) && (j<200)))
                 interpret_identifier(i, FALSE);
+            else if (j==DQ_TT && (token_contexts[i] & 4096))
+            {
+                if (dont_enter_into_symbol_table)
+                    context |= 4096;
+                else
+                    interpret_identifier(i, FALSE);
+            }
         }
         goto ReturnBack;
     }
@@ -1088,7 +1142,10 @@ extern void get_next_token(void)
     circle[circle_position].line_ref = get_current_dbgl();
 
     switch(e)
-    {   case 0: char_error("Illegal character found in source:", d);
+    {   case 0:
+            if ((dont_enter_into_symbol_table <= -2) && (d == '\\'))
+                (*get_next_char)();
+            char_error("Illegal character found in source:", d);
             goto StartTokenAgain;
 
         case WHITESPACE_CODE:
@@ -1150,8 +1207,8 @@ extern void get_next_token(void)
                     }
                     break;
                 }
-            } while (d != EOF);
-            if (d==EOF) ebf_error("'\''", "end of file");
+            } while (tokeniser_grid[d] != EOF_CODE);
+            if (EOF_CODE == tokeniser_grid[d]) ebf_error("'\''", "end of file");
             *(lex_p-1) = 0;
             circle[circle_position].type = SQ_TT;
             break;
@@ -1169,14 +1226,19 @@ extern void get_next_token(void)
                 {   lex_p--;
                     while (*(lex_p-1) == ' ') lex_p--;
                     if (*(lex_p-1) != '^') *lex_p++ = ' ';
-                    while ((lookahead != EOF) &&
+                    while ((tokeniser_grid[lookahead] != EOF_CODE) &&
                           (tokeniser_grid[lookahead] == WHITESPACE_CODE))
                     (*get_next_char)();
                 }
                 else if (d == '\\')
                 {   int newline_passed = FALSE;
+                    if (dont_enter_into_symbol_table <= -2)
+                    {
+                        (*get_next_char)();
+                        continue;
+                    }
                     lex_p--;
-                    while ((lookahead != EOF) &&
+                    while ((tokeniser_grid[lookahead] != EOF_CODE) &&
                           (tokeniser_grid[lookahead] == WHITESPACE_CODE))
                         if ((d = (*get_next_char)()) == '\n')
                             newline_passed = TRUE;
@@ -1187,11 +1249,15 @@ extern void get_next_token(void)
                         ebf_error("empty rest of line after '\\' in string",
                             chb);
                     }
+                    obsolete_warning("'\\' at end of line");
                 }
-            }   while ((d != EOF) && (d!='\"'));
-            if (d==EOF) ebf_error("'\"'", "end of file");
+            }   while ((tokeniser_grid[d] != EOF_CODE) && (d!='\"'));
+            if (EOF_CODE == tokeniser_grid[d]) ebf_error("'\"'", "end of file");
             *(lex_p-1) = 0;
+            if (veneer_mode)
+                circle[circle_position].text = tx(circle[circle_position].text);
             circle[circle_position].type = DQ_TT;
+            circle[circle_position].value = 0;
             break;
 
         case IDENTIFIER_CODE:    /* Letter or underscore: an identifier */
@@ -1207,14 +1273,15 @@ extern void get_next_token(void)
             if (n > MAX_IDENTIFIER_LENGTH)
             {   char bad_length[100];
                 sprintf(bad_length,
-                    "Name exceeds the maximum length of %d characters:",
+                    tx("Name exceeds the maximum length of %d characters:"),
                          MAX_IDENTIFIER_LENGTH);
                 error_named(bad_length, circle[circle_position].text);
             }
 
             if (dont_enter_into_symbol_table)
             {   circle[circle_position].type = DQ_TT;
-                circle[circle_position].value = 0;
+                circle[circle_position].value = 1;
+                context |= 4096;
                 if (dont_enter_into_symbol_table == -2)
                     interpret_identifier(circle_position, TRUE);
                 break;

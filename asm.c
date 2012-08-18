@@ -1,7 +1,7 @@
 /* ------------------------------------------------------------------------- */
 /*   "asm" : The Inform assembler                                            */
 /*                                                                           */
-/*   Part of Inform 6.31                                                     */
+/*   Part of Inform 6.40                                                     */
 /*   copyright (c) Graham Nelson 1993 - 2006                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
@@ -42,11 +42,11 @@ int  sequence_point_follows;       /* Will the next instruction assembled    */
 dbgl debug_line_ref;               /* Source code ref of current statement   */
 
 
-int32 *variable_tokens;            /* The allocated size is 
+int32 *variable_tokens;            /* The allocated size is
                                       (MAX_LOCAL_VARIABLES +
-                                      MAX_GLOBAL_VARIABLES). The entries 
-                                      MAX_LOCAL_VARIABLES and up give the 
-                                      symbol table index for the names of 
+                                      MAX_GLOBAL_VARIABLES). The entries
+                                      MAX_LOCAL_VARIABLES and up give the
+                                      symbol table index for the names of
                                       the global variables                   */
 int *variable_usage;               /* TRUE if referred to, FALSE otherwise   */
 
@@ -119,7 +119,7 @@ extern void set_constant_ot(assembly_operand *AO)
       AO->type = ZEROCONSTANT_OT;
     else if (AO->value >= -0x80 && AO->value < 0x80)
       AO->type = BYTECONSTANT_OT;
-    else if (AO->value >= -0x8000 && AO->value < 0x8000) 
+    else if (AO->value >= -0x8000 && AO->value < 0x8000)
       AO->type = HALFCONSTANT_OT;
     else
       AO->type = CONSTANT_OT;
@@ -129,7 +129,7 @@ extern void set_constant_ot(assembly_operand *AO)
 extern int is_constant_ot(int otval)
 {
   if (!glulx_mode) {
-    return ((otval == LONG_CONSTANT_OT) 
+    return ((otval == LONG_CONSTANT_OT)
       || (otval == SHORT_CONSTANT_OT));
   }
   else {
@@ -210,19 +210,18 @@ static void print_operand_g(assembly_operand o)
   case BYTECONSTANT_OT: printf("byte_"); break;
   case ZEROCONSTANT_OT: printf("zero_"); return;
   case DEREFERENCE_OT: printf("*"); break;
-  case GLOBALVAR_OT: 
-    printf("%s (global_%d)", variable_name(o.value), o.value); 
+  case GLOBALVAR_OT:
+    printf("%s (global_%d)", variable_name(o.value), o.value);
     return;
-  case LOCALVAR_OT: 
+  case LOCALVAR_OT:
     if (o.value == 0)
-      printf("stackptr"); 
+      printf("stackptr");
     else
-      printf("%s (local_%d)", variable_name(o.value), o.value-1); 
+      printf("%s (local_%d)", variable_name(o.value), o.value-1);
     return;
   case SYSFUN_OT: printf("sysfun_"); break;
   case OMITTED_OT: printf("<no value>"); return;
-    /* case STACK_OT: printf("<sp>"); return; */
-  default: printf("???_"); break; 
+  default: printf("???_"); break;
   }
   printf("%d", o.value);
 }
@@ -253,7 +252,7 @@ static void byteout(int32 i, int mv)
 /* ------------------------------------------------------------------------- */
 
 typedef struct opcodez
-{   uchar *name;        /* Lower case standard name */
+{   uchar *name;      /* Lower case standard name */
     int version1;     /* Valid from this version number... */
     int version2;     /* ...until this one (or forever if this is 0) */
     int extension;    /* In later versions, see this line in extension table:
@@ -267,8 +266,8 @@ typedef struct opcodez
 } opcodez;
 
 typedef struct opcodeg
-{   uchar *name;        /* Lower case standard name */
-    int32 code;         /* Opcode number */
+{   uchar *name;      /* Lower case standard name */
+    int32 code;       /* Opcode number */
     int flags;        /* Flags (see below) */
     int op_rules;     /* Any unusual operand rule applying (see below) */
     int no;           /* Number of operands */
@@ -280,7 +279,7 @@ typedef struct opcodeg
 #define Br      2     /* Branch */
 #define Rf      4     /* "Return flag": execution never continues after this
                          opcode (e.g., is a return or unconditional jump) */
-#define St2 8     /* Store2 (second-to-last operand is store (Glulx)) */
+#define St2     8     /* Store2 (second-to-last operand is store (Glulx)) */
 
     /* Codes for any unusual operand assembly rules */
 
@@ -460,7 +459,7 @@ static opcodez invalid_opcode_z =
 
 static opcodez custom_opcode_z;
 
-/* Note that this table assumes that all opcodes have at most two 
+/* Note that this table assumes that all opcodes have at most two
    branch-label or store operands, and that if they exist, they are the
    last operands. Glulx does not actually guarantee this. But it is
    true for all opcodes in the current Glulx spec, so we will assume
@@ -604,7 +603,7 @@ static void make_opcode_syntax_z(opcodez opco)
 }
 
 static opcodeg internal_number_to_opcode_g(int32 i)
-{   
+{
     opcodeg x;
     if (i == -1) return custom_opcode_g;
     x = opcodes_table_g[i];
@@ -980,7 +979,7 @@ extern void assembleg_instruction(assembly_instruction *AI)
 
     /* 1. Write the opcode byte(s) */
 
-    start_pc = zcode_holding_area + zcode_ha_size; 
+    start_pc = zcode_holding_area + zcode_ha_size;
 
     if (opco.code < 0x80) {
       byteout(opco.code, 0);
@@ -997,7 +996,7 @@ extern void assembleg_instruction(assembly_instruction *AI)
     }
 
     /* ... and the operand addressing modes. There's one byte for
-       every two operands (rounded up). We write zeroes for now; 
+       every two operands (rounded up). We write zeroes for now;
        when the operands are written, we'll go back and fix them. */
 
     opmodes_pc = zcode_holding_area + zcode_ha_size;
@@ -1023,7 +1022,7 @@ extern void assembleg_instruction(assembly_instruction *AI)
         if ((opco.flags & Br) && (ix == no_operands_given-1)) {
             if (!(marker >= BRANCH_MV && marker < BRANCHMAX_MV)) {
                 compiler_error("Assembling branch without BRANCH_MV marker");
-                goto OpcodeSyntaxError; 
+                goto OpcodeSyntaxError;
             }
             if (k == -2) {
                 k = 2; /* branch no-op */
@@ -1042,35 +1041,35 @@ extern void assembleg_instruction(assembly_instruction *AI)
             }
             else {
                 /* branch to label k */
-                j = subtract_pointers((zcode_holding_area + zcode_ha_size), 
+                j = subtract_pointers((zcode_holding_area + zcode_ha_size),
                     opmodes_pc);
                 j = 2*j - ix;
                 marker = BRANCH_MV + j;
                 if (!(marker >= BRANCH_MV && marker < BRANCHMAX_MV)) {
                     error("*** branch marker too far from opmode byte ***");
-                    goto OpcodeSyntaxError; 
+                    goto OpcodeSyntaxError;
                 }
             }
         }
-    if ((opco.flags & St) 
+    if ((opco.flags & St)
       && ((!(opco.flags & Br) && (ix == no_operands_given-1))
       || ((opco.flags & Br) && (ix == no_operands_given-2)))) {
         if (type == BYTECONSTANT_OT || type == HALFCONSTANT_OT
             || type == CONSTANT_OT) {
             error("*** instruction tried to store to a constant ***");
-            goto OpcodeSyntaxError; 
+            goto OpcodeSyntaxError;
         }
     }
-    if ((opco.flags & St2) 
+    if ((opco.flags & St2)
         && (ix == no_operands_given-2)) {
         if (type == BYTECONSTANT_OT || type == HALFCONSTANT_OT
           || type == CONSTANT_OT) {
           error("*** instruction tried to store to a constant ***");
-          goto OpcodeSyntaxError; 
+          goto OpcodeSyntaxError;
         }
     }
 
-      if (marker && (type == HALFCONSTANT_OT 
+      if (marker && (type == HALFCONSTANT_OT
         || type == BYTECONSTANT_OT
         || type == ZEROCONSTANT_OT)) {
         compiler_error("Assembling marker in less than 32-bit constant.");
@@ -1141,14 +1140,14 @@ extern void assembleg_instruction(assembly_instruction *AI)
                 byteout(((k) >> 24) & 0xFF, 0);
                 byteout(((k) >> 16) & 0xFF, 0);
                 byteout(((k) >> 8) & 0xFF, 0);
-                byteout(((k) & 0xFF), 0);       
+                byteout(((k) & 0xFF), 0);
             }
         }
         break;
       case LOCALVAR_OT:
         if (k == 0) {
             /* Stack-pointer magic variable */
-            j = 8; 
+            j = 8;
         }
         else {
             /* Local variable -- a byte or short offset from the
@@ -1249,7 +1248,7 @@ extern int32 assemble_routine_header(int no_locals,
     routine_locals = no_locals;
     for (i=0; i<MAX_LOCAL_VARIABLES; i++) variable_usage[i] = FALSE;
 
-    if (no_locals >= 1 
+    if (no_locals >= 1
       && !strcmp(local_variables.keywords[0], "_vararg_count")) {
       stackargs = TRUE;
     }
@@ -1291,7 +1290,7 @@ extern int32 assemble_routine_header(int no_locals,
 
     if (!glulx_mode) {
 
-      if (stackargs) 
+      if (stackargs)
         warning("Z-code does not support stack-argument function definitions.");
 
       byteout(no_locals, 0);
@@ -1299,7 +1298,6 @@ extern int32 assemble_routine_header(int no_locals,
       /*  Not the packed address, but the scaled offset from code area start:  */
 
       rv = zmachine_pc/scale_factor;
-
       if (instruction_set_number<5)
           for (i=0; i<no_locals; i++) { byteout(0,0); byteout(0,0); }
 
@@ -1309,7 +1307,9 @@ extern int32 assemble_routine_header(int no_locals,
       /*  function is called, if it's required.                              */
 
       if ((routine_asterisked) || (define_INFIX_switch))
-      {   char fnt[80]; assembly_operand PV, RFA, CON, STP, SLF; int ln, ln2;
+      {
+          char fnt[MAX_IDENTIFIER_LENGTH + 10];
+          assembly_operand PV, RFA, CON, STP, SLF; int ln, ln2;
 
           ln = next_label++;
           ln2 = next_label++;
@@ -1370,7 +1370,7 @@ extern int32 assemble_routine_header(int no_locals,
         int j = i;
         if (j > 255)
           j = 255;
-        byteout(4, 0); 
+        byteout(4, 0);
         byteout(j, 0);
         i -= j;
       }
@@ -1385,16 +1385,45 @@ extern int32 assemble_routine_header(int no_locals,
         byteout(0x40, 0); byteout(0x98, 0); byteout(0x00, 0);
       }
 
-      next_label = 0; next_sequence_point = 0; last_label = -1; 
+      next_label = 0; next_sequence_point = 0; last_label = -1;
 
-      if (define_INFIX_switch) {
-        if (embedded_flag) {
-        }
-        else {
-            i = no_named_routines++;
-            named_routine_symbols[i] = the_symbol;
-        }
+      if ((routine_asterisked) || (define_INFIX_switch))
+      {   char fnt[80]; assembly_operand PV, CON, SLF; int ln2;
+
+          ln2 = next_label++;
+          if (define_INFIX_switch)
+          {
+            if (embedded_flag)
+            {   SLF.value = MAX_LOCAL_VARIABLES+4; SLF.type = GLOBALVAR_OT; SLF.marker = 0;
+                CON.value = 8; CON.type = BYTECONSTANT_OT; CON.marker = 0;
+            }
+            else
+            {   i = no_named_routines++;
+                  named_routine_symbols[i] = the_symbol;
+                CON.value = i; CON.type = CONSTANT_OT; CON.marker = 0;
+                SLF.value = routine_flags_array_SC;
+                SLF.type = CONSTANT_OT; SLF.marker = INCON_MV;
+            }
+            assembleg_3(aloadbit_gc, SLF, CON, stack_pointer);
+            assembleg_1_branch(jz_gc, stack_pointer, ln2);
+          }
+          CON.marker = STRING_MV; CON.type = CONSTANT_OT;
+          sprintf(fnt, "[ %s(", name);
+          CON.value  = compile_string(fnt, FALSE, FALSE);
+          assembleg_1(streamstr_gc, CON);
+          for (i=1; (i<=7)&&(i<=no_locals); i++)
+          {   sprintf(fnt, "%s%s = ", (i==1)?"":", ", variable_name(i));
+              CON.value  = compile_string(fnt, FALSE, FALSE);
+              assembleg_1(streamstr_gc, CON);
+              PV.type = LOCALVAR_OT; PV.value = i; PV.marker = 0;
+              assembleg_1(streamnum_gc, PV);
+          }
+          sprintf(fnt, ") ]^");
+          CON.value  = compile_string(fnt, FALSE, FALSE);
+          assembleg_1(streamstr_gc, CON);
+          assemble_label_no(ln2);
       }
+
     }
 
     return rv;
@@ -1411,16 +1440,16 @@ void assemble_routine_end(int embedded_flag, dbgl *line_ref)
     /* properties).                                                          */
 
     if (!execution_never_reaches_here)
-    {   
+    {
       if (!glulx_mode) {
         if (embedded_flag) assemblez_0(rfalse_zc);
                       else assemblez_0(rtrue_zc);
       }
       else {
         assembly_operand AO;
-        if (embedded_flag) 
+        if (embedded_flag)
             AO = zero_operand;
-        else 
+        else
             AO = one_operand;
         assembleg_1(return_gc, AO);
       }
@@ -1531,12 +1560,17 @@ static void transfer_routine_z(void)
         {   if (asm_trace_level >= 4)
                 printf("Branch detected at offset %04x\n", pc);
             j = (256*zcode_holding_area[i] + zcode_holding_area[i+1]) & 0x7fff;
+            addr = label_offsets[j]-pc;
             if (asm_trace_level >= 4)
                 printf("To label %d, which is %d from here\n",
-                    j, label_offsets[j]-pc);
-            if ((label_offsets[j] >= pc+2) && (label_offsets[j] < pc+64))
+                    j, addr);
+            if ((addr > 2) && (addr < 64))
             {   if (asm_trace_level >= 4) printf("Short form\n");
                 zcode_markers[i+1] = DELETED_MV;
+            }
+            else if (addr<-0x2000 || addr>0x1fff)
+            {   if (asm_trace_level >= 4) printf("Inverted branch and jump\n");
+                zcode_markers[i+1] = EXPANDED_MV;
             }
         }
     }
@@ -1567,6 +1601,7 @@ static void transfer_routine_z(void)
                 label = label_next[label];
             }
            if (zcode_markers[i] != DELETED_MV) new_pc++;
+           if (zcode_markers[i] == EXPANDED_MV) new_pc+=2;
         }
     }
 
@@ -1578,19 +1613,28 @@ static void transfer_routine_z(void)
     {   switch(zcode_markers[i])
         { case BRANCH_MV:
             long_form = 1; if (zcode_markers[i+1] == DELETED_MV) long_form = 0;
+            if (zcode_markers[i+1] == EXPANDED_MV) long_form = 3;
 
             j = (256*zcode_holding_area[i] + zcode_holding_area[i+1]) & 0x7fff;
             branch_on_true = ((zcode_holding_area[i]) & 0x80);
             offset_of_next = new_pc + long_form + 1;
 
             addr = label_offsets[j] - offset_of_next + 2;
-            if (addr<-0x2000 || addr>0x1fff) 
+            if (addr<-0x8000 || addr>0x7fff)
                 fatalerror("Branch out of range: divide the routine up?");
             if (addr<0) addr+=(int32) 0x10000L;
 
-            addr=addr&0x3fff;
-            if (long_form==1)
-            {   zcode_holding_area[i] = branch_on_true + addr/256;
+            if (long_form==3)
+            {   zcode_holding_area[i] = (0x80 ^ branch_on_true) + 0x40 + 5;
+                transfer_byte(zcode_holding_area + i); new_pc++;
+                zcode_holding_area[i] = 0x8c;
+                transfer_byte(zcode_holding_area + i); new_pc++;
+                zcode_holding_area[i] = addr/256;
+                zcode_holding_area[i+1] = addr%256;
+            }
+            else if (long_form==1)
+            {   addr=addr&0x3fff;
+                zcode_holding_area[i] = branch_on_true + addr/256;
                 zcode_holding_area[i+1] = addr%256;
             }
             else
@@ -1606,7 +1650,7 @@ static void transfer_routine_z(void)
           case LABEL_MV:
             j = 256*zcode_holding_area[i] + zcode_holding_area[i+1];
             addr = label_offsets[j] - new_pc;
-            if (addr<-0x8000 || addr>0x7fff) 
+            if (addr<-0x8000 || addr>0x7fff)
                 fatalerror("Jump out of range: divide the routine up?");
             if (addr<0) addr += (int32) 0x10000L;
             zcode_holding_area[i] = addr/256;
@@ -1619,7 +1663,8 @@ static void transfer_routine_z(void)
 
           default:
             switch(zcode_markers[i] & 0x7f)
-            {   case NULL_MV: break;
+            {   case EXPANDED_MV:
+                case NULL_MV: break;
                 case VARIABLE_MV:
                 case OBJECT_MV:
                 case ACTION_MV:
@@ -1692,7 +1737,7 @@ static void transfer_routine_g(void)
         int32 opmodebyte;
         if (asm_trace_level >= 4)
             printf("Branch detected at offset %04x\n", pc);
-        j = ((zcode_holding_area[i] << 24) 
+        j = ((zcode_holding_area[i] << 24)
             | (zcode_holding_area[i+1] << 16)
             | (zcode_holding_area[i+2] << 8)
             | (zcode_holding_area[i+3]));
@@ -1708,10 +1753,10 @@ static void transfer_routine_g(void)
             zcode_markers[i+3] = DELETED_MV;
             opmodebyte = i - ((opmodeoffset+1)/2);
             if ((opmodeoffset & 1) == 0)
-                zcode_holding_area[opmodebyte] = 
+                zcode_holding_area[opmodebyte] =
                     (zcode_holding_area[opmodebyte] & 0xF0) | 0x01;
             else
-                zcode_holding_area[opmodebyte] = 
+                zcode_holding_area[opmodebyte] =
                     (zcode_holding_area[opmodebyte] & 0x0F) | 0x10;
         }
         else if (addr >= -0x8000 && addr < 0x8000) {
@@ -1720,10 +1765,10 @@ static void transfer_routine_g(void)
             zcode_markers[i+3] = DELETED_MV;
             opmodebyte = i - ((opmodeoffset+1)/2);
             if ((opmodeoffset & 1) == 0)
-                zcode_holding_area[opmodebyte] = 
+                zcode_holding_area[opmodebyte] =
                     (zcode_holding_area[opmodebyte] & 0xF0) | 0x02;
             else
-                zcode_holding_area[opmodebyte] = 
+                zcode_holding_area[opmodebyte] =
                     (zcode_holding_area[opmodebyte] & 0x0F) | 0x20;
         }
       }
@@ -1745,7 +1790,7 @@ static void transfer_routine_g(void)
       }
 
       for (i=0, pc=adjusted_pc, new_pc=adjusted_pc, label = first_label;
-        i<zcode_ha_size; 
+        i<zcode_ha_size;
         i++, pc++) {
         while ((label != -1) && (label_offsets[label] == pc)) {
             if (asm_trace_level >= 4)
@@ -1773,7 +1818,7 @@ static void transfer_routine_g(void)
             if (zcode_markers[i+2] == DELETED_MV)
                 form_len = 2;
         }
-        j = ((zcode_holding_area[i] << 24) 
+        j = ((zcode_holding_area[i] << 24)
             | (zcode_holding_area[i+1] << 16)
             | (zcode_holding_area[i+2] << 8)
             | (zcode_holding_area[i+3]));
@@ -1818,7 +1863,7 @@ static void transfer_routine_g(void)
       }
       else {
         switch(zcode_markers[i] & 0x7f) {
-        case NULL_MV: 
+        case NULL_MV:
             break;
         case ACTION_MV:
         case IDENT_MV:
@@ -2095,7 +2140,7 @@ void assemblez_objcode(int internal_number,
 
 extern void assemblez_inc(assembly_operand o1)
 {   int m = 0;
-    if ((o1.value >= MAX_LOCAL_VARIABLES) 
+    if ((o1.value >= MAX_LOCAL_VARIABLES)
         && (o1.value<LOWEST_SYSTEM_VAR_NUMBER))
             m = VARIABLE_MV;
     AI.internal_number = inc_zc;
@@ -2110,7 +2155,7 @@ extern void assemblez_inc(assembly_operand o1)
 
 extern void assemblez_dec(assembly_operand o1)
 {   int m = 0;
-    if ((o1.value >= MAX_LOCAL_VARIABLES) 
+    if ((o1.value >= MAX_LOCAL_VARIABLES)
         && (o1.value<LOWEST_SYSTEM_VAR_NUMBER))
             m = VARIABLE_MV;
     AI.internal_number = dec_zc;
@@ -2174,7 +2219,7 @@ extern void assemblez_store(assembly_operand o1, assembly_operand o2)
     assemblez_instruction(&AI);
 }
 
-void assemblez_jump(int n)
+extern void assemblez_jump(int n)
 {   assembly_operand AO;
     if (n==-4) assemblez_0(rtrue_zc);
     else if (n==-3) assemblez_0(rfalse_zc);
@@ -2182,6 +2227,81 @@ void assemblez_jump(int n)
     {   AO.type = LONG_CONSTANT_OT; AO.value = n; AO.marker = 0;
         assemblez_1(jump_zc, AO);
     }
+}
+
+extern void assemblez_call_1(assembly_operand o1)
+{
+    if (version_number >= 5)
+      assemblez_1(call_1n_zc, o1);
+    else
+    if (version_number == 4)
+      assemblez_1_to(call_vs_zc, o1, temp_var4);
+    else
+      assemblez_1_to(call_zc, o1, temp_var4);
+}
+
+extern void assemblez_call_1_to(assembly_operand o1, assembly_operand st)
+{
+    if (version_number >= 5)
+      assemblez_1_to(call_1s_zc, o1, st);
+    else
+    if (version_number == 4)
+      assemblez_1_to(call_vs_zc, o1, st);
+    else
+      assemblez_1_to(call_zc, o1, st);
+}
+
+extern void assemblez_call_2(assembly_operand o1, assembly_operand o2)
+{
+    if (version_number >= 5)
+      assemblez_2(call_2n_zc, o1, o2);
+    else
+    if (version_number == 4)
+      assemblez_2_to(call_vs_zc, o1, o2, temp_var4);
+    else
+      assemblez_2_to(call_zc, o1, o2, temp_var4);
+}
+
+extern void assemblez_call_3(assembly_operand o1, assembly_operand o2,
+                             assembly_operand o3)
+{
+    if (version_number >= 5)
+      assemblez_3(call_vn_zc, o1, o2, o3);
+    else
+    if (version_number == 4)
+      assemblez_3_to(call_vs_zc, o1, o2, o3, temp_var4);
+    else
+      assemblez_3_to(call_zc, o1, o2, o3, temp_var4);
+}
+
+extern void assemblez_call_3_to(assembly_operand o1, assembly_operand o2,
+                                assembly_operand o3, assembly_operand st)
+{
+    if (version_number >= 4)
+      assemblez_3_to(call_vs_zc, o1, o2, o3, st);
+    else
+      assemblez_3_to(call_zc, o1, o2, o3, st);
+}
+
+extern void assemblez_call_4(assembly_operand o1, assembly_operand o2,
+                             assembly_operand o3, assembly_operand o4)
+{
+    if (version_number >= 5)
+      assemblez_4(call_vn_zc, o1, o2, o3, o4);
+    else
+    if (version_number == 4)
+      assemblez_4_to(call_vs_zc, o1, o2, o3, o4, temp_var4);
+    else
+      assemblez_4_to(call_zc, o1, o2, o3, o4, temp_var4);
+}
+
+extern void assemblez_call_4_to(assembly_operand o1, assembly_operand o2,
+                                assembly_operand o3, assembly_operand o4, assembly_operand st)
+{
+    if (version_number >= 4)
+      assemblez_4_to(call_vs_zc, o1, o2, o3, o4, st);
+    else
+      assemblez_4_to(call_zc, o1, o2, o3, o4, st);
 }
 
 void assembleg_0(int internal_number)
@@ -2261,7 +2381,7 @@ void assembleg_1_branch(int internal_number,
         if ((internal_number == jz_gc && o1.value == 0)
           || (internal_number == jnz_gc && o1.value != 0)) {
             assembleg_0_branch(jump_gc, label);
-            /* We clear the "can't reach statement" flag here, 
+            /* We clear the "can't reach statement" flag here,
                so that "if (1)" doesn't produce that warning. */
             execution_never_reaches_here = 0;
             return;
@@ -2294,95 +2414,22 @@ void assembleg_2_branch(int internal_number,
     assembleg_instruction(&AI);
 }
 
-void assembleg_call_1(assembly_operand oaddr, assembly_operand o1, 
+void assembleg_call_1(assembly_operand oaddr, assembly_operand o1,
   assembly_operand odest)
 {
   assembleg_3(callfi_gc, oaddr, o1, odest);
-  /* Copy argument to stack ptr, unless it's already there. 
-  if (!(o1.type == LOCALVAR_OT && o1.value == 0 && o1.marker == 0)) {
-    assembleg_2(copy_gc, o1, stack_pointer);
-  }
-  assembleg_3(call_gc, oaddr, one_operand, odest); */
 }
 
-void assembleg_call_2(assembly_operand oaddr, assembly_operand o1, 
+void assembleg_call_2(assembly_operand oaddr, assembly_operand o1,
   assembly_operand o2, assembly_operand odest)
 {
   assembleg_4(callfii_gc, oaddr, o1, o2, odest);
-  /* Copy arguments to stack ptr, unless they're already there. 
-  if (o1.type == LOCALVAR_OT && o1.value == 0 && o1.marker == 0) {
-    if (o2.type == LOCALVAR_OT && o2.value == 0 && o2.marker == 0) {
-    }
-    else {
-      assembleg_2(copy_gc, o2, stack_pointer);
-      assembleg_0(stkswap_gc);
-    }
-  }
-  else {
-    if (o2.type == LOCALVAR_OT && o2.value == 0 && o2.marker == 0) {
-      assembleg_2(copy_gc, o1, stack_pointer);
-    }
-    else {
-      assembleg_2(copy_gc, o2, stack_pointer);
-      assembleg_2(copy_gc, o1, stack_pointer);
-    }
-  }
-  assembleg_3(call_gc, oaddr, two_operand, odest); */
 }
 
-void assembleg_call_3(assembly_operand oaddr, assembly_operand o1, 
+void assembleg_call_3(assembly_operand oaddr, assembly_operand o1,
   assembly_operand o2, assembly_operand o3, assembly_operand odest)
 {
   assembleg_5(callfiii_gc, oaddr, o1, o2, o3, odest);
-  /* Copy arguments to stack ptr, unless they're already there. 
-  if (o1.type == LOCALVAR_OT && o1.value == 0 && o1.marker == 0) {
-    if (o2.type == LOCALVAR_OT && o2.value == 0 && o2.marker == 0) {
-      if (o3.type == LOCALVAR_OT && o3.value == 0 && o3.marker == 0) {
-    // all already there. 
-      }
-      else {
-    assembleg_2(copy_gc, o3, stack_pointer);
-    assembleg_2(stkroll_gc, three_operand, one_operand);
-      }
-    }
-    else {
-      if (o3.type == LOCALVAR_OT && o3.value == 0 && o3.marker == 0) {
-    assembleg_2(copy_gc, o2, stack_pointer);
-    assembleg_0(stkswap_gc);
-      }
-      else {
-    assembleg_2(copy_gc, o3, stack_pointer);
-    assembleg_0(stkswap_gc);
-    assembleg_2(copy_gc, o2, stack_pointer);
-        assembleg_0(stkswap_gc);
-      }
-    }
-  }
-  else {
-    if (o2.type == LOCALVAR_OT && o2.value == 0 && o2.marker == 0) {
-      if (o3.type == LOCALVAR_OT && o3.value == 0 && o3.marker == 0) {
-    assembleg_2(copy_gc, o1, stack_pointer);
-      }
-      else {
-    assembleg_2(copy_gc, o3, stack_pointer);
-        assembleg_0(stkswap_gc);
-    assembleg_2(copy_gc, o1, stack_pointer);
-      }
-    }
-    else {
-      if (o3.type == LOCALVAR_OT && o3.value == 0 && o3.marker == 0) {
-    assembleg_2(copy_gc, o2, stack_pointer);
-    assembleg_2(copy_gc, o1, stack_pointer);
-      }
-      else {
-    assembleg_2(copy_gc, o3, stack_pointer);
-    assembleg_2(copy_gc, o2, stack_pointer);
-    assembleg_2(copy_gc, o1, stack_pointer);
-      }
-    }
-  }
-
-  assembleg_3(call_gc, oaddr, three_operand, odest); */
 }
 
 void assembleg_inc(assembly_operand o1)
@@ -2417,7 +2464,7 @@ void assembleg_jump(int n)
       assembleg_1(return_gc, one_operand);
   }
   else if (n==-3) {
-      assembleg_1(return_gc, zero_operand); 
+      assembleg_1(return_gc, zero_operand);
   }
   else {
       assembleg_0_branch(jump_gc, n);
@@ -2751,18 +2798,18 @@ static void parse_assembly_g(void)
     AI.internal_number = token_value;
     O = internal_number_to_opcode_g(AI.internal_number);
   }
-  
+
   return_sp_as_variable = TRUE;
 
   while (1) {
     get_next_token();
-    
-    if ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)) 
+
+    if ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP))
       break;
 
     if (AI.operand_count == 8) {
       error("No assembly instruction may have more than 8 operands");
-      panic_mode_error_recovery(); 
+      panic_mode_error_recovery();
       break;
     }
 
@@ -2836,9 +2883,9 @@ extern void init_asm_vars(void)
 extern void asm_allocate_arrays(void)
 {   if ((debugfile_switch) && (MAX_LABELS < 2000)) MAX_LABELS = 2000;
 
-    variable_tokens = my_calloc(sizeof(int32),  
+    variable_tokens = my_calloc(sizeof(int32),
         MAX_LOCAL_VARIABLES+MAX_GLOBAL_VARIABLES, "variable tokens");
-    variable_usage = my_calloc(sizeof(int),  
+    variable_usage = my_calloc(sizeof(int),
         MAX_LOCAL_VARIABLES+MAX_GLOBAL_VARIABLES, "variable usage");
 
     label_offsets = my_calloc(sizeof(int32), MAX_LABELS, "label offsets");

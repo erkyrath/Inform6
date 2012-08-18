@@ -1,7 +1,7 @@
 /* ------------------------------------------------------------------------- */
 /*   "expressp" :  The expression parser                                     */
 /*                                                                           */
-/*   Part of Inform 6.31                                                     */
+/*   Part of Inform 6.40                                                     */
 /*   copyright (c) Graham Nelson 1993 - 2006                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
@@ -52,6 +52,7 @@ static void function_call_triggered(void);
 static int comma_allowed, arrow_allowed, superclass_allowed,
            bare_prop_allowed,
            array_init_ambiguity, action_ambiguity,
+           evaluate_defined,
 
            etoken_count, inserting_token, bracket_level;
 
@@ -107,7 +108,7 @@ but not used as a value:", unicode);
                     else {
                         current_token.value = unicode;
                         if (current_token.value >= 0x8000
-                          || current_token.value < -0x8000) 
+                          || current_token.value < -0x8000)
                             current_token.type = LARGE_NUMBER_TT;
                         else current_token.type = SMALL_NUMBER_TT;
                     }
@@ -122,6 +123,28 @@ but not used as a value:", unicode);
         case SYMBOL_TT:
         ReceiveSymbol:
             symbol = current_token.value;
+
+            if (evaluate_defined)
+            {
+                if ((current_token.text[0] == 'V')
+                    && (current_token.text[1] == 'N')
+                    && (current_token.text[2] == '_')
+                    && (strlen(current_token.text)==7))
+                {
+                    v = (VNUMBER >= atoi(current_token.text+3));
+                }
+                else
+                {
+                    v = ((sflags[symbol] & UNKNOWN_SFLAG) == 0);
+                    mark_symbol_as_used = v;
+                }
+                current_token.value = v;
+                current_token.marker = 0;
+                current_token.symtype = CONSTANT_T;
+                current_token.symflags = 0;
+                current_token.type = SMALL_NUMBER_TT;
+                break;
+            }
 
             mark_symbol_as_used = TRUE;
 
@@ -178,7 +201,7 @@ but not used as a value:", unicode);
             else {
                 if (((current_token.marker != 0)
                   && (current_token.marker != VARIABLE_MV))
-                  || (v < -0x8000) || (v >= 0x8000)) 
+                  || (v < -0x8000) || (v >= 0x8000))
                     current_token.type = LARGE_NUMBER_TT;
                 else current_token.type = SMALL_NUMBER_TT;
             }
@@ -197,7 +220,7 @@ but not used as a value:", unicode);
                     current_token.type = SMALL_NUMBER_TT;
             }
             else {
-                if (current_token.value < -0x8000 
+                if (current_token.value < -0x8000
                   || current_token.value >= 0x8000)
                     current_token.type = LARGE_NUMBER_TT;
                 else
@@ -307,7 +330,10 @@ but not used as a value:", unicode);
 
                     if (strlen(token_text) > 4)
                         obsolete_warning(
-                            "'#n$word' is now superseded by ''word''");
+                            "'#n$word' was superseded by ''word''");
+                    else
+                        obsolete_warning(
+                            "'#n$letter' was superseded by ''letter//''");
                     current_token.type  = DICTWORD_TT;
                     current_token.value = 0;
                     current_token.text  = token_text + 3;
@@ -334,11 +360,21 @@ but not used as a value:", unicode);
 
                 case HASH_SEP:
                     system_constants.enabled = TRUE;
+                    directives.enabled = TRUE;
                     get_next_token();
+                    directives.enabled = FALSE;
                     system_constants.enabled = FALSE;
+                    if (token_type == DIRECTIVE_TT)
+                    {
+                        /* unfortunately parse_expression is not re-entrant,
+                           so we cannot yet have IFDEF within expressions */
+                        put_token_back();
+                        current_token.type = ENDEXP_TT;
+                        break;
+                    }
                     if (token_type != SYSTEM_CONSTANT_TT)
                     {   ebf_error(
-                        "'r$', 'n$' or internal Inform constant name after '#'",
+                        "internal Inform constant name after '#'",
                         token_text);
                         break;
                     }
@@ -606,26 +642,104 @@ static int32 value_of_system_constant_z(int t)
 }
 
 static int32 value_of_system_constant_g(int t)
-{ 
-  switch (t) {
-  case classes_table_SC:
-    return Write_RAM_At + class_numbers_offset;
-  case identifiers_table_SC:
-    return Write_RAM_At + identifier_names_offset;
-  case array_names_offset_SC:
-    return Write_RAM_At + array_names_offset;
-  case cpv__start_SC:
-    return prop_defaults_offset;
-  case cpv__end_SC:
-    return Write_RAM_At + class_numbers_offset;
-  case dictionary_table_SC:
-    return dictionary_offset;
-  case dynam_string_table_SC:
-    return abbreviations_offset;
-  case grammar_table_SC:
-    return grammar_table_offset;
-  case actions_table_SC:
-    return actions_offset;
+{
+    switch (t)
+    {   case classes_table_SC:
+            return Write_RAM_At + class_numbers_offset;
+        case identifiers_table_SC:
+            return Write_RAM_At + identifier_names_offset;
+        case array_names_offset_SC:
+            return Write_RAM_At + array_names_offset;
+        case cpv__start_SC:
+            return prop_defaults_offset;
+        case cpv__end_SC:
+            return Write_RAM_At + class_numbers_offset;
+        case dictionary_table_SC:
+            return dictionary_offset;
+        case dynam_string_table_SC:
+            return abbreviations_offset;
+        case grammar_table_SC:
+            return grammar_table_offset;
+        case actions_table_SC:
+            return actions_offset;
+
+        case adjectives_table_SC:
+            return adjectives_offset;
+        case preactions_table_SC:
+            return preactions_offset;
+        case largest_object_SC:
+            return 256 + no_objects - 1;
+        case strings_offset_SC:
+            return strings_offset;
+        case code_offset_SC:
+            return code_offset;
+        case actual_largest_object_SC:
+            return no_objects;
+        case static_memory_offset_SC:
+            return static_memory_offset;
+        case readable_memory_offset_SC:
+            return Write_Code_At;
+        case ipv__start_SC:
+            return Write_RAM_At + individuals_offset;
+        case ipv__end_SC:
+            return variables_offset;
+        case array__start_SC:
+            return variables_offset + (MAX_GLOBAL_VARIABLES*WORDSIZE);
+        case array__end_SC:
+            return static_memory_offset;
+
+        case highest_attribute_number_SC:
+            return no_attributes-1;
+        case attribute_names_array_SC:
+            return Write_RAM_At + attribute_names_offset;
+
+        case highest_property_number_SC:
+            return no_individual_properties-1;
+        case property_names_array_SC:
+            return Write_RAM_At + identifier_names_offset + 32;
+
+        case highest_action_number_SC:
+            return no_actions-1;
+        case action_names_array_SC:
+            return Write_RAM_At + action_names_offset;
+
+        case highest_fake_action_number_SC:
+            return ((grammar_version_number==1)?256:4096) + no_fake_actions-1;
+        case fake_action_names_array_SC:
+            return Write_RAM_At + fake_action_names_offset;
+
+        case highest_routine_number_SC:
+            return no_named_routines-1;
+        case routine_names_array_SC:
+            return Write_RAM_At + routine_names_offset;
+        /*case routines_array_SC:
+            return routines_array_offset;*/
+        case routine_flags_array_SC:
+            return Write_RAM_At + routine_flags_array_offset;
+        case highest_global_number_SC:
+            return no_globals-1;
+        case global_names_array_SC:
+            return Write_RAM_At + global_names_offset;
+        case globals_array_SC:
+            return variables_offset;
+        /*case global_flags_array_SC:
+            return global_flags_array_offset;*/
+        case highest_array_number_SC:
+            return no_arrays-1;
+        case array_names_array_SC:
+            return Write_RAM_At + array_names_offset;
+        case array_flags_array_SC:
+            return array_flags_array_offset;
+        case highest_constant_number_SC:
+            return no_named_constants-1;
+        case constant_names_array_SC:
+            return Write_RAM_At + constant_names_offset;
+        case highest_class_number_SC:
+            return no_classes-1;
+        case class_objects_array_SC:
+            return Write_RAM_At + class_numbers_offset;
+        case highest_object_number_SC:
+            return no_objects-1;
   }
 
   error_named("System constant not implemented in Glulx",
@@ -639,7 +753,7 @@ extern int32 value_of_system_constant(int t)
   if (!glulx_mode)
     return value_of_system_constant_z(t);
   else
-    return value_of_system_constant_g(t);    
+    return value_of_system_constant_g(t);
 }
 
 static int evaluate_term(token_data t, assembly_operand *o)
@@ -682,7 +796,7 @@ static int evaluate_term(token_data t, assembly_operand *o)
              return(TRUE);
         case DICTWORD_TT:
              /*  Find the dictionary address, adding to dictionary if absent */
-             if (!glulx_mode) 
+             if (!glulx_mode)
                  o->type = LONG_CONSTANT_OT;
              else
                  o->type = CONSTANT_OT;
@@ -690,7 +804,7 @@ static int evaluate_term(token_data t, assembly_operand *o)
              return(TRUE);
         case DQ_TT:
              /*  Create as a static string  */
-             if (!glulx_mode) 
+             if (!glulx_mode)
                  o->type = LONG_CONSTANT_OT;
              else
                  o->type = CONSTANT_OT;
@@ -734,7 +848,7 @@ static int evaluate_term(token_data t, assembly_operand *o)
              if (!glulx_mode) {
                  o->type = LONG_CONSTANT_OT;
                  switch(t.value)
-                 {   
+                 {
                  case version_number_SC:
                      o->type = SHORT_CONSTANT_OT;
                      o->marker = 0;
@@ -796,7 +910,22 @@ static int evaluate_term(token_data t, assembly_operand *o)
                      v = DICT_WORD_SIZE+6;
                      break;
 
-                 /* ###fix: need to fill more of these in! */
+                 case lowest_attribute_number_SC:
+                 case lowest_action_number_SC:
+                 case lowest_routine_number_SC:
+                 case lowest_array_number_SC:
+                 case lowest_constant_number_SC:
+                 case lowest_class_number_SC:
+                 case lowest_property_number_SC:
+                 case oddeven_packing_SC:
+                     o->type = BYTECONSTANT_OT; o->marker = 0; v = 0; break;
+                 case lowest_object_number_SC:
+                     o->type = BYTECONSTANT_OT; o->marker = 0; v = 1; break;
+                 case lowest_global_number_SC:
+                     o->type = BYTECONSTANT_OT; o->marker = 0; v = 0; break;
+                 case lowest_fake_action_number_SC:
+                     o->type = HALFCONSTANT_OT; o->marker = 0;
+                     v = ((grammar_version_number==1)?256:4096); break;
 
                  default:
                      v = t.value;
@@ -943,11 +1072,11 @@ static void emit_token(token_data t)
     {
         o1 = emitter_stack[emitter_sp - i];
         if (is_property_t(o1.symtype) ) {
-            switch(t.value) 
+            switch(t.value)
             {
                 case FCALL_OP:
-                case SETEQUALS_OP: case NOTEQUAL_OP: 
-                case CONDEQUALS_OP: 
+                case SETEQUALS_OP: case NOTEQUAL_OP:
+                case CONDEQUALS_OP:
                 case PROVIDES_OP: case NOTPROVIDES_OP:
                 case PROP_ADD_OP: case PROP_NUM_OP:
                 case SUPERCLASS_OP:
@@ -968,7 +1097,7 @@ static void emit_token(token_data t)
             if ((o1.marker == 0) && is_constant_ot(o1.type))
             {   switch(t.value)
                 {   case UNARY_MINUS_OP: x = -o1.value; goto FoldConstant;
-                    case ARTNOT_OP: 
+                    case ARTNOT_OP:
                          if (!glulx_mode)
                              x = (~o1.value) & 0xffff;
                          else
@@ -1013,7 +1142,7 @@ static void emit_token(token_data t)
                             ov1 = -ov1;
                             ov2 = -ov2;
                           }
-                          if (ov1 >= 0) 
+                          if (ov1 >= 0)
                             x = ov1 / ov2;
                           else
                             x = -((-ov1) / ov2);
@@ -1022,7 +1151,7 @@ static void emit_token(token_data t)
                           if (ov2 < 0) {
                             ov2 = -ov2;
                           }
-                          if (ov1 >= 0) 
+                          if (ov1 >= 0)
                             x = ov1 % ov2;
                           else
                             x = -((-ov1) % ov2);
@@ -1108,7 +1237,7 @@ static void emit_token(token_data t)
 
     FoldConstantC:
 
-    /* In Glulx, skip this test; we can't check out-of-range errors 
+    /* In Glulx, skip this test; we can't check out-of-range errors
        for 32-bit arithmetic. */
 
     if (!glulx_mode && ((x<-32768) || (x > 32767)))
@@ -1151,9 +1280,9 @@ the range -32768 to +32767:", folding_error);
     else {
         if (x == 0)
             emitter_stack[emitter_sp - 1].type = ZEROCONSTANT_OT;
-        else if (x >= -128 && x <= 127) 
+        else if (x >= -128 && x <= 127)
             emitter_stack[emitter_sp - 1].type = BYTECONSTANT_OT;
-        else if (x >= -32768 && x <= 32767) 
+        else if (x >= -32768 && x <= 32767)
             emitter_stack[emitter_sp - 1].type = HALFCONSTANT_OT;
         else
             emitter_stack[emitter_sp - 1].type = CONSTANT_OT;
@@ -1228,7 +1357,8 @@ static void check_property_operator(int from_node)
                 && ((ET[n].value.type == LONG_CONSTANT_OT)
                     || (ET[n].value.type == SHORT_CONSTANT_OT))
                 && ((ET[n].value.value > 0) && (ET[n].value.value < 64))
-                && ((!module_switch) || (ET[n].value.marker == 0)))
+                && ((!module_switch) || (ET[n].value.marker == 0))
+                && (ET[n].value.marker != SYMBOL_MV))
             flag = TRUE;
 
         if (!flag)
@@ -1464,7 +1594,7 @@ static void func_args_on_stack(int n, int context)
 {
   /* Make sure that the arguments of every function-call expression
      are stored to the stack. If any aren't (ie, if any arguments are
-     constants or variables), cover them with push operators. 
+     constants or variables), cover them with push operators.
      (The very first argument does not need to be so treated, because
      it's the function address, not a function argument. We also
      skip the treatment for most system functions.) */
@@ -1473,7 +1603,7 @@ static void func_args_on_stack(int n, int context)
 
   ASSERT_GLULX();
 
-  if (ET[n].right != -1) 
+  if (ET[n].right != -1)
     func_args_on_stack(ET[n].right, context);
   if (ET[n].down == -1) {
     pn = ET[n].up;
@@ -1482,9 +1612,9 @@ static void func_args_on_stack(int n, int context)
       if (opnum == FCALL_OP
         || opnum == MESSAGE_CALL_OP
         || opnum == PROP_CALL_OP) {
-        /* If it's an FCALL, get the operand which contains the function 
+        /* If it's an FCALL, get the operand which contains the function
            address (or system-function number) */
-        if (opnum == MESSAGE_CALL_OP 
+        if (opnum == MESSAGE_CALL_OP
           || opnum == PROP_CALL_OP
           || ((fnaddr=ET[pn].down) != n
             && (ET[fnaddr].value.type != SYSFUN_OT
@@ -1495,9 +1625,9 @@ static void func_args_on_stack(int n, int context)
           if (new == MAX_EXPRESSION_NODES)
             memoryerror("MAX_EXPRESSION_NODES9", MAX_EXPRESSION_NODES);
           ET[new] = ET[n];
-          ET[n].down = new; 
+          ET[n].down = new;
           ET[n].operator_number = PUSH_OP;
-          ET[new].up = n; 
+          ET[new].up = n;
           ET[new].right = -1;
         }
         }
@@ -1577,6 +1707,9 @@ extern assembly_operand parse_expression(int context)
                                 minus sign is ambiguous, and brackets always
                                 indicate subexpressions, not function calls
 
+            IFDEF_CONTEXT       like CONSTANT_CONTEXT, but identifiers are
+                                given values according to whether defined
+
         Return value: an assembly operand.
 
         If the type is OMITTED_OT, then the expression has no resulting value.
@@ -1604,6 +1737,7 @@ extern assembly_operand parse_expression(int context)
     bare_prop_allowed = (context == RETURN_Q_CONTEXT);
     array_init_ambiguity = ((context == ARRAY_CONTEXT) ||
         (context == ASSEMBLY_CONTEXT));
+    evaluate_defined = (context == IFDEF_CONTEXT);
 
     action_ambiguity = (context == ACTION_Q_CONTEXT);
 
@@ -1611,6 +1745,7 @@ extern assembly_operand parse_expression(int context)
     if (context == ACTION_Q_CONTEXT) context = QUANTITY_CONTEXT;
     if (context == RETURN_Q_CONTEXT) context = QUANTITY_CONTEXT;
     if (context == ARRAY_CONTEXT) context = CONSTANT_CONTEXT;
+    if (context == IFDEF_CONTEXT) context = CONSTANT_CONTEXT;
 
     etoken_count = 0;
     inserting_token = FALSE;
@@ -1672,7 +1807,7 @@ extern assembly_operand parse_expression(int context)
                 ET[AO.value].up = -1;
             }
             else {
-                if ((context != CONSTANT_CONTEXT) && is_property_t(AO.symtype) 
+                if ((context != CONSTANT_CONTEXT) && is_property_t(AO.symtype)
                     && (arrow_allowed) && (!bare_prop_allowed))
                     warning("Bare property name found. \"self.prop\" intended?");
             }

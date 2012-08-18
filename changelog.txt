@@ -1,0 +1,66 @@
+031231 added filename extensions to icl_header_ext (CK)
+031229 removed 2 lines in expressc that warned on obj.prop->i (CK)
+031227 removed unnecessary local variables from assembleg_instruction()
+       in asm.c (DK)
+031227 removed unnecessary argument from write_property_block_g()
+       in objects.c (DK)
+031227 tidied variable declarations in construct_storyfile_g()
+       in tables.c (DK)
+031225 changed the multiple inclusion warning to only occur on
+       recursive inclusion (files.c and lexer.c) (DK)
+031221 change max path length to 512 on Linux (pathlen.patch) (CK)
+031221 removed all MSVC level 2 warnings (banewarn.patch) (CK)
+031221 added OS X header section (baneosx.patch) (CK)
+031221 fixed crashes in short name>255 and div constant folding (CK)
+031221 removed property errors for equalities and function calls (CK)
+031221 restricted array warnings to non-systemfiles (CK)
+031214 made MAX_SOURCE_FILES a dynamic memory setting (AP)
+031207 uploaded matching C62127.patch and fclose.patch (CK)
+031207 applied tidying.patch to remove unused code and
+       standardize some temp_var operands. (CK)
+031206 C62127.patch applied (CK)
+031201 dup_incl.patch applied (MC), prints warning for duplicate includes
+031201 C62102.patch applied (DK)
+031130 applied s29b.patch to refine unqualified property detection (CK)
+031130 applied s11b.patch (fixes z-code out-of-bounds messages and
+       also longest possible '...' string) (CK)
+031130 applied msvc.patch in aid of ANSI & MSVC compatibility (CK)
+031130 opcode_pop.patch applied (DK)
+031129 applied max_include.patch (MC)
+031129 applied s15.patch (warning for type mismatch of ->/-->) (?) (CK)
+031129 applied s29.patch (warning for unqualified property) (?) (CK)
+031129 applied s33.patch (warning for non-words in name property) (CK)
+031129 applied s11.patch (Array name buffer) (CK)
+031125 create_params.patch applied (DK)
+031124 C62113.patch applied (DK)
+031124 rterr_size.patch applied (DK)
+031123 stack_args.patch applied (DK)
+031123 rterr_19.patch applied (DK)
+031122 gg_statusline_flag renamed to sys_statusline_flag
+       (sys_statusline.patch) (CK)
+031114 C62111.patch applied (bi-platform tested) (CK)
+031111 C62124.patch applied (DK)
+031111 switch_W.patch and cs_map.patch applied (DK)
+031109 Applied C62103tilde.patch which also makes '~//'=='"//' for Glulx
+       and Zcode (CK)
+031109 Applied C62123etc.patch which also adds gg_statusline_flag (CK)
+031021 header_ext.patch and tilde.patch applied (DK)
+031018 S37comp.patch (tentative (A) implementation) applied (CK)
+031018 G03701.patch (jump optimization) from inform-fiction applied
+031018 inform-icl-header-patch.txt from AP applied
+031018 charset.patch from DK applied
+031013 switch_G.patch applied (DK)
+031010 glulx-characcent-patch.txt and glulx-maxstrings-patch.txt from AP
+       applied
+031008 ifarchive.patch and opcodes.patch applied (DK)
+031007 glulx-accent-patch.txt from AP applied
+031003 versionno.patch applied to header.h to change release number
+       and date; also removes zero chars output to console from
+       Glulx -s compile (CK)
+031003 C62125.patch applied to veneer.c, expressc.c and header.h
+       Also splits long string in veneer.c so can compile on MSVC5 (CK)
+031003 Dave Griffith's patches for C62003, C62105, C62108, C62109,
+       C62112, C62114, C62115, C62116, C62117, C62119, C62121 and
+       C62122 applied.  see inform-comp.patch and fixes-comp.txt. (CK)
+030928 Style statement added to Glulx Inform, glulx-style-patch.txt
+030928 Modified verbs.c for Extend/Verb synonym issue C62126, M Coyne

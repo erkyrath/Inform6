@@ -1,18 +1,26 @@
 /* ------------------------------------------------------------------------- */
 /*   "directs" : Directives (# commands)                                     */
 /*                                                                           */
-/*   Part of Inform 6.31                                                     */
+/*   Part of Inform 6.40                                                     */
 /*   copyright (c) Graham Nelson 1993 - 2006                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
 #include "header.h"
 
+typedef struct conststr_s {
+    int    consttoken_id;
+    char* textvalue;
+    void* child;
+} conststr_s;
+
 int no_routines,                   /* Number of routines compiled so far     */
     no_named_routines,             /* Number not embedded in objects         */
     no_locals,                     /* Number of locals in current routine    */
-    no_termcs;                     /* Number of terminating characters       */
+    no_termcs,                     /* Number of terminating characters       */
+    no_sepcs;                      /* Number of separating characters        */
 int terminating_characters[32];
+uchar separating_characters[32];
 
 int32 routine_starts_line;         /* Source code line on which the current
                                       routine starts.  (Useful for reporting
@@ -22,12 +30,58 @@ int32 routine_starts_line;         /* Source code line on which the current
 static int constant_made_yet;      /* Have any constants been defined yet?   */
 
 static int ifdef_stack[32], ifdef_sp;
+static int *ifdef_file_stack;
 
+/* ========================================================================= */
+/* Because of the limited use for string constant values during compilation, */
+/* processing time is of slightly less importance that memory consumption.   */
+/* For this reason, the string-constant list is implemented as forward-only  */
+/* chain of walkable nodes, making memory allocation exactly proportionate   */
+/* to the number of constant strings.                                        */
+/* ------------------------------------------------------------------------- */
+conststr_s *cs_oldest=NULL;
+conststr_s *cs_youngest=NULL;
+void record_token_string(int token_id, char* text)
+{
+    /*create and initialize the next list element*/
+    conststr_s *cs_next=my_calloc(sizeof(conststr_s),1,"constant_string element");
+    cs_next->child=NULL;
+    cs_next->consttoken_id=token_id;
+    cs_next->textvalue=my_calloc(sizeof(char),strlen(text)+1,"constant_string string");
+    strcpy(cs_next->textvalue,text);
+
+    if(cs_oldest==NULL)
+        cs_oldest=cs_youngest=cs_next; /* First element, so oldest and youngest */
+    else
+    {
+        cs_youngest->child=cs_next; /* Point old youngest to new youngest */
+        cs_youngest=cs_next; /* Reset youngest pointer */
+    }
+}
+char* retrieve_token_string(int token_id){
+    conststr_s *current_p=cs_oldest;
+    while(current_p!=NULL){
+        if(current_p->consttoken_id==token_id) return current_p->textvalue;
+        current_p=current_p->child;
+    }
+    return NULL;
+}
+void free_constant_string_list()
+{
+    conststr_s *next_p=NULL,*current_p=cs_oldest;
+    while(current_p!=NULL){
+        next_p=current_p->child;
+        my_free(&(current_p->textvalue),"constant_string string");
+        my_free(&current_p,"constant_string element");
+        current_p=next_p;
+    }
+    cs_oldest=cs_youngest=NULL;
+}
 /* ------------------------------------------------------------------------- */
 
 extern int parse_given_directive(void)
 {   int *trace_level; int32 i, j, k, n, flag;
-
+    char *name;
     switch(token_value)
     {
 
@@ -98,7 +152,8 @@ extern int parse_given_directive(void)
         if ((token_type != SYMBOL_TT)
             || (!(sflags[i] & (UNKNOWN_SFLAG + REDEFINABLE_SFLAG))))
         {   ebf_error("new constant name", token_text);
-            panic_mode_error_recovery(); break;
+            duplicate_error();
+            panic_mode_error_recovery(); put_token_back(); break;
         }
 
         assign_symbol(i, 0, CONSTANT_T);
@@ -113,6 +168,10 @@ extern int parse_given_directive(void)
 
         if (!((token_type == SEP_TT) && (token_value == SETEQUALS_SEP)))
             put_token_back();
+
+        /* Save off the untranslated string value here; we may need these
+           during compilation (particularly #include directives) */
+        if(token_type==DQ_TT) record_token_string(i,token_text);
 
         {   assembly_operand AO = parse_expression(CONSTANT_CONTEXT);
             if (AO.marker != 0)
@@ -155,7 +214,7 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
         get_next_token();
         if (token_type != SYMBOL_TT)
         {   ebf_error("name", token_text);
-            panic_mode_error_recovery(); break;
+            panic_mode_error_recovery(); put_token_back(); break;
         }
 
         i = -1;
@@ -194,7 +253,10 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
     /*   End                                                                 */
     /* --------------------------------------------------------------------- */
 
-    case END_CODE: return(TRUE);
+    case END_CODE:
+        terminate_file();
+        ifdef_sp=ifdef_file_stack[File_sp-1];
+        return(FALSE);
 
     case ENDIF_CODE:
         if (ifdef_sp == 0) error("'Endif' without matching 'If...'");
@@ -240,25 +302,12 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
         flag = FALSE;
 
       DefCondition:
-        get_next_token();
-        if (token_type != SYMBOL_TT)
-        {   ebf_error("symbol name", token_text);
-            break;
-        }
-
-        if ((token_text[0] == 'V')
-            && (token_text[1] == 'N')
-            && (token_text[2] == '_')
-            && (strlen(token_text)==7))
-        {   i = atoi(token_text+3);
-            if (VNUMBER < i) flag = (flag)?FALSE:TRUE;
-            goto HashIfCondition;
-        }
-
-        if (sflags[token_value] & UNKNOWN_SFLAG) flag = (flag)?FALSE:TRUE;
-        else sflags[token_value] |= USED_SFLAG;
+        {
+        assembly_operand AO;
+        AO = parse_expression(IFDEF_CONTEXT);
+        if (AO.value == 0) flag = !flag;
         goto HashIfCondition;
-
+        }
     case IFNOT_CODE:
         if (ifdef_sp == 0)
             error("'Ifnot' without matching 'If...'");
@@ -266,10 +315,12 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
         if (!(ifdef_stack[ifdef_sp-1]))
             error("Second 'Ifnot' for the same 'If...' condition");
         else
-        {   dont_enter_into_symbol_table = -2; n = 1;
+        {   n = 1;
             directives.enabled = TRUE;
             do
-            {   get_next_token();
+            {   dont_enter_into_symbol_table = -2;
+                get_next_token();
+                dont_enter_into_symbol_table = FALSE;
                 if (token_type == EOF_TT)
                 {   error("End of file reached in code 'If...'d out");
                     directives.enabled = FALSE;
@@ -295,18 +346,19 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
                     }
                 }
             } while (n > 0);
-            ifdef_sp--; 
-            dont_enter_into_symbol_table = FALSE;
+            ifdef_sp--;
             directives.enabled = FALSE;
         }
         break;
 
     case IFV3_CODE:
         flag = FALSE; if (version_number == 3) flag = TRUE;
+        obsolete_warning("use #iftrue (#version_number==3)");
         goto HashIfCondition;
 
     case IFV5_CODE:
         flag = TRUE; if (version_number == 3) flag = FALSE;
+        obsolete_warning("use #iffalse (#version_number==3)");
         goto HashIfCondition;
 
     case IFTRUE_CODE:
@@ -341,10 +393,12 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
         if (flag)
         {   ifdef_stack[ifdef_sp++] = TRUE; return FALSE; }
         else
-        {   dont_enter_into_symbol_table = -2; n = 1;
+        {   n = 1;
             directives.enabled = TRUE;
             do
-            {   get_next_token();
+            {   dont_enter_into_symbol_table = -2;
+                get_next_token();
+                dont_enter_into_symbol_table = FALSE;
                 if (token_type == EOF_TT)
                 {   error("End of file reached in code 'If...'d out");
                     directives.enabled = FALSE;
@@ -371,7 +425,6 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
                 }
             } while (n > 0);
             directives.enabled = FALSE;
-            dont_enter_into_symbol_table = FALSE;
         }
         break;
 
@@ -400,29 +453,52 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
         break;
 
     /* --------------------------------------------------------------------- */
-    /*   Include "[>]filename"                                               */
+    /*   Include "[>][?]filename" | <CONSTANT>;                              */
     /* --------------------------------------------------------------------- */
 
     case INCLUDE_CODE:
         get_next_token();
-        if (token_type != DQ_TT)
-        {   ebf_error("filename in double-quotes", token_text);
-            panic_mode_error_recovery(); return FALSE;
-        }
-
-        {   char *name = token_text;
-
-            get_next_token();
-            if (!((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)))
-                ebf_error("semicolon ';' after Include filename", token_text);
-
-            if (strcmp(name, "language__") == 0)
-                 load_sourcefile(Language_Name, 0);
-            else if (name[0] == '>')
-                 load_sourcefile(name+1, 1);
-            else load_sourcefile(name, 0);
+        /* Check for errors*/
+        if (token_type != DQ_TT && token_type != SYMBOL_TT)
+        {   ebf_error("filename as constant or in double-quotes", token_text);
+            panic_mode_error_recovery();
             return FALSE;
         }
+        /* Assign value to name (lookuping value of constant if necessary)*/
+        if (token_type == SYMBOL_TT)
+        {   name = retrieve_token_string(token_value);
+			if(name==NULL)
+			{
+				ebf_error("string-type constant", token_text);
+				panic_mode_error_recovery();
+				return FALSE;
+			}
+			sflags[token_value] |= USED_SFLAG;
+        }
+        else name = token_text;
+
+        /* More error checks*/
+        get_next_token();
+        if (!((token_type == SEP_TT) && (token_value == SEMICOLON_SEP))) /* Ensure followed by semicolon*/
+            ebf_error("semicolon ';' after Include filename", token_text);
+
+        if(strlen(name)==0) ebf_error("filename is empty", token_text);/* Ensure not empty*/
+
+        if (strcmp(name, "language__") == 0) /* One special case */
+            load_sourcefile(Language_Name, 0, 0);
+        else
+        {    /* Detect include options, and separate from filename */
+            int suppress_warning=0, local_dir_only=0, offset=0;
+            char c0=name[0], c1=name[1];
+            if (c0 == '>' || c1 == '>') local_dir_only=1;
+            if (c0 == '?' || c1 == '?') suppress_warning=1;
+            offset=suppress_warning+local_dir_only;
+            if(offset == 1 && c0 == c1) offset=2; /* Handle ">>file.h" or "??file.h" */
+            /* Import file*/
+            load_sourcefile(name+offset, local_dir_only, suppress_warning);
+        }
+        ifdef_file_stack[File_sp]=ifdef_sp;
+        return FALSE;
 
     /* --------------------------------------------------------------------- */
     /*   Link "filename"                                                     */
@@ -452,6 +528,7 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
         get_next_token(); i = token_value;
         if ((token_type != SYMBOL_TT) || (!(sflags[i] & UNKNOWN_SFLAG)))
         {   ebf_error("new low string name", token_text);
+            duplicate_error();
             panic_mode_error_recovery(); return FALSE;
         }
 
@@ -547,7 +624,7 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
         break;
 
     /* --------------------------------------------------------------------- */
-    /*   Replace routine                                                     */
+    /*   Replace routine [routine]                                           */
     /* --------------------------------------------------------------------- */
 
     case REPLACE_CODE:
@@ -573,10 +650,30 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
 
         if (!(sflags[token_value] & UNKNOWN_SFLAG))
         {   ebf_error("name of routine not yet defined", token_text);
+            duplicate_error();
             break;
         }
         sflags[token_value] |= REPLACE_SFLAG;
 
+        /* second parameter? */
+        i = token_value;
+        system_functions.enabled = FALSE;
+        get_next_token();
+        if ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP))
+        {   put_token_back();
+            break;
+        }
+        if ((token_type != SYMBOL_TT) || ((sflags[token_value] & UNKNOWN_SFLAG) == 0)
+            || i+1 != token_value)
+        {   ebf_error("';' or new routine name", token_text);
+            if (i+1 < token_value) token_value = i;
+            duplicate_error();
+            panic_mode_error_recovery(); put_token_back();
+            break;
+        }
+        sflags[i] |= ALIASED_SFLAG;
+        /* reserve, but mark in case not defined */
+        assign_symbol(token_value, 0, CONSTANT_T);
         break;
 
     /* --------------------------------------------------------------------- */
@@ -788,6 +885,24 @@ the first constant definition");
         break;
 
     /* --------------------------------------------------------------------- */
+    /*   Undef symbol                                                        */
+    /* --------------------------------------------------------------------- */
+
+    case UNDEF_CODE:
+        get_next_token();
+        if (token_type != SYMBOL_TT)
+        {   ebf_error("symbol name", token_text);
+            break;
+        }
+
+        if (sflags[token_value] & UNKNOWN_SFLAG)
+        {   warning("Undefined something not defined anyway.");
+        }
+        end_symbol_scope(token_value);
+        sflags[token_value] |= USED_SFLAG;
+        break;
+
+    /* --------------------------------------------------------------------- */
     /*   Verb ...                                                            */
     /* --------------------------------------------------------------------- */
 
@@ -901,8 +1016,22 @@ the first constant definition");
                     }
                     put_token_back();
                     break;
+                case SPECIAL_DK:
+                    if (no_sepcs != -1)
+                        error("No more than one 'Zcharacter special' directive is allowed");
+                    no_sepcs = 0;
+                    get_next_token();
+                    if (token_type == DQ_TT)
+                    {   no_sepcs = strlen(token_text);
+                        if (no_sepcs > 30) no_sepcs = 30;
+                        strncpy((char *)separating_characters, token_text, no_sepcs);
+                    }
+                    else
+                        while (token_type == NUMBER_TT)
+                            separating_characters[no_sepcs++] = token_value;
+                    break;
                 default:
-                    ebf_error("'table', 'terminating', a string or a constant",
+                    ebf_error("'table', 'terminating', 'special', a string or a constant",
                         token_text);
             }
                 break;
@@ -937,16 +1066,20 @@ extern void directs_begin_pass(void)
     no_named_routines = 0;
     no_locals = 0;
     no_termcs = 0;
+    no_sepcs = -1;
     constant_made_yet = FALSE;
     ifdef_sp = 0;
 }
 
 extern void directs_allocate_arrays(void)
 {
+    ifdef_file_stack=my_calloc(sizeof(int),MAX_INCLUSION_DEPTH+1,"ifdef_file_stack int");
 }
 
 extern void directs_free_arrays(void)
 {
+    free_constant_string_list();
+    my_free(ifdef_file_stack,"ifdef_file_stack int");
 }
 
 /* ========================================================================= */

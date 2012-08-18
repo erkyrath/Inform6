@@ -1,7 +1,7 @@
 /* ------------------------------------------------------------------------- */
 /*   "states" :  Statement translator                                        */
 /*                                                                           */
-/*   Part of Inform 6.31                                                     */
+/*   Part of Inform 6.40                                                     */
 /*   copyright (c) Graham Nelson 1993 - 2006                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
@@ -44,17 +44,23 @@ extern void match_close_bracket(void)
 }
 
 static void parse_action(void)
-{   int level = 1, args = 0, codegen_action;
-    assembly_operand AO, AO2, AO3, AO4;
+{   int level = 1, args = 0, codegen_action, comma_flag;
+    assembly_operand AO, AO2, AO3, AO4, AO5, four_ao;
 
     dont_enter_into_symbol_table = TRUE;
     get_next_token();
     if ((token_type == SEP_TT) && (token_value == LESS_SEP))
     {   level = 2; get_next_token();
     }
+
+    get_next_token();
+    comma_flag = (token_type == SEP_TT && token_value == COMMA_SEP);
+    put_token_back(); put_token_back();
+    get_next_token();
     dont_enter_into_symbol_table = FALSE;
 
-    if ((token_type==SEP_TT) && (token_value==OPENB_SEP))
+    TestAction:
+    if (((token_type==SEP_TT) && (token_value==OPENB_SEP)) || comma_flag)
     {   put_token_back();
         AO2 = parse_expression(ACTION_Q_CONTEXT);
         codegen_action = TRUE;
@@ -65,15 +71,23 @@ static void parse_action(void)
     }
 
     get_next_token();
+    if (token_type == SEP_TT && token_value == COMMA_SEP && args == 0)
+    {   if (version_number < 5)
+            error("<x, y> syntax is not available in V3 or V4");
+        args = 3;
+        AO3 = zero_operand; AO4 = zero_operand; AO5 = AO2;
+        get_next_token(); comma_flag = FALSE; goto TestAction;
+    }
+
     if (!((token_type == SEP_TT) && (token_value == GREATER_SEP)))
     {   put_token_back();
-        args = 1;
+        if (args < 3) args = 1;
         AO3 = parse_expression(ACTION_Q_CONTEXT);
 
         get_next_token();
         if (!((token_type == SEP_TT) && (token_value == GREATER_SEP)))
         {   put_token_back();
-            args = 2;
+            if (args < 3) args = 2;
             AO4 = parse_expression(QUANTITY_CONTEXT);
             get_next_token();
         }
@@ -86,78 +100,64 @@ static void parse_action(void)
         }
     }
 
-    if (!glulx_mode) {
+    AO = veneer_routine(R_Process_VR);
+    if (args >= 3) AO5 = code_generate(AO5, QUANTITY_CONTEXT, -1);
+    if (glulx_mode && args == 3 && (AO5.type != LOCALVAR_OT || AO5.value != 0))
+        assembleg_store(stack_pointer, AO5);
+    if (args >= 2) AO4 = code_generate(AO4, QUANTITY_CONTEXT, -1);
+    if (glulx_mode && args == 3 && (AO4.type != LOCALVAR_OT || AO4.value != 0))
+        assembleg_store(stack_pointer, AO4);
+    if (args >= 1) AO3 = code_generate(AO3, QUANTITY_CONTEXT, -1);
+    if (glulx_mode && args == 3 && (AO3.type != LOCALVAR_OT || AO3.value != 0))
+        assembleg_store(stack_pointer, AO3);
+    if (codegen_action)
+          AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
+    if (glulx_mode && args == 3 && (AO2.type != LOCALVAR_OT || AO2.value != 0))
+        assembleg_store(stack_pointer, AO2);
 
-      AO = veneer_routine(R_Process_VR);
+    if (!glulx_mode) {
 
       switch(args)
       {   case 0:
-            if (codegen_action) AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
-            if (version_number>=5)
-                assemblez_2(call_2n_zc, AO, AO2);
-            else
-            if (version_number==4)
-                assemblez_2_to(call_vs_zc, AO, AO2, temp_var1);
-            else
-                assemblez_2_to(call_zc, AO, AO2, temp_var1);
+            assemblez_call_2(AO, AO2);
             break;
           case 1:
-            AO3 = code_generate(AO3, QUANTITY_CONTEXT, -1);
-            if (codegen_action) AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
-            if (version_number>=5)
-                assemblez_3(call_vn_zc, AO, AO2, AO3);
-            else
-            if (version_number==4)
-                assemblez_3_to(call_vs_zc, AO, AO2, AO3, temp_var1);
-            else
-                assemblez_3_to(call_zc, AO, AO2, AO3, temp_var1);
+            assemblez_call_3(AO, AO2, AO3);
             break;
           case 2:
-            AO4 = code_generate(AO4, QUANTITY_CONTEXT, -1);
-            AO3 = code_generate(AO3, QUANTITY_CONTEXT, -1);
-            if (codegen_action) AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
-            if (version_number>=5)
-                assemblez_4(call_vn_zc, AO, AO2, AO3, AO4);
-            else
-            if (version_number==4)
-                assemblez_4_to(call_vs_zc, AO, AO2, AO3, AO4, temp_var1);
-            else
-                assemblez_4(call_zc, AO, AO2, AO3, AO4);
+            assemblez_call_4(AO, AO2, AO3, AO4);
             break;
+          case 3:
+            assemblez_5(call_vn2_zc, AO, AO2, AO3, AO4, AO5);
+            break;
+            /* V4 assemblez_6(call_vs2_zc, AO, AO2, AO3, AO4, AO5, temp_var1); */
       }
 
       if (level == 2) assemblez_0(rtrue_zc);
 
     }
     else {
-
-      AO = veneer_routine(R_Process_VR);
-
       switch (args) {
 
       case 0:
-        if (codegen_action) 
-          AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
         assembleg_call_1(AO, AO2, zero_operand);
         break;
 
       case 1:
-        AO3 = code_generate(AO3, QUANTITY_CONTEXT, -1);
-        if (codegen_action)
-          AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
         assembleg_call_2(AO, AO2, AO3, zero_operand);
         break;
 
       case 2:
-        AO4 = code_generate(AO4, QUANTITY_CONTEXT, -1);
-        AO3 = code_generate(AO3, QUANTITY_CONTEXT, -1);
-        if (codegen_action) 
-          AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
         assembleg_call_3(AO, AO2, AO3, AO4, zero_operand);
+        break;
+
+      case 3:
+        four_ao = three_operand; four_ao.value = 4;
+        assembleg_3(call_gc, AO, four_ao, zero_operand);
         break;
       }
 
-      if (level == 2) 
+      if (level == 2)
         assembleg_1(return_gc, one_operand);
 
     }
@@ -355,18 +355,9 @@ static void parse_print_z(int finally_return)
                           PrintByRoutine:
 
                           get_next_token();
-                          if (version_number >= 5)
-                            assemblez_2(call_2n_zc, AO,
+                          assemblez_call_2(AO,
                               code_generate(parse_expression(QUANTITY_CONTEXT),
                                 QUANTITY_CONTEXT, -1));
-                          else if (version_number == 4)
-                            assemblez_2_to(call_vs_zc, AO,
-                              code_generate(parse_expression(QUANTITY_CONTEXT),
-                                QUANTITY_CONTEXT, -1), temp_var1);
-                          else
-                            assemblez_2_to(call_zc, AO,
-                              code_generate(parse_expression(QUANTITY_CONTEXT),
-                                QUANTITY_CONTEXT, -1), temp_var1);
                           goto PrintTermDone;
 
                         default: ebf_error("print specification", token_text);
@@ -438,7 +429,7 @@ static void parse_print_g(int finally_return)
     /* --------------------------------------------------------------------- */
 
     do
-    {   
+    {
         if ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)) break;
         switch(token_type)
         {   case DQ_TT:
@@ -452,12 +443,12 @@ static void parse_print_g(int finally_return)
                   {   get_next_token();
                       if ((token_type == SEP_TT)
                           && (token_value == SEMICOLON_SEP))
-                      {   AO.type = BYTECONSTANT_OT; 
+                      {   AO.type = BYTECONSTANT_OT;
                           AO.value = 0x0A; AO.marker = 0;
-                          assembleg_1(streamchar_gc, AO); 
-                          AO.type = BYTECONSTANT_OT; 
+                          assembleg_1(streamchar_gc, AO);
+                          AO.type = BYTECONSTANT_OT;
                           AO.value = 1; AO.marker = 0;
-                          assembleg_1(return_gc, AO); 
+                          assembleg_1(return_gc, AO);
                           return;
                       }
                       put_token_back();
@@ -530,7 +521,7 @@ static void parse_print_g(int finally_return)
                                   AO2.type = BYTECONSTANT_OT;
                                   AO2.value = 3;
                                   AO2.marker = 0;
-                                  assembleg_3(aload_gc, AO1, AO2, 
+                                  assembleg_3(aload_gc, AO1, AO2,
                                     stack_pointer);
                                   assembleg_1(streamstr_gc, stack_pointer);
                                   goto PrintTermDone;
@@ -628,16 +619,17 @@ static void parse_print_g(int finally_return)
     if (finally_return)
     {
         AO.type = BYTECONSTANT_OT; AO.value = 0x0A; AO.marker = 0;
-        assembleg_1(streamchar_gc, AO); 
+        assembleg_1(streamchar_gc, AO);
         AO.type = BYTECONSTANT_OT; AO.value = 1; AO.marker = 0;
-        assembleg_1(return_gc, AO); 
+        assembleg_1(return_gc, AO);
     }
 }
 
 static void parse_statement_z(int break_label, int continue_label)
-{   int ln, ln2, ln3, ln4, flag;
+{   int ln, ln2, ln3, ln4, flag, fnum;
     assembly_operand AO, AO2, AO3, AO4;
     dbgl spare_dbgl1, spare_dbgl2;
+    char *src;
 
     ASSERT_ZCODE();
 
@@ -718,6 +710,40 @@ static void parse_statement_z(int break_label, int continue_label)
     switch(token_value)
     {
     /*  -------------------------------------------------------------------- */
+    /*  assert ... --------------------------------------------------------- */
+    /*  -------------------------------------------------------------------- */
+
+        case ASSERT_CODE:
+             if (!runtime_error_checking_switch)
+             {  parse_expression(QUANTITY_CONTEXT);
+                break;
+             }
+
+             fnum = ErrorReport.file_number;
+             if (fnum <= 0) src = ErrorReport.source;
+             else src = InputFiles[fnum-1].filename;
+
+             AO = code_generate(parse_expression(QUANTITY_CONTEXT),
+                                QUANTITY_CONTEXT, -1);
+             assemblez_1_branch(jz_zc, AO, ln = next_label++, TRUE);
+             assemble_jump(ln2 = next_label++);
+             assemble_label_no(ln);
+             AO2.value  = compile_string(src, FALSE, FALSE);
+             AO2.marker = STRING_MV;
+             AO2.type   = LONG_CONSTANT_OT;
+             AO3.value  = ErrorReport.line_number / 10000;
+             AO3.marker = 0;
+             AO3.type   = LONG_CONSTANT_OT;
+             AO4.value  = ErrorReport.line_number % 10000;
+             AO4.marker = 0;
+             AO4.type   = LONG_CONSTANT_OT;
+             assemblez_4(call_vn_zc, veneer_routine(AssertFailed_VR),
+                        AO2, AO3, AO4);
+             assemble_label_no(ln2);
+             break;
+
+
+    /*  -------------------------------------------------------------------- */
     /*  box <string-1> ... <string-n> -------------------------------------- */
     /*  -------------------------------------------------------------------- */
 
@@ -758,11 +784,11 @@ static void parse_statement_z(int break_label, int continue_label)
                  if (ln == 0)
                      error("No lines of text given for 'box' display");
 
-                 if (version_number == 3) return;
+                 if (version_number == 3) return; /* Why not v3? */
 
                  AO2.type = SHORT_CONSTANT_OT; AO2.value = ln2; AO2.marker = 0;
                  AO4.type = VARIABLE_OT; AO4.value = 255; AO4.marker = 0;
-                 assemblez_3_to(call_vs_zc, veneer_routine(Box__Routine_VR),
+                 assemblez_call_3_to(veneer_routine(Box__Routine_VR),
                      AO2, AO3, AO4);
                  return;
 
@@ -1041,19 +1067,8 @@ static void parse_statement_z(int break_label, int continue_label)
                      AO2 = code_generate(parse_expression(QUANTITY_CONTEXT),
                                QUANTITY_CONTEXT, -1);
                      if (runtime_error_checking_switch)
-                     {   /* ln2 = next_label++;
-                         check_nonzero_at_runtime(AO, ln2, GIVE_RTE);
-                         assemblez_2(ln, AO, AO2);
-                         assemble_label_no(ln2); */
-                         ln2 = (ln==set_attr_zc)?RT__ChG_VR:RT__ChGt_VR;
-                         if (version_number >= 5)
-                             assemblez_3(call_vn_zc, veneer_routine(ln2),
-                             AO, AO2);
-                         else
-                         {   
-                             assemblez_3_to(call_zc, veneer_routine(ln2),
-                                 AO, AO2, temp_var1);
-                         }
+                     {   ln2 = (ln==set_attr_zc)?RT__ChG_VR:RT__ChGt_VR;
+                         assemblez_call_3(veneer_routine(ln2), AO, AO2);
                      }
                      else
                          assemblez_2(ln, AO, AO2);
@@ -1172,14 +1187,7 @@ static void parse_statement_z(int break_label, int continue_label)
                      QUANTITY_CONTEXT, -1);
                  AO = code_generate(AO, QUANTITY_CONTEXT, -1);
                  if ((runtime_error_checking_switch) && (veneer_mode == FALSE))
-                 {   if (version_number >= 5)
-                         assemblez_3(call_vn_zc, veneer_routine(RT__ChT_VR),
-                             AO, AO2);
-                     else
-                     {   assemblez_3_to(call_zc, veneer_routine(RT__ChT_VR),
-                             AO, AO2, temp_var1);
-                     }
-                 }
+                     assemblez_call_3(veneer_routine(RT__ChT_VR), AO, AO2);
                  else
                      assemblez_2(insert_obj_zc, AO, AO2);
                  break;
@@ -1206,7 +1214,7 @@ static void parse_statement_z(int break_label, int continue_label)
                      AO.value = svals[token_value];
                  else
                  {   ebf_error("'objectloop' variable", token_text);
-                     panic_mode_error_recovery(); break;
+                     panic_mode_error_recovery(); put_token_back(); break;
                  }
                  AO.type = VARIABLE_OT;
                  if ((module_switch) && (AO.value >= MAX_LOCAL_VARIABLES)
@@ -1218,7 +1226,6 @@ static void parse_statement_z(int break_label, int continue_label)
                  misc_keywords.enabled = FALSE;
                  if ((token_type == SEP_TT) && (token_value == CLOSEB_SEP))
                      flag = FALSE;
-
                  ln = 0;
                  if ((token_type == MISC_KEYWORD_TT)
                      && (token_value == NEAR_MK)) ln = 1;
@@ -1226,10 +1233,82 @@ static void parse_statement_z(int break_label, int continue_label)
                      && (token_value == FROM_MK)) ln = 2;
                  if ((token_type == CND_TT) && (token_value == IN_COND))
                  {   get_next_token();
-                     get_next_token();
-                     if ((token_type == SEP_TT) && (token_value == CLOSEB_SEP))
-                         ln = 3;
+                     if ((token_type != SYMBOL_TT) ||
+                         (sflags[token_value] & UNKNOWN_SFLAG > 0 || svals[token_value] > 0))
+                     {
+                         get_next_token();
+                         if ((token_type == SEP_TT) && (token_value == CLOSEB_SEP))
+                            ln = 3;
+                         put_token_back();
+                     }
                      put_token_back();
+                 }
+
+                 /*  Objectloops that can be optimised from
+                     object features known at compile time. */
+                 if (((token_type == CND_TT) &&
+                     (token_value == PROVIDES_COND || token_value == OFCLASS_COND))
+                     || ((token_type == SEP_TT) && (token_value == PROPADD_SEP)))
+                 {   ln4 = (token_value == OFCLASS_COND);
+                     get_next_token();
+                     if (optimise_setting > 1 && version_number > 3 && token_type == SYMBOL_TT
+                             && stypes[token_value] != GLOBAL_VARIABLE_T && !module_switch
+                             && svals[token_value] > 2) { /* Not Object or Class */
+                         char obj_array_name[MAX_IDENTIFIER_LENGTH+4];
+                         int i;
+                         sprintf(obj_array_name, "%s__%c", token_text, ln4?'C':'P');
+
+                         get_next_token();
+                         if ((token_type == SEP_TT) &&
+                             (token_value == CLOSEB_SEP))
+                         {
+                             i = symbol_index(obj_array_name, -1);
+                             if (sflags[i] & UNKNOWN_SFLAG)
+                             {  array_sizes[no_arrays] = 0; /* really not known */
+                                array_symbols[no_arrays++] = i;
+                             }
+                             assign_symbol(i, 0, ARRAY_T);
+                             sflags[i] |= USED_SFLAG;
+                             if (no_arrays == MAX_ARRAYS)
+                                    memoryerror("MAX_ARRAYS", MAX_ARRAYS);
+                             AO2.value = i; AO2.type = LONG_CONSTANT_OT; AO2.marker = SYMBOL_MV;
+
+                             AO3.type = LONG_CONSTANT_OT; AO3.marker = ARRAY_MV;
+                             AO3.value = dynamic_array_area_size;
+                             dynamic_array_area[dynamic_array_area_size++] = 0x01;
+                             dynamic_array_area[dynamic_array_area_size++] = 0x1d;
+                             if (dynamic_array_area_size >= MAX_STATIC_DATA)
+                                memoryerror("MAX_STATIC_DATA", MAX_STATIC_DATA);
+
+                             assemblez_store(temp_var1, zero_operand);
+                             assemble_label_no(ln = next_label++);
+                             assemblez_3(storew_zc, AO3, zero_operand, temp_var1);
+                             assemblez_2_to(loadw_zc, AO2, temp_var1, AO);
+                             ln2 = next_label++; ln3 = next_label++;
+                             assemblez_1_branch(jz_zc, AO, ln2, TRUE);
+                             sequence_point_follows = TRUE;
+                             parse_code_block(ln2, ln3, 0);
+
+                             sequence_point_follows = FALSE;
+                             assemble_label_no(ln3);
+                             assemblez_2_to(loadw_zc, AO3, zero_operand, temp_var1);
+                             if (runtime_error_checking_switch)
+                             {   assembly_operand en_ao;
+                                 assemblez_2_to(loadw_zc, AO2, temp_var1, stack_pointer);
+                                 assemblez_2_branch(je_zc, AO, stack_pointer, next_label, TRUE);
+                                 en_ao.value = OBJECTLOOP_BROKEN_RTE;
+                                 en_ao.marker = 0;
+                                 en_ao.type = SHORT_CONSTANT_OT;
+                                 assemblez_3(call_vn_zc, veneer_routine(RT__Err_VR), en_ao, AO);
+                                 assemble_label_no(next_label++);
+                             }
+                             assemblez_inc(temp_var1);
+                             assemblez_jump(ln);
+                             assemble_label_no(ln2);
+                             return;
+                         }
+                         put_token_back();
+                     }
                      put_token_back();
                  }
 
@@ -1283,7 +1362,7 @@ static void parse_statement_z(int break_label, int continue_label)
                              en_ao.type = SHORT_CONSTANT_OT;
                              assemblez_2_branch(jin_zc, AO, AO4,
                                  next_label, TRUE);
-                             assemblez_3(call_vn_zc, veneer_routine(RT__Err_VR),
+                             assemblez_call_3(veneer_routine(RT__Err_VR),
                                  en_ao, AO);
                              assemblez_jump(ln2);
                              assemble_label_no(next_label++);
@@ -1303,8 +1382,10 @@ static void parse_statement_z(int break_label, int continue_label)
                  ln2 = next_label++;
                  ln3 = next_label++;
                  if (flag)
-                 {   put_token_back();
-                     put_token_back();
+                 {  if ((token_type != SEP_TT) || (token_value != COLON_SEP)) {
+                        put_token_back();
+                        put_token_back();
+                    }
                      sequence_point_follows = TRUE;
                      code_generate(parse_expression(CONDITION_CONTEXT),
                          CONDITION_CONTEXT, ln3);
@@ -1367,11 +1448,7 @@ static void parse_statement_z(int break_label, int continue_label)
                      {   assembly_operand AO5;
                          put_token_back();
                          AO5 = parse_expression(CONSTANT_CONTEXT);
-
-                         if (version_number >= 5)
-                             assemblez_1(call_1n_zc, AO5);
-                         else
-                             assemblez_1_to(call_zc, AO5, temp_var1);
+                         assemblez_call_1(AO5);
                      }
                  }
 
@@ -1389,14 +1466,7 @@ static void parse_statement_z(int break_label, int continue_label)
                  AO = code_generate(parse_expression(QUANTITY_CONTEXT),
                      QUANTITY_CONTEXT, -1);
                  if ((runtime_error_checking_switch) && (veneer_mode == FALSE))
-                 {   if (version_number >= 5)
-                         assemblez_2(call_2n_zc, veneer_routine(RT__ChR_VR),
-                             AO);
-                     else
-                     {   assemblez_2_to(call_zc, veneer_routine(RT__ChR_VR),
-                             AO, temp_var1);
-                     }
-                 }
+                     assemblez_call_2(veneer_routine(RT__ChR_VR), AO);
                  else
                      assemblez_1(remove_obj_zc, AO);
                  break;
@@ -1604,9 +1674,10 @@ static void parse_statement_z(int break_label, int continue_label)
 }
 
 static void parse_statement_g(int break_label, int continue_label)
-{   int ln, ln2, ln3, ln4, flag, onstack;
+{   int ln, ln2, ln3, ln4, flag, onstack, fnum;
     assembly_operand AO, AO2, AO3, AO4;
     dbgl spare_dbgl1, spare_dbgl2;
+    char *src;
 
     ASSERT_GLULX();
 
@@ -1686,6 +1757,36 @@ static void parse_statement_g(int break_label, int continue_label)
 
     switch(token_value)
     {
+
+    /*  -------------------------------------------------------------------- */
+    /*  assert ... --------------------------------------------------------- */
+    /*  -------------------------------------------------------------------- */
+
+        case ASSERT_CODE:
+             if (!runtime_error_checking_switch)
+             {  parse_expression(QUANTITY_CONTEXT);
+                break;
+             }
+
+             fnum = ErrorReport.file_number;
+             if (fnum <= 0) src = ErrorReport.source;
+             else src = InputFiles[fnum-1].filename;
+
+             AO = code_generate(parse_expression(QUANTITY_CONTEXT),
+                                QUANTITY_CONTEXT, -1);
+             assembleg_1_branch(jz_gc, AO, ln = next_label++);
+             assembleg_jump(ln2 = next_label++);
+             assemble_label_no(ln);
+             AO2.value  = compile_string(src, FALSE, FALSE);
+             AO2.marker = STRING_MV;
+             AO2.type   = CONSTANT_OT;
+             AO3.value  = ErrorReport.line_number;
+             AO3.marker = 0;
+             set_constant_ot(&AO3);
+             assembleg_call_2(veneer_routine(AssertFailed_VR),
+                              AO2, AO3, zero_operand);
+             assemble_label_no(ln2);
+             break;
 
     /*  -------------------------------------------------------------------- */
     /*  box <string-1> ... <string-n> -------------------------------------- */
@@ -1798,9 +1899,9 @@ static void parse_statement_g(int break_label, int continue_label)
                  set_constant_ot(&AO);
                  if (token_value == ON_MK)
                    AO2 = zero_operand;
-                 else 
+                 else
                    AO2 = two_operand;
-                 assembleg_call_2(veneer_routine(Glk__Wrap_VR), 
+                 assembleg_call_2(veneer_routine(Glk__Wrap_VR),
                    AO, AO2, zero_operand);
                  break;
 
@@ -1972,7 +2073,7 @@ static void parse_statement_g(int break_label, int continue_label)
 
                  do
                  {   get_next_token();
-                     if ((token_type == SEP_TT) 
+                     if ((token_type == SEP_TT)
                        && (token_value == SEMICOLON_SEP)) {
                          if (onstack) {
                            assembleg_2(copy_gc, stack_pointer, zero_operand);
@@ -2020,13 +2121,13 @@ static void parse_statement_g(int break_label, int continue_label)
                          }
                          if (onstack) {
                            if ((AO2.type == LOCALVAR_OT) && (AO2.value == 0))
-                             assembleg_2(stkpeek_gc, one_operand, 
+                             assembleg_2(stkpeek_gc, one_operand,
                                stack_pointer);
                            else
-                             assembleg_2(stkpeek_gc, zero_operand, 
+                             assembleg_2(stkpeek_gc, zero_operand,
                                stack_pointer);
                          }
-                         if (ln) 
+                         if (ln)
                            AO3 = one_operand;
                          else
                            AO3 = zero_operand;
@@ -2099,16 +2200,16 @@ static void parse_statement_g(int break_label, int continue_label)
         case INVERSION_CODE:
                  AO2.marker = 0;
                  AO2.type   = DEREFERENCE_OT;
-                 AO2.value  = GLULX_HEADER_SIZE+8; 
+                 AO2.value  = GLULX_HEADER_SIZE+8;
                  assembleg_2(copyb_gc, AO2, stack_pointer);
                  assembleg_1(streamchar_gc, stack_pointer);
-                 AO2.value  = GLULX_HEADER_SIZE+9; 
+                 AO2.value  = GLULX_HEADER_SIZE+9;
                  assembleg_2(copyb_gc, AO2, stack_pointer);
                  assembleg_1(streamchar_gc, stack_pointer);
-                 AO2.value  = GLULX_HEADER_SIZE+10; 
+                 AO2.value  = GLULX_HEADER_SIZE+10;
                  assembleg_2(copyb_gc, AO2, stack_pointer);
                  assembleg_1(streamchar_gc, stack_pointer);
-                 AO2.value  = GLULX_HEADER_SIZE+11; 
+                 AO2.value  = GLULX_HEADER_SIZE+11;
                  assembleg_2(copyb_gc, AO2, stack_pointer);
                  assembleg_1(streamchar_gc, stack_pointer);
 
@@ -2121,16 +2222,16 @@ static void parse_statement_g(int break_label, int continue_label)
                      set_constant_ot(&AO);
                      assembleg_1(streamchar_gc, AO);
 
-                     AO2.value  = GLULX_HEADER_SIZE+12; 
+                     AO2.value  = GLULX_HEADER_SIZE+12;
                      assembleg_2(copyb_gc, AO2, stack_pointer);
                      assembleg_1(streamchar_gc, stack_pointer);
-                     AO2.value  = GLULX_HEADER_SIZE+13; 
+                     AO2.value  = GLULX_HEADER_SIZE+13;
                      assembleg_2(copyb_gc, AO2, stack_pointer);
                      assembleg_1(streamchar_gc, stack_pointer);
-                     AO2.value  = GLULX_HEADER_SIZE+14; 
+                     AO2.value  = GLULX_HEADER_SIZE+14;
                      assembleg_2(copyb_gc, AO2, stack_pointer);
                      assembleg_1(streamchar_gc, stack_pointer);
-                     AO2.value  = GLULX_HEADER_SIZE+15; 
+                     AO2.value  = GLULX_HEADER_SIZE+15;
                      assembleg_2(copyb_gc, AO2, stack_pointer);
                      assembleg_1(streamchar_gc, stack_pointer);
 
@@ -2182,9 +2283,9 @@ static void parse_statement_g(int break_label, int continue_label)
     /*  new_line ----------------------------------------------------------- */
     /*  -------------------------------------------------------------------- */
 
-        case NEW_LINE_CODE:  
+        case NEW_LINE_CODE:
               AO.type = BYTECONSTANT_OT; AO.value = 0x0A; AO.marker = 0;
-              assembleg_1(streamchar_gc, AO); 
+              assembleg_1(streamchar_gc, AO);
               break;
 
     /*  -------------------------------------------------------------------- */
@@ -2202,16 +2303,16 @@ static void parse_statement_g(int break_label, int continue_label)
                  }
                  else if ((token_type == SYMBOL_TT) &&
                    (stypes[token_value] == GLOBAL_VARIABLE_T)) {
-                     AO.value = svals[token_value];  
+                     AO.value = svals[token_value];
                      AO.type = GLOBALVAR_OT;
                      AO.marker = 0;
                  }
                  else {
                      ebf_error("'objectloop' variable", token_text);
-                     panic_mode_error_recovery(); 
+                     panic_mode_error_recovery(); put_token_back();
                      break;
                  }
-                 /*if ((module_switch) 
+                 /*if ((module_switch)
                      && (AO.value >= MAX_LOCAL_VARIABLES)
                      && (AO.value < LOWEST_SYSTEM_VAR_NUMBER))
                      AO.marker = VARIABLE_MV;
@@ -2229,10 +2330,85 @@ static void parse_statement_g(int break_label, int continue_label)
                      && (token_value == FROM_MK)) ln = 2;
                  if ((token_type == CND_TT) && (token_value == IN_COND))
                  {   get_next_token();
-                     get_next_token();
-                     if ((token_type == SEP_TT) && (token_value == CLOSEB_SEP))
-                         ln = 3;
+                     if ((token_type != SYMBOL_TT) ||
+                         (sflags[token_value] & UNKNOWN_SFLAG > 0 || svals[token_value] > 0))
+                     {
+                         get_next_token();
+                         if ((token_type == SEP_TT) && (token_value == CLOSEB_SEP))
+                             ln = 3;
+                         put_token_back();
+                     }
                      put_token_back();
+                 }
+
+                 /*  Objectloops that can be optimised from
+                     object features known at compile time. */
+                 if (((token_type == CND_TT) &&
+                     (token_value == PROVIDES_COND || token_value == OFCLASS_COND))
+                     || ((token_type == SEP_TT) && (token_value == PROPADD_SEP)))
+                 {   ln4 = (token_value == OFCLASS_COND);
+                     get_next_token();
+                     if (optimise_setting > 1 && token_type == SYMBOL_TT
+                             && stypes[token_value] != GLOBAL_VARIABLE_T && !module_switch
+                             && svals[token_value] > 2) { /* Not Object or Class */
+                         char obj_array_name[MAX_IDENTIFIER_LENGTH+4];
+                         int i;
+                         sprintf(obj_array_name, "%s__%c", token_text, ln4?'C':'P');
+
+                         get_next_token();
+                         if ((token_type == SEP_TT) && (token_value == CLOSEB_SEP))
+                         {
+                             i = symbol_index(obj_array_name, -1);
+                             if (sflags[i] & UNKNOWN_SFLAG)
+                             {  array_sizes[no_arrays] = 0; /* really not known */
+                                array_symbols[no_arrays++] = i;
+                             }
+                             assign_symbol(i, 0, ARRAY_T);
+                             sflags[i] |= USED_SFLAG;
+                             if (no_arrays == MAX_ARRAYS)
+                                    memoryerror("MAX_ARRAYS", MAX_ARRAYS);
+                             AO2.value = i; AO2.type = CONSTANT_OT; AO2.marker = SYMBOL_MV;
+
+                             AO3.type = CONSTANT_OT; AO3.marker = ARRAY_MV;
+                             AO3.value = dynamic_array_area_size -4*MAX_GLOBAL_VARIABLES;
+                             /* Glulx measures Array backpatches from top of globals */
+                             dynamic_array_area[dynamic_array_area_size++] = 0;
+                             dynamic_array_area[dynamic_array_area_size++] = 0;
+                             dynamic_array_area[dynamic_array_area_size++] = 0;
+                             dynamic_array_area[dynamic_array_area_size++] = 0;
+                             if (dynamic_array_area_size >= MAX_STATIC_DATA)
+                                memoryerror("MAX_STATIC_DATA", MAX_STATIC_DATA);
+
+                             assembleg_store(temp_var1, zero_operand);
+                             assemble_label_no(ln = next_label++);
+                             assembleg_3(astore_gc, AO3, zero_operand, temp_var1);
+                             assembleg_3(aload_gc, AO2, temp_var1, AO);
+                             ln2 = next_label++; ln3 = next_label++;
+                             assembleg_1_branch(jz_gc, AO, ln2);
+                             sequence_point_follows = TRUE;
+                             parse_code_block(ln2, ln3, 0);
+
+                             sequence_point_follows = FALSE;
+                             assemble_label_no(ln3);
+                             assembleg_3(aload_gc, AO3, zero_operand, temp_var1);
+                             if (runtime_error_checking_switch)
+                             {   assembly_operand en_ao;
+                                 assembleg_3(aload_gc, AO2, temp_var1, stack_pointer);
+                                 assembleg_2_branch(jeq_gc, AO, stack_pointer, next_label);
+                                 en_ao.value = OBJECTLOOP_BROKEN_RTE;
+                                 en_ao.marker = 0;
+                                 en_ao.type = BYTECONSTANT_OT;
+                                 assembleg_call_2(veneer_routine(RT__Err_VR),
+                                 en_ao, AO, zero_operand);
+                                 assemble_label_no(next_label++);
+                             }
+                             assembleg_inc(temp_var1);
+                             assembleg_jump(ln);
+                             assemble_label_no(ln2);
+                             return;
+                         }
+                         put_token_back();
+                     }
                      put_token_back();
                  }
 
@@ -2297,7 +2473,7 @@ static void parse_statement_g(int break_label, int continue_label)
                              AO4.value = 5; /* parent */
                              AO4.marker = 0;
                              assembleg_3(aload_gc, AO, AO4, stack_pointer);
-                             assembleg_2_branch(jeq_gc, stack_pointer, AO5, 
+                             assembleg_2_branch(jeq_gc, stack_pointer, AO5,
                                  next_label);
                              assembleg_call_2(veneer_routine(RT__Err_VR),
                                  en_ao, AO, zero_operand);
@@ -2328,8 +2504,11 @@ static void parse_statement_g(int break_label, int continue_label)
                  ln2 = next_label++;
                  ln3 = next_label++;
                  if (flag)
-                 {   put_token_back();
-                     put_token_back();
+                 {
+                     if ((token_type != SEP_TT) || (token_value != COLON_SEP)) {
+                        put_token_back();
+                        put_token_back();
+                     }
                      sequence_point_follows = TRUE;
                      code_generate(parse_expression(CONDITION_CONTEXT),
                          CONDITION_CONTEXT, ln3);
@@ -2385,8 +2564,8 @@ static void parse_statement_g(int break_label, int continue_label)
           get_next_token();
           if ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)) {
             AO.type = BYTECONSTANT_OT; AO.value = 1; AO.marker = 0;
-            assembleg_1(return_gc, AO); 
-            return; 
+            assembleg_1(return_gc, AO);
+            return;
           }
           put_token_back();
           AO = code_generate(parse_expression(RETURN_Q_CONTEXT),
@@ -2398,16 +2577,16 @@ static void parse_statement_g(int break_label, int continue_label)
     /*  rfalse ------------------------------------------------------------- */
     /*  -------------------------------------------------------------------- */
 
-        case RFALSE_CODE:   
-          assembleg_1(return_gc, zero_operand); 
+        case RFALSE_CODE:
+          assembleg_1(return_gc, zero_operand);
           break;
 
     /*  -------------------------------------------------------------------- */
     /*  rtrue -------------------------------------------------------------- */
     /*  -------------------------------------------------------------------- */
 
-        case RTRUE_CODE:   
-          assembleg_1(return_gc, one_operand); 
+        case RTRUE_CODE:
+          assembleg_1(return_gc, one_operand);
           break;
 
     /*  -------------------------------------------------------------------- */
@@ -2422,7 +2601,7 @@ static void parse_statement_g(int break_label, int continue_label)
 
                  AO.value = 32; AO.marker = 0; set_constant_ot(&AO);
 
-                 assembleg_2_branch(jlt_gc, temp_var1, one_operand, 
+                 assembleg_2_branch(jlt_gc, temp_var1, one_operand,
                      ln = next_label++);
                  assemble_label_no(ln2 = next_label++);
                  assembleg_1(streamchar_gc, AO);
@@ -2479,27 +2658,27 @@ static void parse_statement_g(int break_label, int continue_label)
                  AO.marker = 0;
                  set_constant_ot(&AO);
                  switch(token_value)
-                 {   case ROMAN_MK: 
+                 {   case ROMAN_MK:
                          AO2 = zero_operand; /* normal */
                          break;
-                     case REVERSE_MK: 
+                     case REVERSE_MK:
                          AO2.value = 5; /* alert */
                          AO2.marker = 0;
                          set_constant_ot(&AO2);
                          break;
-                     case BOLD_MK: 
+                     case BOLD_MK:
                          AO2.value = 4; /* subheader */
                          AO2.marker = 0;
                          set_constant_ot(&AO2);
                          break;
-                     case UNDERLINE_MK: 
+                     case UNDERLINE_MK:
                          AO2 = one_operand; /* emphasized */
                          break;
-                     case FIXED_MK: 
+                     case FIXED_MK:
                          AO2 = two_operand; /* preformatted */
                          break;
                  }
-                 assembleg_call_2(veneer_routine(Glk__Wrap_VR), 
+                 assembleg_call_2(veneer_routine(Glk__Wrap_VR),
                    AO, AO2, zero_operand);
                  break;
 
@@ -2513,7 +2692,7 @@ static void parse_statement_g(int break_label, int continue_label)
                      QUANTITY_CONTEXT, -1);
                  match_close_bracket();
 
-                 assembleg_store(temp_var1, AO); 
+                 assembleg_store(temp_var1, AO);
 
                  parse_code_block(ln = next_label++, continue_label, 1);
                  assemble_label_no(ln);
@@ -2553,7 +2732,7 @@ static void parse_statement_g(int break_label, int continue_label)
        Inform compiler, but which is important in development. */
 
         default:
-          error("*** Statement code gen: Can't generate yet ***\n");
+          error("*** Statement code gen: Can't generate yet ***");
           panic_mode_error_recovery(); return;
     }
 

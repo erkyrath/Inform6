@@ -7,7 +7,7 @@
 /*             routines in "inform.c", since they are tied up with ICL       */
 /*             settings and are very host OS-dependent.                      */
 /*                                                                           */
-/*   Part of Inform 6.31                                                     */
+/*   Part of Inform 6.40                                                     */
 /*   copyright (c) Graham Nelson 1993 - 2006                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
@@ -46,7 +46,7 @@ char Temp1_Name[PATHLEN], Temp2_Name[PATHLEN], Temp3_Name[PATHLEN];
 /*   Opening and closing source code files                                   */
 /* ------------------------------------------------------------------------- */
 
-extern void load_sourcefile(char *filename_given, int same_directory_flag)
+extern void load_sourcefile(char *filename_given, int same_directory_flag, int ignore_missing)
 {
     /*  Meaning: open a new file of Inform source.  (The lexer picks up on
         this by noticing that input_file has increased.)                     */
@@ -61,6 +61,8 @@ extern void load_sourcefile(char *filename_given, int same_directory_flag)
                 (input_file==0)?1:0);
         handle = fopen(name,"r");
     } while ((handle == NULL) && (x != 0));
+
+    if(handle == NULL && ignore_missing==1) return;
 
     if (filename_storage_left <= (int)strlen(name))
         memoryerror("MAX_SOURCE_FILES", MAX_SOURCE_FILES);
@@ -81,7 +83,12 @@ extern void load_sourcefile(char *filename_given, int same_directory_flag)
     if (InputFiles[input_file].handle==NULL)
         fatalerror_named("Couldn't open source file", name);
 
-    if (line_trace_level > 0) printf("\nOpening file \"%s\"\n",name);
+    if (line_trace_level > 0)
+    {
+        printf(tx("Opening file"));
+        print_main_line();
+        printf(" \"%s\"\n",name);
+    }
 
     input_file++;
 }
@@ -100,12 +107,42 @@ static void close_sourcefile(int file_number)
 
     InputFiles[file_number-1].handle = NULL;
 
-    if (line_trace_level > 0) printf("\nClosing file\n");
+    /* if (line_trace_level > 0) printf("Closing file\n"); */
 }
 
 extern void close_all_source(void)
 {   int i;
     for (i=0; i<input_file; i++) close_sourcefile(i+1);
+}
+
+/* ------------------------------------------------------------------------- */
+/*   Reading in auxiliary text files                                         */
+/* ------------------------------------------------------------------------- */
+
+extern char *file_read_line(char *buf, int maxlen, FILE *f)
+{   /* replacement for fgets() to deal with Mac line-endings, and chopping
+    off final line terminator.  Used by execute_icl_header(),
+    read_translation_file() and read_source_to_iso_file() */
+    static char lc;
+    int i, c;
+    char *retval;
+    i = 0;
+    maxlen--; retval = buf;
+    do
+    {   c = fgetc(f);
+        if (feof(f) || ferror(f))
+        {   retval = NULL;
+            break;
+        }
+        if (c==10 || c==12 || c==13)
+        {   if (i==0 && ((c==13 && lc==10) || (c==10 && lc==13))) continue;
+            break;
+        }
+        if (i < maxlen) buf[i++]=c;
+    } while (TRUE);
+    buf[i] = 0;
+    lc = c;
+    return retval;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -189,9 +226,9 @@ static void sf_put(int c)
         checksum_long += ((int32)(c & 0xFF));
         break;
       }
-      
+
       checksum_count = (checksum_count+1) & 3;
-      
+
     }
 
     fputc(c, sf_handle);
@@ -233,14 +270,14 @@ static void output_compression(int entnum, int32 *size)
     (*size) += 1;
     break;
   case 3:
-    cx = (char *)abbreviations_at + ent->u.val*MAX_ABBREV_LENGTH;
+    cx = (char *)abbreviations_gl + ent->u.val*MAX_ABBREV_LENGTH;
     while (*cx) {
       sf_put(*cx);
       cx++;
-      (*size) += 1;  
+      (*size) += 1;
     }
     sf_put('\0');
-    (*size) += 1;  
+    (*size) += 1;
     break;
   case 9:
     val = abbreviations_offset + 4 + ent->u.val*4;
@@ -284,6 +321,7 @@ static void output_file_z(void)
     sf_handle = fopen(new_name,"wb");
     if (sf_handle == NULL)
         fatalerror_named("Couldn't open output file", new_name);
+    if (line_trace_level > 0) printf("Writing file \"%s\"\n",new_name);
 
 #ifdef MAC_MPW
     /*  Set the type and creator to Andrew Plotkin's MaxZip, a popular
@@ -331,6 +369,7 @@ static void output_file_z(void)
             long_flag = !long_flag;
         }
         backpatch_marker &= 0x1f;
+
         while (j<offset)
         {   size++;
             sf_put((temporary_files_switch)?fgetc(fin):
@@ -440,6 +479,7 @@ static void output_file_z(void)
       fatalerror("I/O failure: couldn't backtrack on story file for checksum");
 
     fclose(sf_handle);
+    if (no_errors>0) remove(new_name);
 
     /*  Write a copy of the header into the debugging information file
         (mainly so that it can be used to identify which story file matches
@@ -482,6 +522,7 @@ static void output_file_g(void)
     sf_handle = fopen(new_name,"wb");
     if (sf_handle == NULL)
         fatalerror_named("Couldn't open output file", new_name);
+    if (line_trace_level > 0) printf("Writing file \"%s\"\n",new_name);
 
 #ifdef MAC_MPW
     /*  Set the type and creator to Andrew Plotkin's MaxZip, a popular
@@ -544,7 +585,7 @@ static void output_file_g(void)
     sf_put(0x00);
     sf_put(0x00);
     sf_put(0x00);
-    
+
     size = GLULX_HEADER_SIZE;
 
     /*  (1a) Output the eight-byte memory layout identifier. */
@@ -590,7 +631,7 @@ static void output_file_g(void)
       for (i=0; i<zcode_backpatch_size; i=i+6) {
         int data_len;
         int32 offset, v;
-        offset = 
+        offset =
           (read_byte_from_memory_block(&zcode_backpatch_table, i+2) << 24)
           | (read_byte_from_memory_block(&zcode_backpatch_table, i+3) << 16)
           | (read_byte_from_memory_block(&zcode_backpatch_table, i+4) << 8)
@@ -734,7 +775,7 @@ static void output_file_g(void)
         else
           sf_put(0xE0); /* type byte -- non-compressed string */
         size++;
-        jx = 0; 
+        jx = 0;
         curbyte = 0;
         while (!done) {
           if (temporary_files_switch)
@@ -777,7 +818,7 @@ static void output_file_g(void)
                 compiler_error("Strange @ escape in processed text.");
               }
             }
-            else 
+            else
               continue;
           }
           else {
@@ -826,12 +867,17 @@ static void output_file_g(void)
           size++;
         }
       }
-      
+
       if (size - origsize != compression_string_size)
         compiler_error("Compression string size mismatch.");
 
     }
-    
+
+    if (temporary_files_switch)
+    {   fclose(Temp1_fp);
+        remove(Temp1_Name); remove(Temp2_Name);
+    }
+
     /*  (4.5)  Output any null bytes (required to reach a GPAGESIZE address)
              before RAMSTART. */
 
@@ -856,6 +902,7 @@ static void output_file_g(void)
       fatalerror("I/O failure: couldn't backtrack on story file for checksum");
 
     fclose(sf_handle);
+    if (no_errors>0) remove(new_name);
 
 #ifdef ARCHIMEDES
     {   char settype_command[PATHLEN];
@@ -1096,7 +1143,7 @@ extern void files_allocate_arrays(void)
 {   filename_storage = my_malloc(MAX_SOURCE_FILES*64, "filename storage");
     filename_storage_p = filename_storage;
     filename_storage_left = MAX_SOURCE_FILES*64;
-    InputFiles = my_malloc(MAX_SOURCE_FILES*sizeof(FileId), 
+    InputFiles = my_malloc(MAX_SOURCE_FILES*sizeof(FileId),
         "input file storage");
 }
 

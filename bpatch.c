@@ -2,7 +2,7 @@
 /*   "bpatch" : Keeps track of, and finally acts on, backpatch markers,      */
 /*              correcting symbol values not known at compilation time       */
 /*                                                                           */
-/*   Part of Inform 6.31                                                     */
+/*   Part of Inform 6.40                                                     */
 /*   copyright (c) Graham Nelson 1993 - 2006                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
@@ -169,7 +169,7 @@ static int32 backpatch_value_g(int32 value)
         case VARIABLE_MV:
             value = variables_offset + (4*value); break;
         case OBJECT_MV:
-            value = object_tree_offset + (OBJECT_BYTE_LENGTH*(value-1)); 
+            value = object_tree_offset + (OBJECT_BYTE_LENGTH*(value-1));
             break;
         case VROUTINE_MV:
             if ((value<0) || (value>=VENEER_ROUTINES))
@@ -199,7 +199,7 @@ static int32 backpatch_value_g(int32 value)
             }
             value = value_of_system_constant(value); break;
         case DWORD_MV:
-            value = dictionary_offset + 4 
+            value = dictionary_offset + 4
               + final_dict_order[value]*(7+DICT_WORD_SIZE);
             break;
         case ACTION_MV:
@@ -265,8 +265,8 @@ static int32 backpatch_value_g(int32 value)
                     case ARRAY_T: value += arrays_offset; break;
                     case OBJECT_T:
                     case CLASS_T:
-                      value = object_tree_offset + 
-                        (OBJECT_BYTE_LENGTH*(value-1)); 
+                      value = object_tree_offset +
+                        (OBJECT_BYTE_LENGTH*(value-1));
                       break;
                     case ATTRIBUTE_T:
                       /* value is unchanged */
@@ -427,7 +427,7 @@ extern void backpatch_zmachine_image_g(void)
 
         /* printf("-MV %d ZA %d Off %06x\n", backpatch_marker, zmachine_area, offset);  */
 
-            switch(zmachine_area) {   
+            switch(zmachine_area) {
         case PROP_DEFAULTS_ZA:   addr = prop_defaults_offset+4; break;
         case PROP_ZA:            addr = prop_values_offset; break;
         case INDIVIDUAL_PROP_ZA: addr = individuals_offset; break;
@@ -438,7 +438,7 @@ extern void backpatch_zmachine_image_g(void)
             if (compiler_error("Illegal area to backpatch"))
               backpatch_error_flag = TRUE;
         }
-        addr = addr + offset - Write_RAM_At; 
+        addr = addr + offset - Write_RAM_At;
 
         value = (zmachine_paged_memory[addr] << 24)
                 | (zmachine_paged_memory[addr+1] << 16)

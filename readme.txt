@@ -1,27 +1,22 @@
-This is version 6.31 of the Inform compiler,
-copyright (c) Graham Nelson 1993 - 2006
-Full release notes and instructions are available at
-http://www.inform-fiction.org
-and
-http://www.ifarchive.org/indexes/if-archiveXinfocomXcompilersXinform6.html
+This is an obsolete source tree for a never-released "Inform 6.40",
+found at http://www.seebs.net/tmp/cvsroot.zip.
 
+This was based on Inform 6.31, and worked on (sporadically) from
+2003-2006, it looks like. Primary contributors were rfirth, cknight,
+dkinder.
 
-This is a bug-fix update to Inform 6.30. The only changes between 6.30 and
-6.31 are the application of the following patches:
+This tree was abandoned when Inform 7 came into play, and its changes
+did not make it into the Inform 6.32 that is now supported with I7.
 
-C63001: Compiler overflows if too many properties
-http://www.inform-fiction.org/patches/C63001.html
+I am saving it in this branch for historical reasons. Some of the
+changes will probably be adapted into the live Inform 6.3x release
+stream, but I think any such imports will have to be carried over by
+hand. There's been too much divergence for a simple source-control
+merge, and I don't like all of the changes anyhow.
 
-C63005: Backpatch errors in large V8 games
-http://www.inform-fiction.org/patches/C63005.html
+I've added two files to this directory:
 
-C63009: Various problems with PATHLEN
-http://www.inform-fiction.org/patches/C63009.html
+* fork-cvs-log -- the CVS changelog that came with the CVS archive.
+* fork-change-notes -- my (Zarf's) notes about what all the changes do.
 
-C63013: Complex 'if' crashes compiler
-http://www.inform-fiction.org/patches/C63013.html
-
-C63016: Bad code generation in veneer.c
-http://www.inform-fiction.org/patches/C63016.html
-
-
+(Andrew Plotkin, Aug 18 2012)

@@ -1,0 +1,1919 @@
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/Makefile,v
+Working file: Makefile
+head: 1.6
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.6
+	inform6_30: 1.6.0.2
+	inform6_30_branchpoint: 1.6
+	release_6_30: 1.6
+	BETA2_6_3: 1.4
+	realtime63_lastmerge: 1.2
+	realtime63: 1.2.0.2
+	realtime63_branchpoint: 1.2
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 7;	selected revisions: 7
+description:
+----------------------------
+revision 1.6
+date: 2004-02-08 05:57:07 -0500;  author: dkinder;  state: Exp;  lines: +0 -3;
+Removed unnecessary get option
+----------------------------
+revision 1.5
+date: 2004-01-20 18:50:22 -0500;  author: dkinder;  state: Exp;  lines: +24 -24;
+Corrected CRLF -> LF
+----------------------------
+revision 1.4
+date: 2003-12-24 12:39:43 -0500;  author: dkinder;  state: Exp;  lines: +7 -5;
+Removed inform_w32 target and added getftp target
+----------------------------
+revision 1.3
+date: 2003-12-18 12:53:11 -0500;  author: mcoyne;  state: Exp;  lines: +2 -0;
+Added infrmw32 target (aliased to inform_w32)
+----------------------------
+revision 1.2
+date: 2003-12-15 16:31:50 -0500;  author: inform63;  state: Exp;  lines: +5 -6;
+Updated for CVS
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:40 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:40 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/Attic/Makefile.in,v
+Working file: Makefile.in
+head: 1.2
+branch:
+locks: strict
+access list:
+symbolic names:
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 3;	selected revisions: 3
+description:
+----------------------------
+revision 1.2
+date: 2003-12-26 13:05:00 -0500;  author: dkinder;  state: dead;  lines: +0 -0;
+Removed unused file
+----------------------------
+revision 1.1
+date: 2003-12-11 14:19:59 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:19:59 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/arrays.c,v
+Working file: arrays.c
+head: 1.5
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.2
+	inform6_30: 1.2.0.2
+	inform6_30_branchpoint: 1.2
+	release_6_30: 1.2
+	BETA2_6_3: 1.2
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 6;	selected revisions: 6
+description:
+----------------------------
+revision 1.5
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +2 -2;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.4
+date: 2004-09-04 08:25:59 -0400;  author: cknight;  state: Exp;  lines: +5 -4;
+Suggestion 128: more informative duplicate errors, and refining panic_mode.
+----------------------------
+revision 1.3
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +11 -11;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.2
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:00 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:00 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/asm.c,v
+Working file: asm.c
+head: 1.15
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.7
+	inform6_30: 1.7.0.2
+	inform6_30_branchpoint: 1.7
+	release_6_30: 1.7
+	BETA2_6_3: 1.6
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 16;	selected revisions: 16
+description:
+----------------------------
+revision 1.15
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +9 -9;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.14
+date: 2004-11-07 17:39:17 -0500;  author: cknight;  state: Exp;  lines: +76 -1;
+Sam's V3 call streamlining
+----------------------------
+revision 1.13
+date: 2004-10-20 03:55:14 -0400;  author: cknight;  state: Exp;  lines: +3 -1;
+Shortened string used for Infix routine headers
+----------------------------
+revision 1.12
+date: 2004-09-10 18:00:17 -0400;  author: dkinder;  state: Exp;  lines: +4 -78;
+Removed commented out code
+----------------------------
+revision 1.11
+date: 2004-09-02 03:02:25 -0400;  author: cknight;  state: Exp;  lines: +36 -7;
+Added Infix routine watching for Glulx
+----------------------------
+revision 1.10
+date: 2004-08-21 07:55:28 -0400;  author: cknight;  state: Exp;  lines: +1 -1;
+One trailing space removed
+----------------------------
+revision 1.9
+date: 2004-08-21 07:49:59 -0400;  author: cknight;  state: Exp;  lines: +23 -8;
+Applied patch http://www.inform-fiction.org/patches/C63003.html
+----------------------------
+revision 1.8
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +61 -61;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.7
+date: 2004-01-31 11:46:27 -0500;  author: cknight;  state: Exp;  lines: +7 -2;
+Extended possible number of labels per routine and added errors for out-of-range jumps.
+----------------------------
+revision 1.6
+date: 2004-01-16 19:18:29 -0500;  author: cknight;  state: Exp;  lines: +0 -1;
+Removed unwanted line from 6.21.4 patch.
+----------------------------
+revision 1.5
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.4
+date: 2004-01-05 19:07:50 -0500;  author: dkinder;  state: Exp;  lines: +2875 -2875;
+Corrected line endings from CRLF to LF
+----------------------------
+revision 1.3
+date: 2003-12-27 14:25:12 -0500;  author: dkinder;  state: Exp;  lines: +2 -5;
+Removed unnecessary local variables from assembleg_instruction() (from Darren Bane)
+----------------------------
+revision 1.2
+date: 2003-12-21 16:15:51 -0500;  author: cknight;  state: Exp;  lines: +2878 -2882;
+removed a few local vars (banewarn.patch)
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:03 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:03 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/bpatch.c,v
+Working file: bpatch.c
+head: 1.4
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.2
+	inform6_30: 1.2.0.2
+	inform6_30_branchpoint: 1.2
+	release_6_30: 1.2
+	BETA2_6_3: 1.2
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 5;	selected revisions: 5
+description:
+----------------------------
+revision 1.4
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +2 -2;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.3
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +7 -7;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.2
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:04 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:04 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/changelog.txt,v
+Working file: changelog.txt
+head: 1.6
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.6
+	inform6_30: 1.6.0.2
+	inform6_30_branchpoint: 1.6
+	release_6_30: 1.6
+	BETA2_6_3: 1.6
+	realtime63_lastmerge: 1.2
+	realtime63: 1.2.0.2
+	realtime63_branchpoint: 1.2
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 7;	selected revisions: 7
+description:
+----------------------------
+revision 1.6
+date: 2003-12-31 10:41:16 -0500;  author: cknight;  state: Exp;  lines: +1 -1;
+added filename extensions to execute_icl_header
+----------------------------
+revision 1.5
+date: 2003-12-29 17:08:15 -0500;  author: dkinder;  state: Exp;  lines: +10 -1;
+Added notes for changes made by me on 031225 and 031227
+----------------------------
+revision 1.4
+date: 2003-12-29 16:49:52 -0500;  author: cknight;  state: Exp;  lines: +1 -0;
+removed 2 lines (1688-9) in expressc that warned on obj.prop->i - seemed corollary to s15 (CK)  It's gone back to Unix line endings, too...
+----------------------------
+revision 1.3
+date: 2003-12-21 16:15:51 -0500;  author: cknight;  state: Exp;  lines: +6 -0;
+*** empty log message ***
+----------------------------
+revision 1.2
+date: 2003-12-14 18:37:53 -0500;  author: inform63;  state: Exp;  lines: +1 -0;
+Made MAX_SOURCE_FILES a dynamic memory setting.
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:33 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:33 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/chars.c,v
+Working file: chars.c
+head: 1.7
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.2
+	inform6_30: 1.2.0.2
+	inform6_30_branchpoint: 1.2
+	release_6_30: 1.2
+	BETA2_6_3: 1.2
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 8;	selected revisions: 8
+description:
+----------------------------
+revision 1.7
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +2 -2;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.6
+date: 2004-12-10 07:42:24 -0500;  author: cknight;  state: Exp;  lines: +1 -1;
+(minor) Mac line-ending fix C63019
+----------------------------
+revision 1.5
+date: 2004-11-07 17:23:08 -0500;  author: cknight;  state: Exp;  lines: +53 -50;
++charset_map changes by Roger
+----------------------------
+revision 1.4
+date: 2004-10-12 14:11:41 -0400;  author: dkinder;  state: Exp;  lines: +37 -2;
+S10: improvements to +charset_map
+----------------------------
+revision 1.3
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +1 -1;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.2
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:05 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:05 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/directs.c,v
+Working file: directs.c
+head: 1.17
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.2
+	inform6_30: 1.2.0.2
+	inform6_30_branchpoint: 1.2
+	release_6_30: 1.2
+	BETA2_6_3: 1.2
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 18;	selected revisions: 18
+description:
+----------------------------
+revision 1.17
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +17 -17;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.16
+date: 2005-07-07 20:11:45 -0400;  author: jfisher;  state: Exp;  lines: +5 -0;
+Re-applied the patch originally commited on 12/24; but overwritten later.
+----------------------------
+revision 1.15
+date: 2005-04-26 17:29:50 -0400;  author: dkinder;  state: Exp;  lines: +1 -1;
+Fix variable declared without type
+----------------------------
+revision 1.14
+date: 2005-03-15 17:33:52 -0500;  author: cknight;  state: Exp;  lines: +25 -14;
+S129 separating character grammar
+----------------------------
+revision 1.13
+date: 2004-12-24 10:56:36 -0500;  author: jfisher;  state: Exp;  lines: +13 -7;
+Fixed bug with S114 where values pushed on ifdef stack are never removed.
+----------------------------
+revision 1.12
+date: 2004-12-10 07:42:11 -0500;  author: cknight;  state: Exp;  lines: +2 -2;
+(minor) removed trailing spaces
+----------------------------
+revision 1.11
+date: 2004-10-15 10:19:16 -0400;  author: cknight;  state: Exp;  lines: +15 -24;
+S138 - IFDEF now takes logical operators
+----------------------------
+revision 1.10
+date: 2004-10-12 04:41:23 -0400;  author: cknight;  state: Exp;  lines: +21 -1;
+S114 & S115: #End change and #Undef implementation
+----------------------------
+revision 1.9
+date: 2004-10-10 07:59:26 -0400;  author: cknight;  state: Exp;  lines: +22 -3;
+Implementation of S99: replace (oldname) (newname) and improved some error recovery
+----------------------------
+revision 1.8
+date: 2004-09-04 17:52:11 -0400;  author: cknight;  state: Exp;  lines: +3 -0;
+more informative duplicate errors
+----------------------------
+revision 1.7
+date: 2004-08-18 17:38:24 -0400;  author: dkinder;  state: Exp;  lines: +2 -1;
+Wrap long comment over two lines
+----------------------------
+revision 1.6
+date: 2004-08-18 16:58:54 -0400;  author: jfisher;  state: Exp;  lines: +13 -13;
+Revision of comment style introduced in he MIF support patch (again)
+----------------------------
+revision 1.5
+date: 2004-08-18 16:54:09 -0400;  author: jfisher;  state: Exp;  lines: +14 -14;
+Revision of comment style introduced in he MIF support patch.
+----------------------------
+revision 1.4
+date: 2004-07-28 22:29:44 -0400;  author: jfisher;  state: Exp;  lines: +96 -19;
+Constant Includes support
+----------------------------
+revision 1.3
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +2 -2;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.2
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:07 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:07 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/errors.c,v
+Working file: errors.c
+head: 1.7
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.2
+	inform6_30: 1.2.0.2
+	inform6_30_branchpoint: 1.2
+	release_6_30: 1.2
+	BETA2_6_3: 1.2
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 8;	selected revisions: 8
+description:
+----------------------------
+revision 1.7
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +7 -7;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.6
+date: 2004-12-10 08:12:13 -0500;  author: cknight;  state: Exp;  lines: +131 -24;
+S59 translation and moved duplicate_error() from symbols.c
+----------------------------
+revision 1.5
+date: 2004-11-07 17:34:00 -0500;  author: cknight;  state: Exp;  lines: +69 -9;
+Added Sam's #line directive for error numbers
+----------------------------
+revision 1.4
+date: 2004-10-15 10:23:52 -0400;  author: cknight;  state: Exp;  lines: +6 -2;
+S136 IFDEF ignores errors and S1 -I warnings are errors
+----------------------------
+revision 1.3
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +2 -2;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.2
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:07 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:07 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/expressc.c,v
+Working file: expressc.c
+head: 1.15
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.9
+	inform6_30: 1.9.0.2
+	inform6_30_branchpoint: 1.9
+	release_6_30: 1.9
+	BETA2_6_3: 1.7
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 16;	selected revisions: 16
+description:
+----------------------------
+revision 1.15
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +2 -2;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.14
+date: 2004-12-10 07:35:05 -0500;  author: cknight;  state: Exp;  lines: +4 -5;
+S59 translation and fix to property bounds check
+----------------------------
+revision 1.13
+date: 2004-11-07 17:49:23 -0500;  author: cknight;  state: Exp;  lines: +62 -49;
+Sam's V3 call streamlining; property bounds checking; C63018 fix
+----------------------------
+revision 1.12
+date: 2004-10-15 10:14:14 -0400;  author: cknight;  state: Exp;  lines: +4 -4;
+S102 - table-->0 checks commented out
+----------------------------
+revision 1.11
+date: 2004-08-22 18:11:29 -0400;  author: cknight;  state: Exp;  lines: +14 -1;
+http://www.inform-fiction.org/patches/C63011.html
+----------------------------
+revision 1.10
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +71 -71;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.9
+date: 2004-02-28 11:55:40 -0500;  author: cknight;  state: Exp;  lines: +1 -0;
+Removed compiler error about arrays when using -U with Balances/Toyshop.
+----------------------------
+revision 1.8
+date: 2004-02-28 11:43:04 -0500;  author: cknight;  state: Exp;  lines: +24 -23;
+Removed compiler error about arrays when using -U with Balances/Toyshop.
+----------------------------
+revision 1.7
+date: 2004-01-14 13:15:33 -0500;  author: cknight;  state: Exp;  lines: +1 -1;
+Fixed application of fix C62127 to Glulx.
+----------------------------
+revision 1.6
+date: 2004-01-11 12:42:46 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Applied Z-code fix for C62127 to Glulx access_memory_g()
+----------------------------
+revision 1.5
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.4
+date: 2003-12-29 16:49:53 -0500;  author: cknight;  state: Exp;  lines: +2928 -2930;
+removed 2 lines (1688-9) in expressc that warned on obj.prop->i - seemed corollary to s15 (CK)  It's gone back to Unix line endings, too...
+----------------------------
+revision 1.3
+date: 2003-12-21 16:15:51 -0500;  author: cknight;  state: Exp;  lines: +2 -5;
+removed a few unused lcoal variables (banewarn.patch)
+----------------------------
+revision 1.2
+date: 2003-12-21 08:26:29 -0500;  author: cknight;  state: Exp;  lines: +2933 -2933;
+s11c.patch to limit -->/-> warnings to non system-files
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:11 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:11 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/expressp.c,v
+Working file: expressp.c
+head: 1.15
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.5
+	inform6_30: 1.5.0.2
+	inform6_30_branchpoint: 1.5
+	release_6_30: 1.5
+	BETA2_6_3: 1.5
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 16;	selected revisions: 16
+description:
+----------------------------
+revision 1.15
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +7 -7;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.14
+date: 2004-10-20 03:47:47 -0400;  author: cknight;  state: Exp;  lines: +4 -1;
+S1 added #n$ obsolete warning
+----------------------------
+revision 1.13
+date: 2004-10-15 10:33:21 -0400;  author: cknight;  state: Exp;  lines: +39 -1;
+S138 new IFDEF_CONTEXT and S65: directive use in property data
+----------------------------
+revision 1.12
+date: 2004-08-31 03:29:51 -0400;  author: cknight;  state: Exp;  lines: +20 -21;
+Changed value of #lowest_property_number and some reformatting.
+----------------------------
+revision 1.11
+date: 2004-08-30 18:01:23 -0400;  author: cknight;  state: Exp;  lines: +94 -94;
+Changed some line endings back to \n only (I hope)
+----------------------------
+revision 1.10
+date: 2004-08-29 17:58:13 -0400;  author: cknight;  state: Exp;  lines: +94 -0;
+Added lots of system constants for Glulx, most of which should be correct.
+----------------------------
+revision 1.9
+date: 2004-08-26 14:56:08 -0400;  author: dkinder;  state: Exp;  lines: +1 -1;
+Remove (a few) CRLF line terminators
+----------------------------
+revision 1.8
+date: 2004-08-25 01:58:51 -0400;  author: cknight;  state: Exp;  lines: +2 -1;
+Fixed problem with o.(undefined individual property)
+----------------------------
+revision 1.7
+date: 2004-08-22 18:28:10 -0400;  author: cknight;  state: Exp;  lines: +1 -1;
+http://www.inform-fiction.org/patches/C63013.html
+----------------------------
+revision 1.6
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +25 -25;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.5
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.4
+date: 2004-01-05 19:07:51 -0500;  author: dkinder;  state: Exp;  lines: +1810 -1810;
+Corrected line endings from CRLF to LF
+----------------------------
+revision 1.3
+date: 2003-12-21 16:15:51 -0500;  author: cknight;  state: Exp;  lines: +2 -3;
+removed a few unused locals (banewarn.patch)
+----------------------------
+revision 1.2
+date: 2003-12-21 08:35:13 -0500;  author: cknight;  state: Exp;  lines: +1811 -1804;
+folding_crash.patch and s29c.patch (to limit obj.prop errors)
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:12 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:12 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/files.c,v
+Working file: files.c
+head: 1.15
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.6
+	inform6_30: 1.6.0.2
+	inform6_30_branchpoint: 1.6
+	release_6_30: 1.6
+	BETA2_6_3: 1.6
+	realtime63_lastmerge: 1.2
+	realtime63: 1.2.0.2
+	realtime63_branchpoint: 1.2
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 16;	selected revisions: 16
+description:
+----------------------------
+revision 1.15
+date: 2006-05-03 10:14:27 -0400;  author: rfirth;  state: Exp;  lines: +1 -1;
+Commented out "Closing file" output from -l switch
+----------------------------
+revision 1.14
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +4 -4;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.13
+date: 2004-12-10 08:06:24 -0500;  author: cknight;  state: Exp;  lines: +31 -1;
+added file_read_line()
+----------------------------
+revision 1.12
+date: 2004-10-20 03:45:54 -0400;  author: cknight;  state: Exp;  lines: +7 -2;
+139, added line numbers for 'Opening file'
+----------------------------
+revision 1.11
+date: 2004-10-15 10:09:29 -0400;  author: cknight;  state: Exp;  lines: +2 -0;
+S139 -l now reports file written to
+----------------------------
+revision 1.10
+date: 2004-08-22 18:25:48 -0400;  author: cknight;  state: Exp;  lines: +12 -7;
+C63004, C63002, C53006, C63005
+----------------------------
+revision 1.9
+date: 2004-08-21 08:16:04 -0400;  author: cknight;  state: Exp;  lines: +8 -2;
+applied patches C63002.html and C63005.html
+----------------------------
+revision 1.8
+date: 2004-07-28 22:29:44 -0400;  author: jfisher;  state: Exp;  lines: +3 -1;
+Constant Includes support
+----------------------------
+revision 1.7
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +12 -12;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.6
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.5
+date: 2004-01-05 19:07:51 -0500;  author: dkinder;  state: Exp;  lines: +1105 -1105;
+Corrected line endings from CRLF to LF
+----------------------------
+revision 1.4
+date: 2003-12-25 17:13:53 -0500;  author: dkinder;  state: Exp;  lines: +0 -6;
+Removed multiple inclusion test
+----------------------------
+revision 1.3
+date: 2003-12-21 16:15:51 -0500;  author: cknight;  state: Exp;  lines: +1111 -1111;
+*** empty log message ***
+----------------------------
+revision 1.2
+date: 2003-12-14 18:37:53 -0500;  author: inform63;  state: Exp;  lines: +6 -5;
+Made MAX_SOURCE_FILES a dynamic memory setting.
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:37 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:37 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/header.h,v
+Working file: header.h
+head: 1.33
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.11
+	inform6_30: 1.11.0.2
+	inform6_30_branchpoint: 1.11
+	release_6_30: 1.11
+	BETA2_6_3: 1.10
+	realtime63_lastmerge: 1.2
+	realtime63: 1.2.0.2
+	realtime63_branchpoint: 1.2
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 34;	selected revisions: 34
+description:
+----------------------------
+revision 1.33
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +4 -4;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.32
+date: 2006-03-22 04:42:29 -0500;  author: rfirth;  state: Exp;  lines: +11 -10;
+Reformatted Inform portions of veneer.c. Added VerboseDebugMessages() veneer routine to filter output from the MESSAGES debugging verb.
+----------------------------
+revision 1.31
+date: 2005-07-07 20:11:45 -0400;  author: jfisher;  state: Exp;  lines: +1 -0;
+Re-applied the patch originally commited on 12/24; but overwritten later.
+----------------------------
+revision 1.30
+date: 2005-04-26 17:31:52 -0400;  author: dkinder;  state: Exp;  lines: +40 -38;
+Revert loss of ASSERT_CODE from last checkin
+----------------------------
+revision 1.29
+date: 2005-03-15 17:33:52 -0500;  author: cknight;  state: Exp;  lines: +41 -43;
+S129 separating character grammar
+----------------------------
+revision 1.28
+date: 2005-01-20 17:12:52 -0500;  author: dkinder;  state: Exp;  lines: +39 -37;
+Added assert statement, based on patch from Simon Baldwin
+----------------------------
+revision 1.27
+date: 2005-01-10 18:14:41 -0500;  author: dkinder;  state: Exp;  lines: +1 -1;
+Revert part of previous change: the release number for 6.31 is 1631, not 1632
+----------------------------
+revision 1.26
+date: 2004-12-24 10:56:36 -0500;  author: jfisher;  state: Exp;  lines: +3 -2;
+Fixed bug with S114 where values pushed on ifdef stack are never removed.
+----------------------------
+revision 1.25
+date: 2004-12-10 07:47:04 -0500;  author: cknight;  state: Exp;  lines: +11 -1;
+S59 translation and added file_read_line()
+----------------------------
+revision 1.24
+date: 2004-11-07 17:37:01 -0500;  author: cknight;  state: Exp;  lines: +28 -10;
+More VRs for property bounds checking; Sam's call streamlining
+----------------------------
+revision 1.23
+date: 2004-10-20 03:55:34 -0400;  author: cknight;  state: Exp;  lines: +3 -2;
+S139 line numbers etc
+----------------------------
+revision 1.22
+date: 2004-10-15 10:06:34 -0400;  author: cknight;  state: Exp;  lines: +3 -1;
+S138, S65 and S1 declarations
+----------------------------
+revision 1.21
+date: 2004-10-12 14:11:41 -0400;  author: dkinder;  state: Exp;  lines: +3 -0;
+S10: improvements to +charset_map
+----------------------------
+revision 1.20
+date: 2004-10-12 04:46:31 -0400;  author: cknight;  state: Exp;  lines: +6 -3;
+S114 & 115: undef code and terminate_file() extern
+----------------------------
+revision 1.19
+date: 2004-09-27 14:41:31 -0400;  author: dkinder;  state: Exp;  lines: +2 -2;
+Fix type of MAX_OBJ_PROP_COUNT
+----------------------------
+revision 1.18
+date: 2004-09-17 17:43:46 -0400;  author: cknight;  state: Exp;  lines: +3 -2;
+Implemented S56 objectloop optimisation (call)
+----------------------------
+revision 1.17
+date: 2004-09-04 08:24:06 -0400;  author: cknight;  state: Exp;  lines: +1 -0;
+Suggestion 128: more informative duplicate errors.
+----------------------------
+revision 1.16
+date: 2004-08-25 01:53:52 -0400;  author: cknight;  state: Exp;  lines: +2 -2;
+Updated version number and header
+----------------------------
+revision 1.15
+date: 2004-08-22 18:22:37 -0400;  author: cknight;  state: Exp;  lines: +1 -1;
+C63004 and (PC_WIN32 removed
+----------------------------
+revision 1.14
+date: 2004-08-21 19:38:04 -0400;  author: cknight;  state: Exp;  lines: +8 -3;
+C63001, C63003 fixes and Z( file extensions
+----------------------------
+revision 1.13
+date: 2004-07-28 22:29:44 -0400;  author: jfisher;  state: Exp;  lines: +2 -1;
+Constant Includes support
+----------------------------
+revision 1.12
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +10 -10;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.11
+date: 2004-02-21 13:05:55 -0500;  author: cknight;  state: Exp;  lines: +1 -1;
+changed release date
+----------------------------
+revision 1.10
+date: 2004-01-16 08:30:02 -0500;  author: cknight;  state: Exp;  lines: +8 -12;
+Updated some comments and changed machine strings.
+----------------------------
+revision 1.9
+date: 2004-01-15 07:20:25 -0500;  author: cknight;  state: Exp;  lines: +23 -31;
+Unix=like settings now default if no machine define
+----------------------------
+revision 1.8
+date: 2004-01-14 15:23:20 -0500;  author: cknight;  state: Exp;  lines: +1 -1;
+Just changed release date string
+----------------------------
+revision 1.7
+date: 2004-01-10 09:02:35 -0500;  author: cknight;  state: Exp;  lines: +1 -1;
+Just changed version number in comment from 6.31 to 6.30
+----------------------------
+revision 1.6
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.5
+date: 2004-01-05 19:07:51 -0500;  author: dkinder;  state: Exp;  lines: +2641 -2641;
+Corrected line endings from CRLF to LF
+----------------------------
+revision 1.4
+date: 2003-12-21 16:15:51 -0500;  author: cknight;  state: Exp;  lines: +32 -0;
+Added OS X block from baneosx.patch
+----------------------------
+revision 1.3
+date: 2003-12-21 08:35:13 -0500;  author: cknight;  state: Exp;  lines: +2609 -2608;
+change from s29c.patch (add RETURN_Q_CONTEXT constant)
+----------------------------
+revision 1.2
+date: 2003-12-14 18:37:53 -0500;  author: inform63;  state: Exp;  lines: +3 -4;
+Made MAX_SOURCE_FILES a dynamic memory setting.
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:40 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:40 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/inform.c,v
+Working file: inform.c
+head: 1.27
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.6
+	inform6_30: 1.6.0.2
+	inform6_30_branchpoint: 1.6
+	release_6_30: 1.6
+	BETA2_6_3: 1.6
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 28;	selected revisions: 28
+description:
+----------------------------
+revision 1.27
+date: 2006-05-03 10:17:23 -0400;  author: rfirth;  state: Exp;  lines: +603 -264;
+Extended -l switch to list current switch settings. Reworked help on switches in support of this. Deprecated -t switch, suggesting -a2 instead. Improved error checking and reporting in switch setting code.
+----------------------------
+revision 1.26
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +7 -9;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.25
+date: 2005-07-17 03:55:22 -0400;  author: dkinder;  state: Exp;  lines: +3 -3;
+Make -O0 the default, rather than -O2
+----------------------------
+revision 1.24
+date: 2005-06-17 11:37:18 -0400;  author: dkinder;  state: Exp;  lines: +1 -0;
+Mention -O0 in help
+----------------------------
+revision 1.23
+date: 2005-04-26 17:43:13 -0400;  author: dkinder;  state: Exp;  lines: +5 -3;
+Patch from Simon Baldwin to use % as an alternative to $ in command line options
+----------------------------
+revision 1.22
+date: 2005-01-10 18:16:02 -0500;  author: dkinder;  state: Exp;  lines: +1 -1;
+Remove extraneous newline in help
+----------------------------
+revision 1.21
+date: 2004-12-10 07:58:44 -0500;  author: cknight;  state: Exp;  lines: +41 -39;
+S59 translation and mulitple ICL commands after !%
+----------------------------
+revision 1.20
+date: 2004-11-07 17:32:54 -0500;  author: cknight;  state: Exp;  lines: +15 -9;
+Sam's additional error codes for #line directive
+----------------------------
+revision 1.19
+date: 2004-10-15 10:27:31 -0400;  author: cknight;  state: Exp;  lines: +10 -6;
+S1 -I switch addition and S139 -l improvement
+----------------------------
+revision 1.18
+date: 2004-10-12 14:11:41 -0400;  author: dkinder;  state: Exp;  lines: +4 -4;
+S10: improvements to +charset_map
+----------------------------
+revision 1.17
+date: 2004-09-28 02:42:10 -0400;  author: cknight;  state: Exp;  lines: +1 -1;
+Minor change to -O switch
+----------------------------
+revision 1.16
+date: 2004-09-26 08:51:23 -0400;  author: dkinder;  state: Exp;  lines: +1 -1;
+Minor consistency change in -h2 help
+----------------------------
+revision 1.15
+date: 2004-09-17 17:42:49 -0400;  author: cknight;  state: Exp;  lines: +11 -0;
+Added -O optimise switch
+----------------------------
+revision 1.14
+date: 2004-09-04 08:20:20 -0400;  author: cknight;  state: Exp;  lines: +5 -8;
+Made INDIV_PROP_START a memory setting, as suggested in source.
+----------------------------
+revision 1.13
+date: 2004-08-29 17:52:29 -0400;  author: cknight;  state: Exp;  lines: +5 -5;
+Clarified messages for C63009
+----------------------------
+revision 1.12
+date: 2004-08-26 14:56:08 -0400;  author: dkinder;  state: Exp;  lines: +5 -5;
+Remove (a few) CRLF line terminators
+----------------------------
+revision 1.11
+date: 2004-08-25 02:50:02 -0400;  author: cknight;  state: Exp;  lines: +5 -5;
+Fix for C63009 not catching long include_path
+----------------------------
+revision 1.10
+date: 2004-08-23 18:18:43 -0400;  author: dkinder;  state: Exp;  lines: +2 -0;
+C63007
+----------------------------
+revision 1.9
+date: 2004-08-21 19:43:49 -0400;  author: cknight;  state: Exp;  lines: +44 -17;
+C63009, C63002 fixes -GX and V9 changes
+----------------------------
+revision 1.8
+date: 2004-07-28 22:29:44 -0400;  author: jfisher;  state: Exp;  lines: +1 -1;
+Constant Includes support
+----------------------------
+revision 1.7
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +7 -7;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.6
+date: 2004-01-16 19:37:14 -0500;  author: cknight;  state: Exp;  lines: +3 -3;
+nothing substantive: LF/CR->LF
+----------------------------
+revision 1.5
+date: 2004-01-16 08:26:12 -0500;  author: cknight;  state: Exp;  lines: +6 -4;
+Removed Glulx information from and changed format of compiler header
+----------------------------
+revision 1.4
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +3 -4;
+Updated version number and copyright dates
+----------------------------
+revision 1.3
+date: 2003-12-31 10:40:18 -0500;  author: cknight;  state: Exp;  lines: +1647 -1642;
+added filename extensions to execute_icl_header
+----------------------------
+revision 1.2
+date: 2003-12-21 16:15:51 -0500;  author: cknight;  state: Exp;  lines: +1642 -1642;
+changed pathlen.patch (plath length up to 512 chars on Unix) and oops - converted to DOS line endings
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:33 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:33 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/lexer.c,v
+Working file: lexer.c
+head: 1.16
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.3
+	inform6_30: 1.3.0.2
+	inform6_30_branchpoint: 1.3
+	release_6_30: 1.3
+	BETA2_6_3: 1.3
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 17;	selected revisions: 17
+description:
+----------------------------
+revision 1.16
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +6 -6;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.15
+date: 2005-01-20 17:12:52 -0500;  author: dkinder;  state: Exp;  lines: +5 -5;
+Added assert statement, based on patch from Simon Baldwin
+----------------------------
+revision 1.14
+date: 2004-12-24 10:56:36 -0500;  author: jfisher;  state: Exp;  lines: +1 -1;
+Added printing functionality
+----------------------------
+revision 1.13
+date: 2004-12-10 08:02:43 -0500;  author: cknight;  state: Exp;  lines: +4 -2;
+S59 translation
+----------------------------
+revision 1.12
+date: 2004-11-07 17:33:52 -0500;  author: cknight;  state: Exp;  lines: +35 -3;
+Added Sam's #line directive for error numbers
+----------------------------
+revision 1.11
+date: 2004-10-20 03:58:07 -0400;  author: cknight;  state: Exp;  lines: +9 -3;
+Added print_main_line() and setting for double-quoted string
+----------------------------
+revision 1.10
+date: 2004-10-15 10:22:17 -0400;  author: cknight;  state: Exp;  lines: +11 -1;
+S136 - IFDEF ignores Perl code and S1 -I error on \ at end of line
+----------------------------
+revision 1.9
+date: 2004-10-12 04:31:14 -0400;  author: cknight;  state: Exp;  lines: +6 -1;
+S114 & 115: undef token and terminate_file()
+----------------------------
+revision 1.8
+date: 2004-09-28 02:46:55 -0400;  author: cknight;  state: Exp;  lines: +8 -0;
+Prevent new symbols on lookahead for <actor, action [n [s]]>
+----------------------------
+revision 1.7
+date: 2004-09-08 02:22:24 -0400;  author: cknight;  state: Exp;  lines: +6 -2;
+Fixed veneer error line quoting.
+----------------------------
+revision 1.6
+date: 2004-08-22 18:29:53 -0400;  author: cknight;  state: Exp;  lines: +7 -7;
+http://www.inform-fiction.org/patches/C63015.html
+----------------------------
+revision 1.5
+date: 2004-08-17 14:00:25 -0400;  author: dkinder;  state: Exp;  lines: +1 -1;
+Fix typo reported by David Jones
+----------------------------
+revision 1.4
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +8 -8;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.3
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.2
+date: 2003-12-25 17:19:08 -0500;  author: dkinder;  state: Exp;  lines: +12 -2;
+Added multiple recursive inclusion check
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:36 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:36 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/linker.c,v
+Working file: linker.c
+head: 1.5
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.2
+	inform6_30: 1.2.0.2
+	inform6_30_branchpoint: 1.2
+	release_6_30: 1.2
+	BETA2_6_3: 1.2
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 6;	selected revisions: 6
+description:
+----------------------------
+revision 1.5
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +2 -2;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.4
+date: 2004-12-10 07:59:32 -0500;  author: cknight;  state: Exp;  lines: +2 -2;
+S59 translation
+----------------------------
+revision 1.3
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +1 -1;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.2
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:14 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:14 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/memory.c,v
+Working file: memory.c
+head: 1.10
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.3
+	inform6_30: 1.3.0.2
+	inform6_30_branchpoint: 1.3
+	release_6_30: 1.3
+	BETA2_6_3: 1.3
+	realtime63_lastmerge: 1.2
+	realtime63: 1.2.0.2
+	realtime63_branchpoint: 1.2
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 11;	selected revisions: 11
+description:
+----------------------------
+revision 1.10
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +2 -2;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.9
+date: 2004-09-17 17:37:18 -0400;  author: cknight;  state: Exp;  lines: +1 -1;
+Added single full stop!  to INDIV_PROP_START msg
+----------------------------
+revision 1.8
+date: 2004-09-08 17:47:31 -0400;  author: dkinder;  state: Exp;  lines: +5 -5;
+Punctuation consistency in help for DICT_WORD_SIZE and NUM_ATTR_BYTES
+----------------------------
+revision 1.7
+date: 2004-09-07 17:27:04 -0400;  author: dkinder;  state: Exp;  lines: +3 -3;
+Tidy punctuation for INDIV_PROP_START help
+----------------------------
+revision 1.6
+date: 2004-09-04 08:17:22 -0400;  author: cknight;  state: Exp;  lines: +20 -0;
+Made INDIV_PROP_START a memory setting, as suggested in source.
+----------------------------
+revision 1.5
+date: 2004-07-28 22:29:44 -0400;  author: jfisher;  state: Exp;  lines: +1 -1;
+Constant Includes support
+----------------------------
+revision 1.4
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +4 -4;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.3
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.2
+date: 2003-12-14 18:37:53 -0500;  author: inform63;  state: Exp;  lines: +11 -0;
+Made MAX_SOURCE_FILES a dynamic memory setting.
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:31 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:31 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/objects.c,v
+Working file: objects.c
+head: 1.13
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.7
+	inform6_30: 1.7.0.2
+	inform6_30_branchpoint: 1.7
+	release_6_30: 1.7
+	BETA2_6_3: 1.6
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 14;	selected revisions: 14
+description:
+----------------------------
+revision 1.13
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +23 -23;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.12
+date: 2004-12-10 07:51:23 -0500;  author: cknight;  state: Exp;  lines: +6 -6;
+S59 translation and error message changes
+----------------------------
+revision 1.11
+date: 2004-10-15 10:37:30 -0400;  author: cknight;  state: Exp;  lines: +19 -11;
+S1 (name "text" and Nearby errors) and S65 (directives in objects)
+----------------------------
+revision 1.10
+date: 2004-09-17 17:51:26 -0400;  author: cknight;  state: Exp;  lines: +140 -0;
+Implemented S56 objectloop optimisation (routine)
+----------------------------
+revision 1.9
+date: 2004-09-04 19:00:48 -0400;  author: cknight;  state: Exp;  lines: +17 -13;
+Suggestion 128: more informative duplicate errors, and refining panic_mode.  INDIV_PROP_START is memory setting
+----------------------------
+revision 1.8
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +30 -30;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.7
+date: 2004-02-22 17:12:14 -0500;  author: cknight;  state: Exp;  lines: +1 -1;
+Fixed dimensioning error with mis-spelt constant (JF/DK)
+----------------------------
+revision 1.6
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.5
+date: 2004-01-05 19:07:51 -0500;  author: dkinder;  state: Exp;  lines: +2123 -2123;
+Corrected line endings from CRLF to LF
+----------------------------
+revision 1.4
+date: 2003-12-27 14:28:00 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Removed unused argument from write_property_block_g() (from Darren Bane)
+----------------------------
+revision 1.3
+date: 2003-12-21 16:15:51 -0500;  author: cknight;  state: Exp;  lines: +1 -1;
+removed some unused local vars (banewarn.patch)
+----------------------------
+revision 1.2
+date: 2003-12-21 08:26:29 -0500;  author: cknight;  state: Exp;  lines: +2123 -2117;
+shortname.patch to allow short names of 765 chars and not crash.
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:16 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:16 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/states.c,v
+Working file: states.c
+head: 1.16
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.8
+	inform6_30: 1.8.0.2
+	inform6_30_branchpoint: 1.8
+	release_6_30: 1.8
+	BETA2_6_3: 1.7
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 17;	selected revisions: 17
+description:
+----------------------------
+revision 1.16
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +23 -23;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.15
+date: 2005-01-20 17:12:52 -0500;  author: dkinder;  state: Exp;  lines: +68 -2;
+Added assert statement, based on patch from Simon Baldwin
+----------------------------
+revision 1.14
+date: 2004-12-10 07:57:04 -0500;  author: cknight;  state: Exp;  lines: +1 -1;
+Removed newline from msg
+----------------------------
+revision 1.13
+date: 2004-11-07 17:38:41 -0500;  author: cknight;  state: Exp;  lines: +14 -78;
+Sam's call streamlining
+----------------------------
+revision 1.12
+date: 2004-09-28 02:46:15 -0400;  author: cknight;  state: Exp;  lines: +43 -25;
+Implementation of <actor, action [n [s]]>
+----------------------------
+revision 1.11
+date: 2004-09-17 17:53:37 -0400;  author: cknight;  state: Exp;  lines: +147 -0;
+Implemented S56 objectloop optimisation (grammar)
+----------------------------
+revision 1.10
+date: 2004-09-04 19:05:46 -0400;  author: cknight;  state: Exp;  lines: +27 -15;
+C62120, S45, S128: more informative duplicate errors, and refining panic_mode.  INDIV_PROP_START is memory setting
+----------------------------
+revision 1.9
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +47 -47;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.8
+date: 2004-02-10 15:26:11 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Fix read keyword for V4
+----------------------------
+revision 1.7
+date: 2004-01-16 19:38:14 -0500;  author: cknight;  state: Exp;  lines: +2 -2;
+nothing substantive: LF/CR->LF
+----------------------------
+revision 1.6
+date: 2004-01-16 08:22:57 -0500;  author: cknight;  state: Exp;  lines: +26 -24;
+Removed Glulx information from inversion statement.
+----------------------------
+revision 1.5
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.4
+date: 2004-01-05 19:07:51 -0500;  author: dkinder;  state: Exp;  lines: +2595 -2595;
+Corrected line endings from CRLF to LF
+----------------------------
+revision 1.3
+date: 2003-12-21 16:15:51 -0500;  author: cknight;  state: Exp;  lines: +2 -2;
+removed some unused locals (banewarn.patch)
+----------------------------
+revision 1.2
+date: 2003-12-21 08:35:13 -0500;  author: cknight;  state: Exp;  lines: +2595 -2595;
+applied s29c to restrict obj.prop erros (and inadvertently changed to DOS line-endings)
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:20 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:20 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/symbols.c,v
+Working file: symbols.c
+head: 1.10
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.2
+	inform6_30: 1.2.0.2
+	inform6_30_branchpoint: 1.2
+	release_6_30: 1.2
+	BETA2_6_3: 1.2
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 11;	selected revisions: 11
+description:
+----------------------------
+revision 1.10
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +6 -6;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.9
+date: 2004-12-10 07:44:07 -0500;  author: cknight;  state: Exp;  lines: +0 -11;
+Moved duplicate_error to errors.c
+----------------------------
+revision 1.8
+date: 2004-10-12 04:35:04 -0400;  author: cknight;  state: Exp;  lines: +20 -0;
+115: end_symbol_scope()
+----------------------------
+revision 1.7
+date: 2004-10-10 07:53:28 -0400;  author: cknight;  state: Exp;  lines: +3 -0;
+Implementation of S99: replace (oldname) (newname)
+----------------------------
+revision 1.6
+date: 2004-09-04 08:23:54 -0400;  author: cknight;  state: Exp;  lines: +12 -0;
+Made INDIV_PROP_START a memory setting, as suggested in source.
+----------------------------
+revision 1.5
+date: 2004-08-30 18:00:12 -0400;  author: cknight;  state: Exp;  lines: +2 -2;
+Changed some line endings back to \n only (I hope)
+----------------------------
+revision 1.4
+date: 2004-08-29 17:48:47 -0400;  author: cknight;  state: Exp;  lines: +22 -22;
+Some reformatting in write_the_identifier_names()
+----------------------------
+revision 1.3
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +25 -25;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.2
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:29 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:29 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/syntax.c,v
+Working file: syntax.c
+head: 1.11
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.2
+	inform6_30: 1.2.0.2
+	inform6_30_branchpoint: 1.2
+	release_6_30: 1.2
+	BETA2_6_3: 1.2
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 12;	selected revisions: 12
+description:
+----------------------------
+revision 1.11
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +6 -6;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.10
+date: 2005-03-15 18:35:56 -0500;  author: cknight;  state: Exp;  lines: +6 -1;
+C63021 crash fix
+----------------------------
+revision 1.9
+date: 2004-11-07 17:28:06 -0500;  author: cknight;  state: Exp;  lines: +97 -1;
+Added Sam's #line directive for error numbers
+----------------------------
+revision 1.8
+date: 2004-10-20 03:56:31 -0400;  author: cknight;  state: Exp;  lines: +1 -1;
+Reject quoted strings as local variables
+----------------------------
+revision 1.7
+date: 2004-10-15 10:39:04 -0400;  author: cknight;  state: Exp;  lines: +1 -1;
+revert of brackets to !(parse_given_directive()) (v minor)
+----------------------------
+revision 1.6
+date: 2004-10-15 10:30:48 -0400;  author: cknight;  state: Exp;  lines: +39 -1;
+S65 increase availability of directives in code
+----------------------------
+revision 1.5
+date: 2004-10-10 07:52:26 -0400;  author: cknight;  state: Exp;  lines: +11 -3;
+Implementation of S99: replace (oldname) (newname)
+----------------------------
+revision 1.4
+date: 2004-09-04 17:50:04 -0400;  author: cknight;  state: Exp;  lines: +1 -0;
+more informative duplicate error
+----------------------------
+revision 1.3
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +8 -8;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.2
+date: 2004-01-07 14:37:56 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:21 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:21 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/tables.c,v
+Working file: tables.c
+head: 1.11
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.5
+	inform6_30: 1.5.0.2
+	inform6_30_branchpoint: 1.5
+	release_6_30: 1.5
+	BETA2_6_3: 1.5
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 12;	selected revisions: 12
+description:
+----------------------------
+revision 1.11
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +3 -3;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.10
+date: 2005-06-13 17:40:17 -0400;  author: dkinder;  state: Exp;  lines: +2 -0;
+Don't construct the story file if errors have occured
+----------------------------
+revision 1.9
+date: 2004-12-10 07:40:43 -0500;  author: cknight;  state: Exp;  lines: +6 -6;
+S59 translation
+----------------------------
+revision 1.8
+date: 2004-08-30 18:01:23 -0400;  author: cknight;  state: Exp;  lines: +25 -25;
+Changed some line endings back to \n only (I hope)
+----------------------------
+revision 1.7
+date: 2004-08-29 18:21:48 -0400;  author: cknight;  state: Exp;  lines: +40 -19;
+Infix Glulx: added routine and constant tables (and altered array_names_offset)
+----------------------------
+revision 1.6
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +21 -21;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.5
+date: 2004-01-07 14:37:57 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.4
+date: 2004-01-05 19:07:51 -0500;  author: dkinder;  state: Exp;  lines: +1855 -1855;
+Corrected line endings from CRLF to LF
+----------------------------
+revision 1.3
+date: 2003-12-27 14:29:30 -0500;  author: dkinder;  state: Exp;  lines: +1 -2;
+Tidied variable declarations in construct_storyfile_g() (from Darren Bane)
+----------------------------
+revision 1.2
+date: 2003-12-21 16:15:51 -0500;  author: cknight;  state: Exp;  lines: +1856 -1857;
+banewarn.patch (removed a few local variables)
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:23 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:23 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/text.c,v
+Working file: text.c
+head: 1.11
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.4
+	inform6_30: 1.4.0.2
+	inform6_30_branchpoint: 1.4
+	release_6_30: 1.4
+	BETA2_6_3: 1.4
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 12;	selected revisions: 12
+description:
+----------------------------
+revision 1.11
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +7 -7;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.10
+date: 2004-12-10 08:03:17 -0500;  author: cknight;  state: Exp;  lines: +1 -1;
+Removed newline from msg
+----------------------------
+revision 1.9
+date: 2004-09-28 02:55:01 -0400;  author: cknight;  state: Exp;  lines: +1 -1;
+Minor type mismatch
+----------------------------
+revision 1.8
+date: 2004-09-27 14:44:19 -0400;  author: dkinder;  state: Exp;  lines: +2 -2;
+Fix type of no_strings and no_dynamic_strings
+----------------------------
+revision 1.7
+date: 2004-08-22 18:15:01 -0400;  author: cknight;  state: Exp;  lines: +44 -35;
+C63004, C63012
+----------------------------
+revision 1.6
+date: 2004-07-28 22:29:44 -0400;  author: jfisher;  state: Exp;  lines: +1 -1;
+Constant Includes support
+----------------------------
+revision 1.5
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +33 -33;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.4
+date: 2004-01-07 14:37:57 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.3
+date: 2004-01-05 19:07:51 -0500;  author: dkinder;  state: Exp;  lines: +2121 -2121;
+Corrected line endings from CRLF to LF
+----------------------------
+revision 1.2
+date: 2003-12-21 16:15:51 -0500;  author: cknight;  state: Exp;  lines: +2121 -2123;
+removed a few unused local variables (banewarn.patch)
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:25 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:25 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/veneer.c,v
+Working file: veneer.c
+head: 1.20
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.5
+	inform6_30: 1.5.0.2
+	inform6_30_branchpoint: 1.5
+	release_6_30: 1.5
+	BETA2_6_3: 1.4
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 21;	selected revisions: 21
+description:
+----------------------------
+revision 1.20
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +2 -2;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.19
+date: 2006-03-22 04:42:29 -0500;  author: rfirth;  state: Exp;  lines: +2530 -2360;
+Reformatted Inform portions of veneer.c. Added VerboseDebugMessages() veneer routine to filter output from the MESSAGES debugging verb.
+----------------------------
+revision 1.18
+date: 2005-01-20 17:12:52 -0500;  author: dkinder;  state: Exp;  lines: +20 -0;
+Added assert statement, based on patch from Simon Baldwin
+----------------------------
+revision 1.17
+date: 2004-11-07 17:42:06 -0500;  author: cknight;  state: Exp;  lines: +122 -8;
+Sam's V3 call streamlining; property bounds checking
+----------------------------
+revision 1.16
+date: 2004-10-20 03:49:18 -0400;  author: cknight;  state: Exp;  lines: +3 -1;
+Ensure local variable names are initialised in symbol table routine
+----------------------------
+revision 1.15
+date: 2004-09-28 02:31:27 -0400;  author: cknight;  state: Exp;  lines: +2 -2;
+Implementation of <actor, action [n [s]]>
+----------------------------
+revision 1.14
+date: 2004-09-17 17:39:12 -0400;  author: cknight;  state: Exp;  lines: +1 -0;
+Implemented S56 objectloop optimisation (call)
+----------------------------
+revision 1.13
+date: 2004-09-02 20:41:10 -0400;  author: cknight;  state: Exp;  lines: +6 -7;
+Added Infix routine watching for Glulx, and removed a line to partially implement modified S96
+----------------------------
+revision 1.12
+date: 2004-09-01 19:02:56 -0400;  author: dkinder;  state: Exp;  lines: +2 -1;
+Work on S75: Fix the veneer for V4
+----------------------------
+revision 1.11
+date: 2004-08-29 18:18:20 -0400;  author: cknight;  state: Exp;  lines: +105 -2;
+Added Symb__Tab for Infix Glulx, and adjusted value of array_names_offset
+----------------------------
+revision 1.10
+date: 2004-08-26 14:49:23 -0400;  author: dkinder;  state: Exp;  lines: +2 -2;
+Fix string.print()
+----------------------------
+revision 1.9
+date: 2004-08-25 02:03:48 -0400;  author: cknight;  state: Exp;  lines: +2 -4;
+Stopped 'class' printing twice without library (v minor)
+----------------------------
+revision 1.8
+date: 2004-08-22 18:18:47 -0400;  author: cknight;  state: Exp;  lines: +10 -14;
+C63014, default CInDefArt now collapses to (a).
+----------------------------
+revision 1.7
+date: 2004-08-21 19:56:18 -0400;  author: cknight;  state: Exp;  lines: +7 -4;
+C63008, C63003 (SymTab errors)
+----------------------------
+revision 1.6
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +3 -3;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.5
+date: 2004-02-21 13:02:55 -0500;  author: cknight;  state: Exp;  lines: +1 -2;
+Z__Region simplification
+----------------------------
+revision 1.4
+date: 2004-01-16 19:23:04 -0500;  author: cknight;  state: Exp;  lines: +7 -2;
+Crudely fixed major V6/7 metaclass problem
+----------------------------
+revision 1.3
+date: 2004-01-10 07:05:20 -0500;  author: cknight;  state: Exp;  lines: +4 -1;
+Added Glulx run-time check for property operations on non-objects, and optimized Z__Region().
+----------------------------
+revision 1.2
+date: 2004-01-07 14:37:57 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:28 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:28 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================
+
+RCS file: /Users/zarf/Downloads/cvsroot/inform/compiler/verbs.c,v
+Working file: verbs.c
+head: 1.9
+branch:
+locks: strict
+access list:
+symbolic names:
+	inform6_30_lastmerge: 1.3
+	inform6_30: 1.3.0.2
+	inform6_30_branchpoint: 1.3
+	release_6_30: 1.3
+	BETA2_6_3: 1.3
+	realtime63_lastmerge: 1.1.1.1
+	realtime63: 1.1.1.1.0.2
+	realtime63_branchpoint: 1.1.1.1
+	BETA_6_3: 1.1.1.1
+	start: 1.1.1.1
+	inform: 1.1.1
+keyword substitution: kv
+total revisions: 10;	selected revisions: 10
+description:
+----------------------------
+revision 1.9
+date: 2006-04-23 05:11:31 -0400;  author: rfirth;  state: Exp;  lines: +3 -3;
+Re-labelled all files as part of Inform 6.40 (previously 6.31). Improved warning message in text.c resulting from -Gr.
+----------------------------
+revision 1.8
+date: 2004-10-20 03:53:51 -0400;  author: cknight;  state: Exp;  lines: +1 -1;
+Reject quoted strings as action names.
+----------------------------
+revision 1.7
+date: 2004-10-15 10:12:14 -0400;  author: cknight;  state: Exp;  lines: +11 -4;
+S1 -I option complains about double-quoted strings
+----------------------------
+revision 1.6
+date: 2004-09-08 02:17:44 -0400;  author: cknight;  state: Exp;  lines: +9 -3;
+Implemented Suggestion 72: better line number for action routine errors
+----------------------------
+revision 1.5
+date: 2004-09-04 17:34:49 -0400;  author: cknight;  state: Exp;  lines: +1 -0;
+more informative duplicate error
+----------------------------
+revision 1.4
+date: 2004-04-23 03:17:52 -0400;  author: rfirth;  state: Exp;  lines: +2 -2;
+Removed all trailing spaces in preparation for Compiler 6.31 and Library 6/12
+----------------------------
+revision 1.3
+date: 2004-01-15 04:20:17 -0500;  author: cknight;  state: Exp;  lines: +2 -2;
+Fixed 'extend only' problem when >127 verbs
+----------------------------
+revision 1.2
+date: 2004-01-07 14:37:57 -0500;  author: dkinder;  state: Exp;  lines: +2 -2;
+Updated version number and copyright dates
+----------------------------
+revision 1.1
+date: 2003-12-11 14:20:28 -0500;  author: inform63;  state: Exp;
+branches:  1.1.1;
+Initial revision
+----------------------------
+revision 1.1.1.1
+date: 2003-12-11 14:20:28 -0500;  author: inform63;  state: Exp;  lines: +0 -0;
+Initial import of Inform 6.3 beta compiler and library
+=============================================================================

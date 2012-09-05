@@ -2,7 +2,7 @@
 /*   "chars" : Character set mappings and the Z-machine alphabet table       */
 /*                                                                           */
 /*   Part of Inform 6.32                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2011                                 */
+/*   copyright (c) Graham Nelson 1993 - 2012                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 /*  Inform uses six different character representations:                     */
@@ -1159,7 +1159,7 @@ extern int32 text_to_unicode(char *text)
             {   error("At most four hexadecimal digits allowed in '@{...}'");
                 total = '?'; break;
             }
-            d = character_digit_value[text[i]];
+            d = character_digit_value[(uchar)text[i]];
             if (d == 127)
             {   error("'@{...}' may only contain hexadecimal digits");
                 total = '?'; break;

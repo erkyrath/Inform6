@@ -73,8 +73,11 @@ The values can be numeric literals or constants. They can be 0-255 for Z-code, o
 more efficient implementation, using Glulx&rsquo;s unsigned comparison opcodes.
 </ul>
 <h3>Bugs fixed</h3>
-Items of the form [Mantis 601] quote the bug&rsquo;s reference number in Inform 7&rsquo;s Mantis bug tracker. 
+Items of the form [Mantis 510] quote the bug&rsquo;s reference number in Inform 7&rsquo;s Mantis bug tracker. 
 <ul>
+<li><p>Function calls of the form <tt>f(g)(h)</tt> (that is, where <tt>f()</tt> returns the address of a
+function that is called with <tt>h</tt> as its argument) are now compiled correctly: previously, such calls were
+compiled as if the code was <tt>f(g(h))</tt>. [Mantis 510]
 <li><p>The bounds checking related to internal arrays that are are sized from various compiler settings
 has been improved, so that it should not be possible to crash the compiler if these settings are too small.
 In addition, a start has been made on allowing the compiler to grow its internal buffers, rather than relying
@@ -84,6 +87,8 @@ increase the <tt>$MAX_GLOBAL_VARIABLES</tt> setting. [Mantis 611]
 <li><p>The setting <tt>$MAX_CLASS_TABLE_SIZE</tt>, which was not used anywhere, has been removed. [Mantis 612]
 <li><p>The compiler no longer crashes if run with the <tt><b>-k</b></tt> switch and passed a source file
 containing no routines at all. [Mantis 843]
+<li><p>Floating-point constants in &ldquo;<tt>#Ifdef TARGET_GLULX;</tt>&rdquo; sections do not now cause an error
+when compiling to Z-code. [Mantis 927]
 </ul>
 
 <h2>Compiler 6.32</h2>

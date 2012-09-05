@@ -4,7 +4,7 @@
 /*                              Inform 6.32                                  */
 /*                                                                           */
 /*   This header file and the others making up the Inform source code are    */
-/*   copyright (c) Graham Nelson 1993 - 2011                                 */
+/*   copyright (c) Graham Nelson 1993 - 2012                                 */
 /*                                                                           */
 /*   Manuals for this language are available from the IF-Archive at          */
 /*   http://www.ifarchive.org/                                               */
@@ -30,7 +30,7 @@
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
-#define RELEASE_DATE "28th December 2011"
+#define RELEASE_DATE "30th May 2012"
 #define RELEASE_NUMBER 1632
 #define GLULX_RELEASE_NUMBER 38
 #define MODULE_VERSION_NUMBER 1
@@ -624,11 +624,7 @@ static int32 unique_task_id(void)
     void hfree(void *);
 #define subtract_pointers(p1,p2) (long)((char _huge *)p1-(char _huge *)p2)
 #else
-#ifdef UNIX64
 #define subtract_pointers(p1,p2) (((char *) p1)-((char *) p2))
-#else
-#define subtract_pointers(p1,p2) (((int32) p1)-((int32) p2))
-#endif
 #endif
 
 /* ------------------------------------------------------------------------- */
@@ -740,7 +736,7 @@ typedef struct prop {
 /* Only one of this object. */
 typedef struct fpropt {
     uchar atts[6];
-    char l;
+    int l;
     prop pp[64];
 } fpropt;
 
@@ -1528,6 +1524,8 @@ typedef struct operator_s
 
 
 /*  Index numbers into the keyword group "system_functions" (see "lexer.c")  */
+
+#define NUMBER_SYSTEM_FUNCTIONS 12
 
 #define CHILD_SYSF       0
 #define CHILDREN_SYSF    1

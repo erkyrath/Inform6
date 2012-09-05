@@ -2,7 +2,7 @@
 /*   "expressc" :  The expression code generator                             */
 /*                                                                           */
 /*   Part of Inform 6.32                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2011                                 */
+/*   copyright (c) Graham Nelson 1993 - 2012                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -430,8 +430,12 @@ static void value_in_void_context_z(assembly_operand AO)
             if (AO.marker == SYMBOL_MV)
                 t = (char *) (symbs[AO.value]);
             break;
+        case VARIABLE_OT:
+            t = variable_name(AO.value);
+            break;
         default:
-            t = (char *) (symbs[variable_tokens[AO.value]]);
+            compiler_error("Unable to print value in void context");
+            t = "<expression>";
             break;
     }
     vivc_flag = TRUE;
@@ -445,7 +449,7 @@ static void value_in_void_context_z(assembly_operand AO)
     if (strcmp(t, "print_char") == 0)
     obsolete_warning("ignoring 'print_char': use 'print (char)' instead");
     else
-    ebf_error("assignment or statement", t);
+    ebf_error("expression with side-effects", t);
 }
 
 static void write_result_z(assembly_operand to, assembly_operand from)
@@ -494,7 +498,7 @@ static void access_memory_z(int oc, assembly_operand AO1, assembly_operand AO2,
             type_ao = zero_ao; type_ao.value = array_types[y];
 
             if ((!is_systemfile()))
-                if (byte_flag)
+            {   if (byte_flag)
                 {
                     if ((array_types[y] == WORD_ARRAY)
                         || (array_types[y] == TABLE_ARRAY))
@@ -506,6 +510,7 @@ static void access_memory_z(int oc, assembly_operand AO1, assembly_operand AO2,
                         || (array_types[y] == STRING_ARRAY))
                     warning("Using '-->' to access a -> or string array");
                 }
+            }
         }
     }
 
@@ -795,13 +800,18 @@ static void value_in_void_context_g(assembly_operand AO)
             if (AO.marker == SYMBOL_MV)
                 t = (char *) (symbs[AO.value]);
             break;
+        case GLOBALVAR_OT:
+        case LOCALVAR_OT:
+            t = variable_name(AO.value);
+            break;
         default:
-            t = (char *) (symbs[variable_tokens[AO.value]]);
+            compiler_error("Unable to print value in void context");
+            t = "<expression>";
             break;
     }
     vivc_flag = TRUE;
 
-    ebf_error("assignment or statement", t);
+    ebf_error("expression with side-effects", t);
 }
 
 static void write_result_g(assembly_operand to, assembly_operand from)
@@ -841,7 +851,7 @@ static void access_memory_g(int oc, assembly_operand AO1, assembly_operand AO2,
         type_ao = zero_ao; type_ao.value = array_types[y];
 
         if ((!is_systemfile()))
-            if (data_len == 1)
+        {   if (data_len == 1)
             {
                 if ((array_types[y] == WORD_ARRAY)
                     || (array_types[y] == TABLE_ARRAY))
@@ -853,6 +863,7 @@ static void access_memory_g(int oc, assembly_operand AO1, assembly_operand AO2,
                     || (array_types[y] == STRING_ARRAY))
                  warning("Using '-->' to access a -> or string array");
             }
+        }
     }
 
 

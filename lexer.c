@@ -19,7 +19,8 @@ int total_source_line_count,            /* Number of source lines so far     */
                                            token type DQ_TT, i.e., as if
                                            they had double-quotes around)
                                            and not as entries in the symbol
-                                           table, when TRUE                  */
+                                           table, when TRUE. If -2, only the
+                                           keyword table is searched.        */
     return_sp_as_variable;              /* When TRUE, the word "sp" denotes
                                            the stack pointer variable
                                            (used in assembly language only)  */
@@ -294,7 +295,7 @@ keyword_group directives =
     "iffalse", "import", "include", "link", "lowstring", "message",
     "nearby", "object", "property", "release", "replace",
     "serial", "switches", "statusline", "stub", "system_file", "trace",
-    "verb", "version", "zcharacter",
+    "undef", "verb", "version", "zcharacter",
     "" },
     DIRECTIVE_TT, FALSE, FALSE
 };

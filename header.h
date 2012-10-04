@@ -1304,9 +1304,10 @@ typedef struct operator_s
 #define STUB_CODE        32
 #define SYSTEM_CODE      33
 #define TRACE_CODE       34
-#define VERB_CODE        35
-#define VERSION_CODE     36
-#define ZCHARACTER_CODE  37
+#define UNDEF_CODE       35
+#define VERB_CODE        36
+#define VERSION_CODE     37
+#define ZCHARACTER_CODE  38
 
 #define OPENBLOCK_CODE   100
 #define CLOSEBLOCK_CODE  101
@@ -2121,6 +2122,10 @@ extern void assemblez_4_to(int internal_number,
                        assembly_operand o1, assembly_operand o2,
                        assembly_operand o3, assembly_operand o4,
                        assembly_operand st);
+extern void assemblez_5_to(int internal_number,
+                       assembly_operand o1, assembly_operand o2,
+                       assembly_operand o3, assembly_operand o4,
+                       assembly_operand o5, assembly_operand st);
 
 extern void assemblez_inc(assembly_operand o1);
 extern void assemblez_dec(assembly_operand o1);
@@ -2257,7 +2262,7 @@ extern operator operators[];
 
 extern assembly_operand stack_pointer, temp_var1, temp_var2, temp_var3, 
     temp_var4, zero_operand, one_operand, two_operand, three_operand,
-    valueless_operand;
+    four_operand, valueless_operand;
 
 assembly_operand code_generate(assembly_operand AO, int context, int label);
 assembly_operand check_nonzero_at_runtime(assembly_operand AO1, int label,
@@ -2525,6 +2530,7 @@ extern char *typename(int type);
 extern int hash_code_from_string(char *p);
 extern int strcmpcis(char *p, char *q);
 extern int symbol_index(char *lexeme_text, int hashcode);
+extern void end_symbol_scope(int k);
 extern void describe_symbol(int k);
 extern void list_symbols(int level);
 extern void assign_marked_symbol(int index, int marker, int32 value, int type);

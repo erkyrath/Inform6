@@ -1,8 +1,8 @@
 /* ------------------------------------------------------------------------- */
 /*   "text" : Text translation, the abbreviations optimiser, the dictionary  */
 /*                                                                           */
-/*   Part of Inform 6.32                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2012                                 */
+/*   Part of Inform 6.33                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2013                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 

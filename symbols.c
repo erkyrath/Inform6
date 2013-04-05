@@ -1,8 +1,8 @@
 /* ------------------------------------------------------------------------- */
 /*   "symbols" :  The symbols table; creating stock of reserved words        */
 /*                                                                           */
-/*   Part of Inform 6.32                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2012                                 */
+/*   Part of Inform 6.33                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2013                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -17,7 +17,7 @@ int no_symbols;                        /* Total number of symbols defined    */
 int no_named_constants;                         /* Copied into story file    */
 
 /* ------------------------------------------------------------------------- */
-/*   Plus four arrays.  Each symbol has its own index n (an int32) and       */
+/*   Plus six arrays.  Each symbol has its own index n (an int32) and        */
 /*                                                                           */
 /*       svals[n]   is its value (must be 32 bits wide, i.e. an int32, tho'  */
 /*                  it is used to hold an unsigned 16 bit Z-machine value)   */
@@ -29,6 +29,15 @@ int no_named_constants;                         /* Copied into story file    */
 /*                  of the symbol, in the same case form as when created.    */
 /*       slines[n]  is the source line on which the symbol value was first   */
 /*                  assigned                                                 */
+/*       symbol_debug_backpatch_positions[n]                                 */
+/*                  is a file position in the debug information file where   */
+/*                  the symbol's value should be written after backpatching, */
+/*                  or else the null position if the value was known and     */
+/*                  written beforehand                                       */
+/*       replacement_debug_backpatch_positions[n]                            */
+/*                  is a file position in the debug information file where   */
+/*                  the symbol's name can be erased if it is replaced, or    */
+/*                  else null if the name will never need to be replaced     */
 /*                                                                           */
 /*   Comparison is case insensitive.                                         */
 /*   Note that local variable names are not entered into the symbols table,  */
@@ -49,6 +58,8 @@ int no_named_constants;                         /* Copied into story file    */
 #else
   signed char *stypes;
 #endif
+  fpos_t  *symbol_debug_backpatch_positions;
+  fpos_t  *replacement_debug_backpatch_positions;
 
 /* ------------------------------------------------------------------------- */
 /*   Memory to hold the text of symbol names: note that this memory is       */
@@ -152,7 +163,7 @@ extern int strcmpcis(char *p, char *q)
 
 extern int symbol_index(char *p, int hashcode)
 {
-    /*  Return the index in the symbs/svals/sflags/stypes arrays of symbol
+    /*  Return the index in the symbs/svals/sflags/stypes/... arrays of symbol
         "p", creating a new symbol with that name if it isn't already there.
 
         New symbols are created with flag UNKNOWN_SFLAG, value 0x100
@@ -221,6 +232,12 @@ extern int symbol_index(char *p, int hashcode)
     stypes[no_symbols]  =  CONSTANT_T;
     slines[no_symbols]  =  ErrorReport.line_number
                            + FILE_LINE_SCALE_FACTOR*ErrorReport.file_number;
+    if (debugfile_switch)
+    {   nullify_debug_file_position
+            (&symbol_debug_backpatch_positions[no_symbols]);
+        nullify_debug_file_position
+            (&replacement_debug_backpatch_positions[no_symbols]);
+    }
 
     if (track_unused_routines)
         df_note_function_symbol(no_symbols);
@@ -380,26 +397,12 @@ extern void write_the_identifier_names(void)
                         }
                     }
 
-                    if (debugfile_switch)
-                    {   write_debug_byte(PROP_DBR);
-                        write_debug_byte(svals[i]/256);
-                        write_debug_byte(svals[i]%256);
-                        write_debug_string(idname_string);
-                    }
-
                     individual_name_strings[svals[i]]
                         = compile_string(idname_string, FALSE, FALSE);
                 }
             }
             else
             {   sprintf(idname_string, "%s", (char *) symbs[i]);
-
-                if (debugfile_switch)
-                {   write_debug_byte(PROP_DBR);
-                    write_debug_byte(svals[i]/256);
-                    write_debug_byte(svals[i]%256);
-                    write_debug_string(idname_string);
-                }
 
                 individual_name_strings[svals[i]]
                     = compile_string(idname_string, FALSE, FALSE);
@@ -419,26 +422,12 @@ extern void write_the_identifier_names(void)
                         }
                     }
 
-                    if (debugfile_switch)
-                    {   write_debug_byte(ATTR_DBR);
-                        write_debug_byte(svals[i]/256);
-                        write_debug_byte(svals[i]%256);
-                        write_debug_string(idname_string);
-                    }
-
                     attribute_name_strings[svals[i]]
                         = compile_string(idname_string, FALSE, FALSE);
                 }
             }
             else
             {   sprintf(idname_string, "%s", (char *) symbs[i]);
-
-                if (debugfile_switch)
-                {   write_debug_byte(ATTR_DBR);
-                    write_debug_byte(svals[i]/256);
-                    write_debug_byte(svals[i]%256);
-                    write_debug_string(idname_string);
-                }
 
                 attribute_name_strings[svals[i]]
                     = compile_string(idname_string, FALSE, FALSE);
@@ -449,10 +438,11 @@ extern void write_the_identifier_names(void)
             idname_string[strlen(idname_string)-3] = 0;
 
             if (debugfile_switch)
-            {   write_debug_byte(ACTION_DBR);
-                write_debug_byte(svals[i]/256);
-                write_debug_byte(svals[i]%256);
-                write_debug_string(idname_string);
+            {   debug_file_printf("<action>");
+                debug_file_printf
+                    ("<identifier>##%s</identifier>", idname_string);
+                debug_file_printf("<value>%d</value>", svals[i]);
+                debug_file_printf("</action>");
             }
 
             action_name_strings[svals[i]]
@@ -465,13 +455,6 @@ extern void write_the_identifier_names(void)
         {   sprintf(idname_string, "%s", (char *) symbs[i]);
             idname_string[strlen(idname_string)-3] = 0;
 
-            if (debugfile_switch)
-            {   write_debug_byte(ACTION_DBR);
-                write_debug_byte(svals[i]/256);
-                write_debug_byte(svals[i]%256);
-                write_debug_string(idname_string);
-            }
-
             action_name_strings[svals[i]
                     - ((grammar_version_number==1)?256:4096) + no_actions]
                 = compile_string(idname_string, FALSE, FALSE);
@@ -481,13 +464,6 @@ extern void write_the_identifier_names(void)
     for (j=0; j<no_arrays; j++)
     {   i = array_symbols[j];
         sprintf(idname_string, "%s", (char *) symbs[i]);
-
-        if (debugfile_switch)
-        {   write_debug_byte(ARRAY_DBR);
-            write_debug_byte(svals[i]/256);
-            write_debug_byte(svals[i]%256);
-            write_debug_string(idname_string);
-        }
 
         array_name_strings[j]
             = compile_string(idname_string, FALSE, FALSE);
@@ -559,17 +535,66 @@ extern void assign_marked_symbol(int index, int marker, int32 value, int type)
     }
 }
 
+static void emit_debug_information_for_predefined_symbol
+    (char *name, int32 symbol, int32 value, int type)
+{   if (debugfile_switch)
+    {   switch (type)
+        {   case CONSTANT_T:
+                debug_file_printf("<constant>");
+                debug_file_printf("<identifier>%s</identifier>", name);
+                write_debug_symbol_optional_backpatch(symbol);
+                debug_file_printf("</constant>");
+                break;
+            case GLOBAL_VARIABLE_T:
+                debug_file_printf("<global-variable>");
+                debug_file_printf("<identifier>%s</identifier>", name);
+                debug_file_printf("<address>");
+                write_debug_global_backpatch(value);
+                debug_file_printf("</address>");
+                debug_file_printf("</global-variable>");
+                break;
+            case OBJECT_T:
+                if (value)
+                {   compiler_error("Non-nothing object predefined");
+                }
+                debug_file_printf("<object>");
+                debug_file_printf("<identifier>%s</identifier>", name);
+                debug_file_printf("<value>0</value>");
+                debug_file_printf("</object>");
+                break;
+            case ATTRIBUTE_T:
+                debug_file_printf("<attribute>");
+                debug_file_printf("<identifier>%s</identifier>", name);
+                debug_file_printf("<value>%d</value>", value);
+                debug_file_printf("</attribute>");
+                break;
+            case PROPERTY_T:
+            case INDIVIDUAL_PROPERTY_T:
+                debug_file_printf("<property>");
+                debug_file_printf("<identifier>%s</identifier>", name);
+                debug_file_printf("<value>%d</value>", value);
+                debug_file_printf("</property>");
+                break;
+            default:
+                compiler_error
+                    ("Unable to emit debug information for predefined symbol");
+            break;
+        }
+    }
+}
 
 static void create_symbol(char *p, int32 value, int type)
 {   int i = symbol_index(p, -1);
     svals[i] = value; stypes[i] = type; slines[i] = 0;
     sflags[i] = USED_SFLAG + SYSTEM_SFLAG;
+    emit_debug_information_for_predefined_symbol(p, i, value, type);
 }
 
 static void create_rsymbol(char *p, int value, int type)
 {   int i = symbol_index(p, -1);
     svals[i] = value; stypes[i] = type; slines[i] = 0;
     sflags[i] = USED_SFLAG + SYSTEM_SFLAG + REDEFINABLE_SFLAG;
+    emit_debug_information_for_predefined_symbol(p, i, value, type);
 }
 
 static void stockup_symbols(void)
@@ -712,6 +737,13 @@ static void stockup_symbols(void)
 
 extern void add_symbol_replacement_mapping(int original, int renamed)
 {
+    int ix;
+
+    if (original == renamed) {
+        error_named("A routine cannot be 'Replace'd to itself:", (char *)symbs[original]);
+        return;        
+    }
+
     if (symbol_replacements_count == symbol_replacements_size) {
         int oldsize = symbol_replacements_size;
         if (symbol_replacements_size == 0) 
@@ -720,6 +752,20 @@ extern void add_symbol_replacement_mapping(int original, int renamed)
             symbol_replacements_size *= 2;
         my_recalloc(&symbol_replacements, sizeof(value_pair_t), oldsize,
             symbol_replacements_size, "symbol replacement table");
+    }
+
+    /* If the original form is already in our table, report an error.
+       Same goes if the replaced form is already in the table as an
+       original. (Other collision cases have already been
+       detected.) */
+
+    for (ix=0; ix<symbol_replacements_count; ix++) {
+        if (original == symbol_replacements[ix].original_symbol) {
+            error_named("A routine cannot be 'Replace'd to more than one new name:", (char *)symbs[original]);
+        }
+        if (renamed == symbol_replacements[ix].original_symbol) {
+            error_named("A routine cannot be 'Replace'd to a 'Replace'd name:", (char *)symbs[original]);
+        }
     }
 
     symbol_replacements[symbol_replacements_count].original_symbol = original;
@@ -840,7 +886,7 @@ extern void df_note_function_start(char *name, uint32 address,
     df_current_function_addr = address;
 
     func = my_malloc(sizeof(df_function_t), "df function entry");
-    bzero(func, sizeof(df_function_t));
+    memset(func, 0, sizeof(df_function_t));
     func->name = name;
     func->address = address;
     func->source_line = source_line;
@@ -1214,6 +1260,14 @@ extern void symbols_allocate_arrays(void)
     slines     = my_calloc(sizeof(int32),   MAX_SYMBOLS, "symbol lines");
     stypes     = my_calloc(sizeof(char),    MAX_SYMBOLS, "symbol types");
     sflags     = my_calloc(sizeof(int),     MAX_SYMBOLS, "symbol flags");
+    if (debugfile_switch)
+    {   symbol_debug_backpatch_positions =
+            my_calloc(sizeof(fpos_t),       MAX_SYMBOLS,
+                      "symbol debug information backpatch positions");
+        replacement_debug_backpatch_positions =
+            my_calloc(sizeof(fpos_t),       MAX_SYMBOLS,
+                      "replacement debug information backpatch positions");
+    }
     next_entry = my_calloc(sizeof(int),     MAX_SYMBOLS,
                      "symbol linked-list forward links");
     start_of_list = my_calloc(sizeof(int32), HASH_TAB_SIZE,
@@ -1226,10 +1280,10 @@ extern void symbols_allocate_arrays(void)
         df_tables_closed = FALSE;
 
         df_symbol_map = my_calloc(sizeof(df_reference_t *), DF_SYMBOL_HASH_BUCKETS, "df symbol-map hash table");
-        bzero(df_symbol_map, sizeof(df_reference_t *) * DF_SYMBOL_HASH_BUCKETS);
+        memset(df_symbol_map, 0, sizeof(df_reference_t *) * DF_SYMBOL_HASH_BUCKETS);
 
         df_functions = my_calloc(sizeof(df_function_t *), DF_FUNCTION_HASH_BUCKETS, "df function hash table");
-        bzero(df_functions, sizeof(df_function_t *) * DF_FUNCTION_HASH_BUCKETS);
+        memset(df_functions, 0, sizeof(df_function_t *) * DF_FUNCTION_HASH_BUCKETS);
         df_functions_head = NULL;
         df_functions_tail = NULL;
 
@@ -1266,6 +1320,14 @@ extern void symbols_free_arrays(void)
     my_free(&slines, "symbol lines");
     my_free(&stypes, "symbol types");
     my_free(&sflags, "symbol flags");
+    if (debugfile_switch)
+    {   my_free
+            (&symbol_debug_backpatch_positions,
+             "symbol debug information backpatch positions");
+        my_free
+            (&replacement_debug_backpatch_positions,
+             "replacement debug information backpatch positions");
+    }
     my_free(&next_entry, "symbol linked-list forward links");
     my_free(&start_of_list, "hash code list beginnings");
 

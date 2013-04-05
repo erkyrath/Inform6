@@ -2,8 +2,8 @@
 /*   "bpatch" : Keeps track of, and finally acts on, backpatch markers,      */
 /*              correcting symbol values not known at compilation time       */
 /*                                                                           */
-/*   Part of Inform 6.32                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2012                                 */
+/*   Part of Inform 6.33                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2013                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 

@@ -6,8 +6,8 @@
 /*                    checks syntax and translates such directives into      */
 /*                    specifications for the object-maker.                   */
 /*                                                                           */
-/*   Part of Inform 6.32                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2012                                 */
+/*   Part of Inform 6.33                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2013                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -90,10 +90,13 @@ static void trace_s(char *name, int32 number, int f)
 
 extern void make_attribute(void)
 {   int i; char *name;
+    debug_location_beginning beginning_debug_location =
+        get_token_location_beginning();
 
  if (!glulx_mode) { 
     if (no_attributes==((version_number==3)?32:48))
-    {   if (version_number==3)
+    {   discard_token_location(beginning_debug_location);
+        if (version_number==3)
             error("All 32 attributes already declared (compile as Advanced \
 game to get an extra 16)");
         else
@@ -105,6 +108,7 @@ game to get an extra 16)");
  }
  else {
     if (no_attributes==NUM_ATTR_BYTES*8) {
+      discard_token_location(beginning_debug_location);
       error_numbered(
         "All attributes already declared -- increase NUM_ATTR_BYTES to use \
 more than", 
@@ -118,7 +122,8 @@ more than",
     get_next_token();
     i = token_value; name = token_text;
     if ((token_type != SYMBOL_TT) || (!(sflags[i] & UNKNOWN_SFLAG)))
-    {   ebf_error("new attribute name", token_text);
+    {   discard_token_location(beginning_debug_location);
+        ebf_error("new attribute name", token_text);
         panic_mode_error_recovery(); 
         put_token_back();
         return;
@@ -132,7 +137,8 @@ more than",
     {   get_next_token();
         if (!((token_type == SYMBOL_TT)
               && (stypes[token_value] == ATTRIBUTE_T)))
-        {   ebf_error("an existing attribute name after 'alias'",
+        {   discard_token_location(beginning_debug_location);
+            ebf_error("an existing attribute name after 'alias'",
                 token_text);
             panic_mode_error_recovery();
             put_token_back();
@@ -147,6 +153,14 @@ more than",
         put_token_back();
     }
 
+    if (debugfile_switch)
+    {   debug_file_printf("<attribute>");
+        debug_file_printf("<identifier>%s</identifier>", name);
+        debug_file_printf("<value>%d</value>", svals[i]);
+        write_debug_locations(get_token_location_end(beginning_debug_location));
+        debug_file_printf("</attribute>");
+    }
+
     trace_s(name, svals[i], 0);
     return;
 }
@@ -155,10 +169,13 @@ extern void make_property(void)
 {   int32 default_value, i;
     int additive_flag=FALSE; char *name;
     assembly_operand AO;
+    debug_location_beginning beginning_debug_location =
+        get_token_location_beginning();
 
     if (!glulx_mode) {
         if (no_properties==((version_number==3)?32:64))
-        {   if (version_number==3)
+        {   discard_token_location(beginning_debug_location);
+            if (version_number==3)
                 error("All 30 properties already declared (compile as \
 Advanced game to get an extra 62)");
             else
@@ -171,6 +188,7 @@ Advanced game to get an extra 62)");
     else {
         /* INDIV_PROP_START could be a memory setting */
         if (no_properties==INDIV_PROP_START) {
+            discard_token_location(beginning_debug_location);
             error_numbered("All properties already declared -- max is",
                 INDIV_PROP_START);
             panic_mode_error_recovery(); 
@@ -196,7 +214,8 @@ Advanced game to get an extra 62)");
 
     i = token_value; name = token_text;
     if ((token_type != SYMBOL_TT) || (!(sflags[i] & UNKNOWN_SFLAG)))
-    {   ebf_error("new property name", token_text);
+    {   discard_token_location(beginning_debug_location);
+        ebf_error("new property name", token_text);
         panic_mode_error_recovery();
         put_token_back();
         return;
@@ -209,7 +228,8 @@ Advanced game to get an extra 62)");
     if (strcmp(name+strlen(name)-3, "_to") == 0) sflags[i] |= STAR_SFLAG;
 
     if ((token_type == DIR_KEYWORD_TT) && (token_value == ALIAS_DK))
-    {   if (additive_flag)
+    {   discard_token_location(beginning_debug_location);
+        if (additive_flag)
         {   error("'alias' incompatible with 'additive'");
             panic_mode_error_recovery();
             put_token_back();
@@ -248,6 +268,16 @@ Advanced game to get an extra 62)");
     prop_is_additive[no_properties] = additive_flag;
 
     assign_symbol(i, no_properties++, PROPERTY_T);
+
+    if (debugfile_switch)
+    {   debug_file_printf("<property>");
+        debug_file_printf("<identifier>%s</identifier>", name);
+        debug_file_printf("<value>%d</value>", svals[i]);
+        write_debug_locations
+            (get_token_location_end(beginning_debug_location));
+        debug_file_printf("</property>");
+    }
+
     trace_s(name, svals[i], 1);
 }
 
@@ -1004,7 +1034,7 @@ static void properties_segment_z(int this_segment)
           individual_property, this_identifier_number;
 
     do
-    {   get_next_token();
+    {   get_next_token_with_directives();
         if ((token_type == SEGMENT_MARKER_TT)
             || (token_type == EOF_TT)
             || ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)))
@@ -1023,6 +1053,16 @@ static void properties_segment_z(int this_segment)
             {   this_identifier_number = no_individual_properties++;
                 assign_symbol(token_value, this_identifier_number,
                     INDIVIDUAL_PROPERTY_T);
+
+                if (debugfile_switch)
+                {   debug_file_printf("<property>");
+                    debug_file_printf
+                        ("<identifier>%s</identifier>", token_text);
+                    debug_file_printf
+                        ("<value>%d</value>", this_identifier_number);
+                    debug_file_printf("</property>");
+                }
+
             }
             else
             {   if (stypes[token_value]==INDIVIDUAL_PROPERTY_T)
@@ -1100,7 +1140,7 @@ the names '%s' and '%s' actually refer to the same property",
         length=0;
         do
         {   assembly_operand AO;
-            get_next_token();
+            get_next_token_with_directives();
             if ((token_type == EOF_TT)
                 || ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP))
                 || ((token_type == SEP_TT) && (token_value == COMMA_SEP)))
@@ -1263,7 +1303,7 @@ static void properties_segment_g(int this_segment)
     int32 property_name_symbol, property_number, length;
 
     do
-    {   get_next_token();
+    {   get_next_token_with_directives();
         if ((token_type == SEGMENT_MARKER_TT)
             || (token_type == EOF_TT)
             || ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)))
@@ -1282,6 +1322,16 @@ static void properties_segment_g(int this_segment)
             {   this_identifier_number = no_individual_properties++;
                 assign_symbol(token_value, this_identifier_number,
                     INDIVIDUAL_PROPERTY_T);
+
+                if (debugfile_switch)
+                {   debug_file_printf("<property>");
+                    debug_file_printf
+                        ("<identifier>%s</identifier>", token_text);
+                    debug_file_printf
+                        ("<value>%d</value>", this_identifier_number);
+                    debug_file_printf("</property>");
+                }
+
             }
             else
             {   if (stypes[token_value]==INDIVIDUAL_PROPERTY_T)
@@ -1358,7 +1408,7 @@ the names '%s' and '%s' actually refer to the same property",
         length=0;
         do
         {   assembly_operand AO;
-            get_next_token();
+            get_next_token_with_directives();
             if ((token_type == EOF_TT)
                 || ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP))
                 || ((token_type == SEP_TT) && (token_value == COMMA_SEP)))
@@ -1501,7 +1551,7 @@ static void attributes_segment(void)
 
         ParseAttrN:
 
-        get_next_token();
+        get_next_token_with_directives();
         if ((token_type == SEGMENT_MARKER_TT)
             || (token_type == EOF_TT)
             || ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)))
@@ -1588,7 +1638,7 @@ static void classes_segment(void)
         <class-1> ... <class-n>                                              */
 
     do
-    {   get_next_token();
+    {   get_next_token_with_directives();
         if ((token_type == SEGMENT_MARKER_TT)
             || (token_type == EOF_TT)
             || ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)))
@@ -1619,7 +1669,7 @@ static void parse_body_of_definition(void)
     do
     {   commas_in_row = -1;
         do
-        {   get_next_token(); commas_in_row++;
+        {   get_next_token_with_directives(); commas_in_row++;
         } while ((token_type == SEP_TT) && (token_value == COMMA_SEP));
 
         if (commas_in_row>1)
@@ -1629,6 +1679,8 @@ static void parse_body_of_definition(void)
             || ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)))
         {   if (commas_in_row > 0)
                 error("Object/class definition finishes with ','");
+            if (token_type == EOF_TT)
+                error("Object/class definition incomplete (no ';') at end of file");
             break;
         }
 
@@ -1686,7 +1738,10 @@ static void initialise_full_object(void)
 extern void make_class(char * metaclass_name)
 {   int n, duplicates_to_make = 0, class_number = no_objects+1,
         metaclass_flag = (metaclass_name != NULL);
-    char duplicate_name[128]; dbgl start_dbgl = token_line_ref;
+    char duplicate_name[128];
+    int class_symbol;
+    debug_location_beginning beginning_debug_location =
+        get_token_location_beginning();
 
     current_defn_is_class = TRUE; no_classes_to_inherit_from = 0;
     individual_prop_table_size = 0;
@@ -1710,7 +1765,8 @@ inconvenience, please contact the maintainers.");
     {   get_next_token();
         if ((token_type != SYMBOL_TT)
             || (!(sflags[token_value] & UNKNOWN_SFLAG)))
-        {   ebf_error("new class name", token_text);
+        {   discard_token_location(beginning_debug_location);
+            ebf_error("new class name", token_text);
             panic_mode_error_recovery();
             return;
         }
@@ -1769,6 +1825,8 @@ inconvenience, please contact the maintainers.");
       full_object_g.propdata[0].marker = OBJECT_MV;
     }
 
+    class_symbol = token_value;
+
     if (!metaclass_flag)
     {   get_next_token();
         if ((token_type == SEP_TT) && (token_value == OPENB_SEP))
@@ -1799,10 +1857,15 @@ inconvenience, please contact the maintainers.");
     }
 
     if (debugfile_switch)
-    {   write_debug_byte(CLASS_DBR);
-        write_debug_string(shortname_buffer);
-        write_dbgl(start_dbgl);
-        write_dbgl(token_line_ref);
+    {   debug_file_printf("<class>");
+        debug_file_printf("<identifier>%s</identifier>", shortname_buffer);
+        debug_file_printf("<class-number>%d</class-number>", no_classes);
+        debug_file_printf("<value>");
+        write_debug_object_backpatch(no_objects + 1);
+        debug_file_printf("</value>");
+        write_debug_locations
+            (get_token_location_end(beginning_debug_location));
+        debug_file_printf("</class>");
     }
 
     if (!glulx_mode)
@@ -1855,7 +1918,8 @@ extern void make_object(int nearby_flag,
 
     int i, tree_depth, internal_name_symbol = 0;
     char internal_name[64];
-    dbgl start_dbgl = token_line_ref;
+    debug_location_beginning beginning_debug_location =
+        get_token_location_beginning();
 
     directives.enabled = FALSE;
 
@@ -1912,7 +1976,7 @@ extern void make_object(int nearby_flag,
     /*  The next word is either a parent object, or
         a textual short name, or the end of the header part                  */
 
-    get_next_token();
+    get_next_token_with_directives();
     if (end_of_header()) goto HeaderPassed;
 
     if (token_type == DQ_TT)
@@ -1952,7 +2016,7 @@ extern void make_object(int nearby_flag,
 
     /*  Now it really has to be the body of the definition.                  */
 
-    get_next_token();
+    get_next_token_with_directives();
     if (end_of_header()) goto HeaderPassed;
 
     ebf_error("body of object definition", token_text);
@@ -2036,12 +2100,20 @@ extern void make_object(int nearby_flag,
     else add_class_to_inheritance_list(specified_class);
 
     if (debugfile_switch)
-    {   write_debug_byte(OBJECT_DBR);
-        write_debug_byte((no_objects+1)/256);
-        write_debug_byte((no_objects+1)%256);
-        write_debug_string(internal_name);
-        write_dbgl(start_dbgl);
-        write_dbgl(token_line_ref);
+    {   debug_file_printf("<object>");
+        if (internal_name_symbol > 0)
+        {   debug_file_printf("<identifier>%s</identifier>", internal_name);
+        } else
+        {   debug_file_printf
+                ("<identifier artificial=\"true\">%s</identifier>",
+                 internal_name);
+        }
+        debug_file_printf("<value>");
+        write_debug_object_backpatch(no_objects + 1);
+        debug_file_printf("</value>");
+        write_debug_locations
+            (get_token_location_end(beginning_debug_location));
+        debug_file_printf("</object>");
     }
 
     if (!glulx_mode)
@@ -2077,6 +2149,20 @@ extern void objects_begin_pass(void)
         prop_is_long[3] = TRUE; prop_is_additive[3] = FALSE;
                                          /* instance variables table address */
     no_properties = 4;
+
+    if (debugfile_switch)
+    {   debug_file_printf("<property>");
+        debug_file_printf
+            ("<identifier artificial=\"true\">inheritance class</identifier>");
+        debug_file_printf("<value>2</value>");
+        debug_file_printf("</property>");
+        debug_file_printf("<property>");
+        debug_file_printf
+            ("<identifier artificial=\"true\">instance variables table address "
+             "(Z-code)</identifier>");
+        debug_file_printf("<value>3</value>");
+        debug_file_printf("</property>");
+    }
 
     if (define_INFIX_switch) no_attributes = 1;
     else no_attributes = 0;

@@ -2,8 +2,8 @@
 /*   "inform" :  The top level of Inform: switches, pathnames, filenaming    */
 /*               conventions, ICL (Inform Command Line) files, main          */
 /*                                                                           */
-/*   Part of Inform 6.32                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2012                                 */
+/*   Part of Inform 6.33                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2013                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -726,8 +726,8 @@ extern void translate_out_filename(char *new_name, char *old_name)
     /* Remove any pathname or extension in <file1>. */
 
     if (contains_separator(old_name)==1)
-    {   for (i=strlen(old_name)-1; (i>=0)&&(old_name[i]!=FN_SEP) ;i--) ;
-            if (old_name[i]==FN_SEP) i++;
+    {   for (i=strlen(old_name)-1; (i>0)&&(old_name[i]!=FN_SEP) ;i--) { };
+        if (old_name[i]==FN_SEP) i++;
         old_name += i;
     }
 #ifdef FILE_EXTENSIONS
@@ -1088,9 +1088,11 @@ compiling modules: disabling -S switch\n");
     }
 
     init_vars();
-    allocate_arrays();
 
     if (debugfile_switch) begin_debug_file();
+
+    allocate_arrays();
+
     if (transcript_switch) open_transcript_file(Source_Name);
 
     run_pass();
@@ -1103,7 +1105,9 @@ compiling modules: disabling -S switch\n");
     if (no_errors==0) { output_file(); output_has_occurred = TRUE; }
     else { output_has_occurred = FALSE; }
 
-    if (debugfile_switch) close_debug_file();
+    if (debugfile_switch)
+    {   end_debug_file();
+    }
 
     if (temporary_files_switch && (no_errors>0)) remove_temp_files();
 
@@ -1126,7 +1130,7 @@ static void cli_print_help(int help_level)
 {
     printf(
 "\nThis program is a compiler of Infocom format (also called \"Z-machine\")\n\
-story files: copyright (c) Graham Nelson 1993 - 2012.\n\n");
+story files: copyright (c) Graham Nelson 1993 - 2013.\n\n");
 
    /* For people typing just "inform", a summary only: */
 

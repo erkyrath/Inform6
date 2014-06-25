@@ -8,7 +8,7 @@
 /*             settings and are very host OS-dependent.                      */
 /*                                                                           */
 /*   Part of Inform 6.33                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2013                                 */
+/*   copyright (c) Graham Nelson 1993 - 2014                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -124,10 +124,11 @@ extern void load_sourcefile(char *filename_given, int same_directory_flag)
         debug_file_print_with_entities(filename_given);
         debug_file_printf("</given-path>");
 #ifdef HAS_REALPATH
-        realpath(name, absolute_name);
-        debug_file_printf("<resolved-path>");
-        debug_file_print_with_entities(absolute_name);
-        debug_file_printf("</resolved-path>");
+        if (realpath(name, absolute_name))
+        {   debug_file_printf("<resolved-path>");
+            debug_file_print_with_entities(absolute_name);
+            debug_file_printf("</resolved-path>");
+        }
 #endif
         debug_file_printf("<language>Inform 6</language>");
         debug_file_printf("</source>");
@@ -255,7 +256,7 @@ static void sf_put(int c)
 
 /* Recursive procedure to generate the Glulx compression table. */
 
-static void output_compression(int entnum, int32 *size)
+static void output_compression(int entnum, int32 *size, int *count)
 {
   huffentity_t *ent = &(huff_entities[entnum]);
   int32 val;
@@ -263,6 +264,7 @@ static void output_compression(int entnum, int32 *size)
 
   sf_put(ent->type);
   (*size)++;
+  (*count)++;
 
   switch (ent->type) {
   case 0:
@@ -278,8 +280,8 @@ static void output_compression(int entnum, int32 *size)
     sf_put((val >> 8) & 0xFF);
     sf_put((val) & 0xFF);
     (*size) += 4;
-    output_compression(ent->u.branch[0], size);
-    output_compression(ent->u.branch[1], size);
+    output_compression(ent->u.branch[0], size, count);
+    output_compression(ent->u.branch[1], size, count);
     break;
   case 1:
     /* no data */
@@ -943,7 +945,7 @@ game features require version 0x%08lx", (long)requested_glulx_version, (long)Ver
     {
       int32 ix, lx;
       int ch, jx, curbyte, bx;
-      int depth;
+      int depth, checkcount;
       huffbitlist_t *bits;
       int32 origsize;
 
@@ -970,7 +972,10 @@ game features require version 0x%08lx", (long)requested_glulx_version, (long)Ver
         sf_put((lx) & 0xFF);
         size += 4;
 
-        output_compression(huff_entity_root, &size);
+        checkcount = 0;
+        output_compression(huff_entity_root, &size, &checkcount);
+        if (checkcount != no_huff_entities)
+          compiler_error("Compression table count mismatch.");
       }
 
       if (size - origsize != compression_table_size)
@@ -1267,19 +1272,19 @@ extern void debug_file_print_with_entities(const char*string)
     for (character = string[index]; character; character = string[++index])
     {   switch(character)
         {   case '"':
-                debug_file_printf("&quot;", character);
+                debug_file_printf("&quot;");
                 break;
             case '&':
-                debug_file_printf("&amp;", character);
+                debug_file_printf("&amp;");
                 break;
             case '\'':
-                debug_file_printf("&apos;", character);
+                debug_file_printf("&apos;");
                 break;
             case '<':
-                debug_file_printf("&lt;", character);
+                debug_file_printf("&lt;");
                 break;
             case '>':
-                debug_file_printf("&gt;", character);
+                debug_file_printf("&gt;");
                 break;
             default:
                 debug_file_printf("%c", character);

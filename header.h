@@ -4,7 +4,7 @@
 /*                              Inform 6.33                                  */
 /*                                                                           */
 /*   This header file and the others making up the Inform source code are    */
-/*   copyright (c) Graham Nelson 1993 - 2013                                 */
+/*   copyright (c) Graham Nelson 1993 - 2014                                 */
 /*                                                                           */
 /*   Manuals for this language are available from the IF-Archive at          */
 /*   http://www.ifarchive.org/                                               */
@@ -30,7 +30,7 @@
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
-#define RELEASE_DATE "19th June 2013"
+#define RELEASE_DATE "10th May 2014"
 #define RELEASE_NUMBER 1633
 #define GLULX_RELEASE_NUMBER 38
 #define MODULE_VERSION_NUMBER 1
@@ -285,7 +285,7 @@ static int32 unique_task_id(void)
 /* 5 */
 #define Temporary_Directory "/tmp"
 /* 6 */
-#define PATHLEN 512
+#define PATHLEN 8192
 #endif
 /* ------------------------------------------------------------------------- */
 /*   Macintosh block                                                         */
@@ -404,6 +404,11 @@ static int32 unique_task_id(void)
 /* 6 */
 #define DEFAULT_ERROR_FORMAT 1
 #define PATHLEN 512
+#ifdef _MSC_VER /* Microsoft Visual C++ */
+#define snprintf _snprintf
+#define isnan _isnan
+#define isinf(x) (!_isnan(x) && !_finite(x))
+#endif
 #endif
 /* ------------------------------------------------------------------------- */
 /*   UNIX block                                                              */
@@ -2407,7 +2412,7 @@ extern int32 requested_glulx_version;
 
 extern int error_format,    store_the_text,       asm_trace_setting,
     double_space_setting,   trace_fns_setting,    character_set_setting,
-    character_set_unicode,  header_ext_setting;
+    character_set_unicode;
 
 extern char Debugging_Name[];
 extern char Transcript_Name[];
@@ -2513,8 +2518,20 @@ extern int32 MAX_STATIC_STRINGS, MAX_ZCODE_SIZE, MAX_LINK_DATA_SIZE,
 
 extern int32 MAX_OBJ_PROP_COUNT, MAX_OBJ_PROP_TABLE_SIZE;
 extern int MAX_LOCAL_VARIABLES, MAX_GLOBAL_VARIABLES;
-extern int DICT_WORD_SIZE, DICT_CHAR_SIZE, DICT_WORD_BYTES, NUM_ATTR_BYTES;
+extern int DICT_WORD_SIZE, DICT_CHAR_SIZE, DICT_WORD_BYTES;
+extern int ZCODE_HEADER_EXT_WORDS, ZCODE_HEADER_FLAGS_3;
+extern int NUM_ATTR_BYTES, GLULX_OBJECT_EXT_BYTES;
 extern int WARN_UNUSED_ROUTINES, OMIT_UNUSED_ROUTINES;
+
+/* These macros define offsets that depend on the value of NUM_ATTR_BYTES.
+   (Meaningful only for Glulx.) */
+/* GOBJFIELD: word offsets of various elements in the object structure. */
+#define GOBJFIELD_CHAIN()    (1+((NUM_ATTR_BYTES)/4))
+#define GOBJFIELD_NAME()     (2+((NUM_ATTR_BYTES)/4))
+#define GOBJFIELD_PROPTAB()  (3+((NUM_ATTR_BYTES)/4))
+#define GOBJFIELD_PARENT()   (4+((NUM_ATTR_BYTES)/4))
+#define GOBJFIELD_SIBLING()  (5+((NUM_ATTR_BYTES)/4))
+#define GOBJFIELD_CHILD()    (6+((NUM_ATTR_BYTES)/4))
 
 extern void *my_malloc(int32 size, char *whatfor);
 extern void my_realloc(void *pointer, int32 oldsize, int32 size, 

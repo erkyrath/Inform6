@@ -3,7 +3,7 @@
 /*               conventions, ICL (Inform Command Line) files, main          */
 /*                                                                           */
 /*   Part of Inform 6.33                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2013                                 */
+/*   copyright (c) Graham Nelson 1993 - 2014                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -186,7 +186,7 @@ static void select_target(int targ)
   }
   else {
     /* Glulx */
-    OBJECT_BYTE_LENGTH = (1 + (NUM_ATTR_BYTES) + 6*4);
+    OBJECT_BYTE_LENGTH = (1 + (NUM_ATTR_BYTES) + 6*4 + (GLULX_OBJECT_EXT_BYTES));
     DICT_WORD_BYTES = DICT_WORD_SIZE*DICT_CHAR_SIZE;
     if (DICT_CHAR_SIZE == 1) {
       DICT_ENTRY_BYTE_LENGTH = (7+DICT_WORD_BYTES);
@@ -256,7 +256,6 @@ int character_set_setting,          /* set by -C0 through -C9 */
     double_space_setting,           /* set by -d: 0, 1 or 2 */
     trace_fns_setting,              /* set by -g: 0, 1 or 2 */
     linker_trace_setting,           /* set by -y: ditto for linker_... */
-    header_ext_setting,             /* set by -W */
     store_the_text;                 /* when set, record game text to a chunk
                                        of memory (used by both -r & -k) */
 static int r_e_c_s_set;             /* has -S been explicitly set? */
@@ -314,7 +313,6 @@ static void reset_switch_settings(void)
 
     character_set_setting = 1;         /* Default is ISO Latin-1 */
     character_set_unicode = FALSE;
-    header_ext_setting = 0;
 
     compression_switch = TRUE;
     glulx_mode = FALSE;
@@ -1130,7 +1128,7 @@ static void cli_print_help(int help_level)
 {
     printf(
 "\nThis program is a compiler of Infocom format (also called \"Z-machine\")\n\
-story files: copyright (c) Graham Nelson 1993 - 2013.\n\n");
+story files: copyright (c) Graham Nelson 1993 - 2014.\n\n");
 
    /* For people typing just "inform", a summary only: */
 
@@ -1411,10 +1409,10 @@ extern void switches(char *p, int cmode)
         case 'H': compression_switch = state; break;
         case 'U': define_USE_MODULES_switch = state; break;
         case 'W': if ((p[i+1]>='0') && (p[i+1]<='9'))
-                  {   s=2; header_ext_setting = p[i+1]-'0';
+                  {   s=2; ZCODE_HEADER_EXT_WORDS = p[i+1]-'0';
                       if ((p[i+2]>='0') && (p[i+2]<='9'))
-                      {   s=3; header_ext_setting *= 10;
-                          header_ext_setting += p[i+2]-'0';
+                      {   s=3; ZCODE_HEADER_EXT_WORDS *= 10;
+                          ZCODE_HEADER_EXT_WORDS += p[i+2]-'0';
                       }
                   }
                   break;

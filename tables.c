@@ -4,7 +4,7 @@
 /*               tables.                                                     */
 /*                                                                           */
 /*   Part of Inform 6.33                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2013                                 */
+/*   copyright (c) Graham Nelson 1993 - 2014                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -145,7 +145,7 @@ static int32 rough_size_of_paged_memory_z(void)
             + 6*32;                                   /* abbreviations table */
 
     total += 8;                                    /* header extension table */
-    if (header_ext_setting>3) total += (header_ext_setting-3)*2;
+    if (ZCODE_HEADER_EXT_WORDS>3) total += (ZCODE_HEADER_EXT_WORDS-3)*2;
 
     if (alphabet_modified) total += 78;               /* character set table */
 
@@ -290,8 +290,17 @@ static void construct_storyfile_z(void)
     /*  ------------------- Header extension table ------------------------- */
 
     headerext_at = mark;
-    headerext_length = 3;                            /* Usually 3 words long */
-    if (header_ext_setting>3) headerext_length = header_ext_setting;
+    headerext_length = ZCODE_HEADER_EXT_WORDS;
+    if (zscii_defn_modified) {
+        /* Need at least 3 words for unicode table address */
+        if (headerext_length < 3)
+            headerext_length = 3;
+    }
+    if (ZCODE_HEADER_FLAGS_3) {
+        /* Need at least 4 words for the flags-3 field (ZSpec 1.1) */
+        if (headerext_length < 4)
+            headerext_length = 4;
+    }
     p[mark++] = 0; p[mark++] = headerext_length;
     for (i=0; i<headerext_length; i++)
     {   p[mark++] = 0; p[mark++] = 0;
@@ -780,11 +789,24 @@ or less.");
 
     /*  ------------------------ Header Extension -------------------------- */
 
-    i = headerext_at + 2;
-    p[i++] = 0; p[i++] = 0;                       /* Mouse x-coordinate slot */
-    p[i++] = 0; p[i++] = 0;                       /* Mouse y-coordinate slot */
-    j = unicode_at;
-    p[i++] = j/256; p[i++] = j%256;     /* Unicode translation table address */
+    /* The numbering in the spec is a little weird -- it's headerext_length
+       words *after* the initial length word. We follow the spec numbering
+       in this switch statement, so the count is 1-based. */
+    for (i=1; i<=headerext_length; i++) {
+        switch (i) {
+        case 3:
+            j = unicode_at;             /* Unicode translation table address */
+            break;
+        case 4:
+            j = ZCODE_HEADER_FLAGS_3;                        /* Flags 3 word */
+            break;
+        default:
+            j = 0;
+            break;
+        }
+        p[headerext_at+2*i+0] = j / 256;
+        p[headerext_at+2*i+1] = j % 256;
+    }
 
     /*  ----------------- The Header: Extras for modules ------------------- */
 
@@ -1307,6 +1329,10 @@ static void construct_storyfile_g(void)
         p[mark++] = (val >> 8) & 0xFF;
         p[mark++] = (val) & 0xFF;
       }
+
+      for (j=0; j<GLULX_OBJECT_EXT_BYTES; j++) {
+        p[mark++] = 0;
+      }
     }
 
     if (object_props_at != mark)
@@ -1607,25 +1633,25 @@ Out:   %s %s %d.%c%c%c%c%c%c (%ld%sK long):\n",
 
             printf("\
 %6d classes (maximum %3d)        %6d objects (maximum %3d)\n\
-%6d global vars (maximum 233)    %6d variable/array space (maximum %d)\n",
+%6d global vars (maximum %3d)    %6d variable/array space (maximum %d)\n",
                  no_classes, MAX_CLASSES,
-                 no_objects, ((version_number==3)?255:(MAX_OBJECTS-1)),
-                 no_globals,
+                 no_objects, MAX_OBJECTS,
+                 no_globals, MAX_GLOBAL_VARIABLES,
                  dynamic_array_area_size, MAX_STATIC_DATA);
 
             printf(
 "%6d verbs (maximum %3d)          %6d dictionary entries (maximum %d)\n\
 %6d grammar lines (version %d)    %6d grammar tokens (unlimited)\n\
 %6d actions (maximum %3d)        %6d attributes (maximum %2d)\n\
-%6d common props (maximum %2d)    %6d individual props (unlimited)\n",
+%6d common props (maximum %3d)   %6d individual props (unlimited)\n",
                  no_Inform_verbs, MAX_VERBS,
                  dict_entries, MAX_DICT_ENTRIES,
                  no_grammar_lines, grammar_version_number,
                  no_grammar_tokens,
                  no_actions, MAX_ACTIONS,
-                 no_attributes, ((version_number==3)?32:48),
-                 no_properties-2, ((version_number==3)?30:62),
-                 no_individual_properties - 64);
+                 no_attributes, NUM_ATTR_BYTES*8,
+                 no_properties, INDIV_PROP_START,
+                 no_individual_properties - INDIV_PROP_START);
 
             if (track_unused_routines)
             {
@@ -1641,7 +1667,7 @@ Out:   %s %s %d.%c%c%c%c%c%c (%ld%sK long):\n",
 "%6ld characters used in text      %6ld bytes compressed (rate %d.%3ld)\n\
 %6d abbreviations (maximum %d)   %6d routines (unlimited)\n\
 %6ld instructions of code         %6d sequence points\n\
-%6ld bytes readable memory used (maximum 65536)\n\
+%6ld bytes writable memory used   %6ld bytes read-only memory used\n\
 %6ld bytes used in machine    %10ld bytes free in machine\n",
                  (long int) total_chars_trans,
                  (long int) strings_length,
@@ -1650,7 +1676,8 @@ Out:   %s %s %d.%c%c%c%c%c%c (%ld%sK long):\n",
                  no_abbreviations, MAX_ABBREVS,
                  no_routines,
                  (long int) no_instructions, no_sequence_points,
-                 (long int) Write_Code_At,
+                 (long int) (Out_Size - Write_RAM_At),
+                 (long int) Write_RAM_At,
                  (long int) Out_Size,
                  (long int)
                       (((long int) (limit*1024L)) - ((long int) Out_Size)));

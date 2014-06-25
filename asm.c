@@ -2,7 +2,7 @@
 /*   "asm" : The Inform assembler                                            */
 /*                                                                           */
 /*   Part of Inform 6.33                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2013                                 */
+/*   copyright (c) Graham Nelson 1993 - 2014                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -641,6 +641,7 @@ static opcodez internal_number_to_opcode_z(int32 i)
     if (x.version2 == 0) return x;
     if (instruction_set_number <= x.version2) return x;
     i = x.extension;
+    if (i < 0) return invalid_opcode_z;
     x = extension_table_z[i];
     if (instruction_set_number < x.version1) return invalid_opcode_z;
     if (x.version2 == 0) return x;
@@ -1465,7 +1466,7 @@ extern int32 assemble_routine_header(int no_locals,
       /*  function is called, if it's required.                              */
 
       if ((routine_asterisked) || (define_INFIX_switch))
-      {   char fnt[80]; assembly_operand PV, RFA, CON, STP, SLF; int ln, ln2;
+      {   char fnt[256]; assembly_operand PV, RFA, CON, STP, SLF; int ln, ln2;
 
           ln = next_label++;
           ln2 = next_label++;
@@ -1543,13 +1544,79 @@ extern int32 assemble_routine_header(int no_locals,
 
       next_label = 0; next_sequence_point = 0; last_label = -1; 
 
-      if (define_INFIX_switch) {
-        if (embedded_flag) {
-        }
-        else {
+      if ((routine_asterisked) || (define_INFIX_switch)) {
+        int ix;
+        char fnt[256];
+        assembly_operand AO, AO2;
+        if (define_INFIX_switch) {
+          /* This isn't supported */
+          if (embedded_flag) {
+          }
+          else {
             i = no_named_routines++;
             named_routine_symbols[i] = the_symbol;
+          }
         }
+        sprintf(fnt, "[ %s(", name);
+        AO.marker = STRING_MV;
+        AO.type   = CONSTANT_OT;
+        AO.value  = compile_string(fnt, FALSE, FALSE);
+        assembleg_1(streamstr_gc, AO);
+
+        if (!stackargs) {
+          for (ix=1; ix<=no_locals; ix++) {
+            sprintf(fnt, "%s%s = ", (ix==1)?"":", ", variable_name(ix));
+            AO.marker = STRING_MV;
+            AO.type   = CONSTANT_OT;
+            AO.value  = compile_string(fnt, FALSE, FALSE);
+            assembleg_1(streamstr_gc, AO);
+            AO.marker = 0;
+            AO.type = LOCALVAR_OT;
+            AO.value = ix;
+            assembleg_1(streamnum_gc, AO);
+          }
+        }
+        else {
+          int lntop, lnbottom;
+          sprintf(fnt, "%s = ", variable_name(1));
+          AO.marker = STRING_MV;
+          AO.type   = CONSTANT_OT;
+          AO.value  = compile_string(fnt, FALSE, FALSE);
+          assembleg_1(streamstr_gc, AO);
+          AO.marker = 0;
+          AO.type = LOCALVAR_OT;
+          AO.value = 1;
+          assembleg_1(streamnum_gc, AO);
+          AO2.type = BYTECONSTANT_OT;
+          AO2.marker = 0;
+          AO2.value = ':';
+          assembleg_1(streamchar_gc, AO2);
+          AO2.type = BYTECONSTANT_OT;
+          AO2.marker = 0;
+          AO2.value = ' ';
+          /* for (temp_var4=0 : temp_var4<_vararg_count : temp_var4++) {
+               @streamchar ' ';
+               @stkpeek temp_var4 sp;
+               @stream_num sp;
+             }
+          */
+          assembleg_store(temp_var4, zero_operand);
+          lntop = next_label++;
+          lnbottom = next_label++;
+          assemble_label_no(lntop);
+          assembleg_2_branch(jge_gc, temp_var4, AO, lnbottom); /* AO is _vararg_count */
+          assembleg_1(streamchar_gc, AO2); /* AO2 is space */
+          assembleg_2(stkpeek_gc, temp_var4, stack_pointer);
+          assembleg_1(streamnum_gc, stack_pointer);
+          assembleg_3(add_gc, temp_var4, one_operand, temp_var4);
+          assembleg_0_branch(jump_gc, lntop);
+          assemble_label_no(lnbottom);
+        }
+
+        AO.marker = STRING_MV;
+        AO.type   = CONSTANT_OT;
+        AO.value  = compile_string(") ]^", FALSE, FALSE);
+        assembleg_1(streamstr_gc, AO);
       }
     }
 

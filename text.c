@@ -2,7 +2,7 @@
 /*   "text" : Text translation, the abbreviations optimiser, the dictionary  */
 /*                                                                           */
 /*   Part of Inform 6.33                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2013                                 */
+/*   copyright (c) Graham Nelson 1993 - 2014                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -180,9 +180,9 @@ static void make_abbrevs_lookup(void)
 /* ------------------------------------------------------------------------- */
 
 static int try_abbreviations_from(unsigned char *text, int i, int from)
-{   int j, k; char *p, c;
+{   int j, k; uchar *p, c;
     c=text[i];
-    for (j=from, p=(char *)abbreviations_at+from*MAX_ABBREV_LENGTH;
+    for (j=from, p=(uchar *)abbreviations_at+from*MAX_ABBREV_LENGTH;
          (j<no_abbreviations)&&(c==p[0]); j++, p+=MAX_ABBREV_LENGTH)
     {   if (text[i+1]==p[1])
         {   for (k=2; p[k]!=0; k++)
@@ -463,6 +463,7 @@ extern uchar *translate_text(uchar *p, uchar *p_limit, char *s_text)
 advance as part of 'Zcharacter table':", unicode);
             }
             i += textual_form_length - 1;
+            continue;
         }
 
         /*  '@' is the escape character in Inform string notation: the various
@@ -985,12 +986,12 @@ void compress_game_text()
     }
 
     huff_entity_root = (hufflist[0] - huff_entities);
-    no_huff_entities = branchstart+branches;
 
     for (ix=0; ix<MAXHUFFBYTES; ix++)
       bits.b[ix] = 0;
     compression_table_size = 12;
-    
+
+    no_huff_entities = 0; /* compress_makebits will total this up */
     compress_makebits(huff_entity_root, 0, -1, &bits);
   }
 
@@ -1099,6 +1100,7 @@ static void compress_makebits(int entnum, int depth, int prevbit,
   huffentity_t *ent = &(huff_entities[entnum]);
   char *cx;
 
+  no_huff_entities++;
   ent->addr = compression_table_size;
   ent->depth = depth;
   ent->bits = *bits;
@@ -1829,7 +1831,7 @@ static int dictionary_find(char *dword)
 
 extern int dictionary_add(char *dword, int x, int y, int z)
 {   int n; uchar *p;
-    int ggfr, gfr, fr, r;
+    int ggfr = 0, gfr = 0, fr = 0, r = 0;
     int ggf = VACANT, gf = VACANT, f = VACANT, at = root;
     int a, b;
     int res=((version_number==3)?4:6);

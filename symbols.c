@@ -2,7 +2,7 @@
 /*   "symbols" :  The symbols table; creating stock of reserved words        */
 /*                                                                           */
 /*   Part of Inform 6.33                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2013                                 */
+/*   copyright (c) Graham Nelson 1993 - 2014                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -646,6 +646,14 @@ static void stockup_symbols(void)
         if (DICT_CHAR_SIZE != 1)
             create_symbol("DICT_IS_UNICODE", 1, CONSTANT_T);
         create_symbol("NUM_ATTR_BYTES",     NUM_ATTR_BYTES, CONSTANT_T);
+        create_symbol("GOBJFIELD_CHAIN",    GOBJFIELD_CHAIN(), CONSTANT_T);
+        create_symbol("GOBJFIELD_NAME",     GOBJFIELD_NAME(), CONSTANT_T);
+        create_symbol("GOBJFIELD_PROPTAB",  GOBJFIELD_PROPTAB(), CONSTANT_T);
+        create_symbol("GOBJFIELD_PARENT",   GOBJFIELD_PARENT(), CONSTANT_T);
+        create_symbol("GOBJFIELD_SIBLING",  GOBJFIELD_SIBLING(), CONSTANT_T);
+        create_symbol("GOBJFIELD_CHILD",    GOBJFIELD_CHILD(), CONSTANT_T);
+        create_symbol("GOBJ_EXT_START",     1+NUM_ATTR_BYTES+6*WORDSIZE, CONSTANT_T);
+        create_symbol("GOBJ_TOTAL_LENGTH",  1+NUM_ATTR_BYTES+6*WORDSIZE+GLULX_OBJECT_EXT_BYTES, CONSTANT_T);
         create_symbol("INDIV_PROP_START",   INDIV_PROP_START, CONSTANT_T);
     }    
 
@@ -942,7 +950,7 @@ static df_function_t *df_function_for_address(uint32 address)
 */
 extern void df_note_function_symbol(int symbol)
 {
-    int bucket;
+    int bucket, symtype;
     df_reference_t *ent;
 
     /* If the compiler pass is over, looking up symbols does not create
@@ -957,7 +965,7 @@ extern void df_note_function_symbol(int symbol)
 
     /* We are only interested in functions, or forward-declared symbols
        that might turn out to be functions. */
-    int symtype = stypes[symbol];
+    symtype = stypes[symbol];
     if (symtype != ROUTINE_T && symtype != CONSTANT_T)
         return;
     if (symtype == CONSTANT_T && !(sflags[symbol] & UNKNOWN_SFLAG))
@@ -1121,10 +1129,11 @@ extern void locate_dead_functions(void)
        with and without useless functions. */
 
     {
+        df_function_t *func;
+
         df_total_size_before_stripping = 0;
         df_total_size_after_stripping = 0;
 
-        df_function_t *func;
         for (func = df_functions_head; func; func = func->funcnext) {
             if (func->address == DF_NOT_IN_FUNCTION)
                 continue;

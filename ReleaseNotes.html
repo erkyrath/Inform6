@@ -59,10 +59,17 @@ These are the changes delivered in version 6.34 of the Inform compiler.
 <tt>#lowest_class_number</tt>,
 <tt>#lowest_object_number</tt>, and
 <tt>#lowest_property_number</tt>.
+<li><p>Unicode characters can now be included in Glulx word arrays as literals, e.g.
+<pre>
+  Array text1 table "A @{1c4} A";
+  Array text2 --> "A @oef A";
+</pre>
 </ul>
 <h3>Bugs fixed</h3>
 Items of the form [Mantis N] quote the bug&rsquo;s reference number in Inform 7&rsquo;s Mantis bug tracker. 
 <ul>
+<li><p>It is no longer possible to cause values to be pushed onto the stack but not then pulled by evaluating
+a logical expression but not assigning or using the result of that expression. [Mantis 509]
 <li><p>The output for the <tt>$list</tt> command line argument now includes the value of the
 <tt>$MAX_ARRAYS</tt> setting. [Mantis 1355]
 <li><p>Memory settings can no longer overflow if set to very large values. These values are limited to a

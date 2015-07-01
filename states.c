@@ -2220,7 +2220,7 @@ static void parse_statement_g(int break_label, int continue_label)
                  assembleg_2(copyb_gc, AO2, stack_pointer);
                  assembleg_1(streamchar_gc, stack_pointer);
 
-                 if (0) {
+                 if (/* DISABLES CODE */ (0)) {
                      AO.marker = 0;
                      AO.value = '(';
                      set_constant_ot(&AO);

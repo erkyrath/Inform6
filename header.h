@@ -2170,6 +2170,11 @@ extern void assembleg_2(int internal_number, assembly_operand o1,
   assembly_operand o2);
 extern void assembleg_3(int internal_number, assembly_operand o1,
   assembly_operand o2, assembly_operand o3);
+extern void assembleg_4(int internal_number, assembly_operand o1,
+  assembly_operand o2, assembly_operand o3, assembly_operand o4);
+extern void assembleg_5(int internal_number, assembly_operand o1,
+  assembly_operand o2, assembly_operand o3, assembly_operand o4,
+  assembly_operand o5);
 extern void assembleg_0_branch(int internal_number,
   int label);
 extern void assembleg_1_branch(int internal_number,
@@ -2360,13 +2365,13 @@ extern void write_debug_global_backpatch(int32 offset);
 extern void write_debug_array_backpatch(int32 offset);
 extern void write_debug_grammar_backpatch(int32 offset);
 
-extern void begin_writing_debug_sections();
+extern void begin_writing_debug_sections(void);
 extern void write_debug_section(const char*name, int32 beginning_address);
 extern void end_writing_debug_sections(int32 end_address);
 
 extern void write_debug_undef(int32 symbol_index);
 
-extern void end_debug_file();
+extern void end_debug_file(void);
 
 extern void add_to_checksum(void *address);
 

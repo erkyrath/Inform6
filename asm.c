@@ -1266,7 +1266,7 @@ extern void assembleg_instruction(assembly_instruction *AI)
       case GLOBALVAR_OT:
         /* Global variable -- a constant address. */
         k -= MAX_LOCAL_VARIABLES;
-        if (0) {
+        if (/* DISABLES CODE */ (0)) {
             /* We could write the value as a marker and patch it later... */
             j = 7;
             byteout(((k) >> 24) & 0xFF, VARIABLE_MV);
@@ -1353,7 +1353,7 @@ extern void assembleg_instruction(assembly_instruction *AI)
             start_pc<zcode_holding_area + zcode_ha_size;
             j++, start_pc++) {
             if (j%16==0) printf("\n                               ");
-            if (0) {
+            if (/* DISABLES CODE */ (0)) {
                 printf("%02x ", *start_pc);
             }
             else {

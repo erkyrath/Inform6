@@ -1166,6 +1166,7 @@ static void parse_statement_z(int break_label, int continue_label)
 
         case IF_CODE:
                  flag = FALSE;
+                 ln2 = 0;
 
                  match_open_bracket();
                  AO = parse_expression(CONDITION_CONTEXT);
@@ -2148,6 +2149,7 @@ static void parse_statement_g(int break_label, int continue_label)
 
         case IF_CODE:
                  flag = FALSE;
+                 ln2 = 0;
 
                  match_open_bracket();
                  AO = parse_expression(CONDITION_CONTEXT);

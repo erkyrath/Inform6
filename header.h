@@ -630,6 +630,14 @@ static int32 unique_task_id(void)
     typedef char uchar;
 #endif
 
+#if defined(__GNUC__) || defined(__clang__)
+#define NORETURN __attribute__((__noreturn__))
+#endif /* defined(__GNUC__) || defined(__clang__) */
+
+#ifndef NORETURN
+#define NORETURN
+#endif
+
 /* ------------------------------------------------------------------------- */
 /*   A macro (rather than constant) definition:                              */
 /* ------------------------------------------------------------------------- */
@@ -2259,10 +2267,10 @@ extern int  no_errors, no_warnings, no_suppressed_warnings,
 
 extern ErrorPosition ErrorReport;
 
-extern void fatalerror(char *s);
-extern void fatalerror_named(char *s1, char *s2);
-extern void memory_out_error(int32 size, int32 howmany, char *name);
-extern void memoryerror(char *s, int32 size);
+extern void fatalerror(char *s) NORETURN;
+extern void fatalerror_named(char *s1, char *s2) NORETURN;
+extern void memory_out_error(int32 size, int32 howmany, char *name) NORETURN;
+extern void memoryerror(char *s, int32 size) NORETURN;
 extern void error(char *s);
 extern void error_named(char *s1, char *s2);
 extern void error_numbered(char *s1, int val);

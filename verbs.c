@@ -773,7 +773,7 @@ extern void extend_verb(void)
 {
     /*  Parse an entire Extend ... directive.                                */
 
-    int Inform_verb, k, l, lines, extend_mode;
+    int Inform_verb = -1, k, l, lines, extend_mode;
 
     directive_keywords.enabled = TRUE;
     directives.enabled = FALSE;

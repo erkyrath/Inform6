@@ -936,7 +936,7 @@ Inform translates plain filenames (such as \"xyzzy\") into full pathnames\n\
 /* ------------------------------------------------------------------------- */
 
 extern void translate_temp_filename(int i)
-{   char *p;
+{   char *p = NULL;
     switch(i)
     {   case 1: p=Temp1_Name; break;
         case 2: p=Temp2_Name; break;

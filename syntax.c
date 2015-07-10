@@ -590,7 +590,7 @@ extern int32 parse_routine(char *source, int embedded_flag, char *name,
 
 extern void parse_code_block(int break_label, int continue_label,
     int switch_rule)
-{   int switch_clause_made = FALSE, default_clause_made = FALSE, switch_label,
+{   int switch_clause_made = FALSE, default_clause_made = FALSE, switch_label = 0,
         unary_minus_flag;
 
     begin_syntax_line(TRUE);

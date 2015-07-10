@@ -57,7 +57,7 @@ extern int *variable_usage;
 int system_function_usage[32];
 
 static int get_next_etoken(void)
-{   int v, symbol, mark_symbol_as_used = FALSE,
+{   int v, symbol = 0, mark_symbol_as_used = FALSE,
         initial_bracket_level = bracket_level;
 
     etoken_count++;
@@ -1019,7 +1019,7 @@ static void remove_bracket_layer_from_emitter_stack()
 static void emit_token(token_data t)
 {   assembly_operand o1, o2; int arity, stack_size, i;
     int op_node_number, operand_node_number, previous_node_number;
-    int32 x;
+    int32 x = 0;
 
     if (expr_trace_level >= 2)
     {   printf("Output: %-19s%21s ", t.text, "");
@@ -1467,7 +1467,7 @@ static void check_property_operator(int from_node)
 static void check_lvalues(int from_node)
 {   int below = ET[from_node].down;
     int opnum = ET[from_node].operator_number, opnum_below;
-    int lvalue_form, i, j;
+    int lvalue_form, i, j = 0;
 
     if (below != -1)
     {

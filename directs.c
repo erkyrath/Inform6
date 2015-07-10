@@ -47,7 +47,7 @@ extern int parse_given_directive(int internal_flag)
 
         Returns: FALSE if program continues, TRUE if end of file reached.    */
 
-    int *trace_level; int32 i, j, k, n, flag;
+    int *trace_level = NULL; int32 i, j, k, n, flag;
     const char *constant_name;
     debug_location_beginning beginning_debug_location;
 

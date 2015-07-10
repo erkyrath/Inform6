@@ -475,11 +475,11 @@ static void pop_zm_stack(void)
 
 static void access_memory_z(int oc, assembly_operand AO1, assembly_operand AO2,
     assembly_operand AO3)
-{   int vr;
+{   int vr = 0;
 
     assembly_operand zero_ao, max_ao, size_ao, en_ao, type_ao, an_ao,
         index_ao;
-    int x, y, byte_flag, read_flag, from_module;
+    int x = 0, y = 0, byte_flag = FALSE, read_flag = FALSE, from_module = FALSE;
 
     if (AO1.marker == ARRAY_MV)
     {   
@@ -617,7 +617,9 @@ static void access_memory_z(int oc, assembly_operand AO1, assembly_operand AO2,
     switch(oc) { case loadb_zc: vr = RT__ChLDB_VR; break;
                  case loadw_zc: vr = RT__ChLDW_VR; break;
                  case storeb_zc: vr = RT__ChSTB_VR; break;
-                 case storew_zc: vr = RT__ChSTW_VR; break; }
+                 case storew_zc: vr = RT__ChSTW_VR; break;
+                 default: compiler_error("unknown array opcode");
+    }
 
     if ((oc == loadb_zc) || (oc == loadw_zc))
         assemblez_3_to(call_vs_zc, veneer_routine(vr), AO1, AO2, AO3);
@@ -732,7 +734,7 @@ static assembly_operand check_nonzero_at_runtime_z(assembly_operand AO1,
 static void compile_conditional_z(int oc,
     assembly_operand AO1, assembly_operand AO2, int label, int flag)
 {   assembly_operand AO3; int the_zc, error_label = label,
-    va_flag = FALSE, va_label;
+    va_flag = FALSE, va_label = 0;
 
     ASSERT_ZCODE(); 
 
@@ -827,11 +829,11 @@ static void write_result_g(assembly_operand to, assembly_operand from)
 
 static void access_memory_g(int oc, assembly_operand AO1, assembly_operand AO2,
     assembly_operand AO3)
-{   int vr;
+{   int vr = 0;
     int data_len, read_flag; 
     assembly_operand zero_ao, max_ao, size_ao, en_ao, type_ao, an_ao,
         index_ao, five_ao;
-    int passed_label, failed_label, final_label, x, y;
+    int passed_label, failed_label, final_label, x = 0, y = 0;
 
     if ((oc == aloadb_gc) || (oc == astoreb_gc)) data_len = 1;
     else if ((oc == aloads_gc) || (oc == astores_gc)) data_len = 2;
@@ -991,7 +993,8 @@ static void access_memory_g(int oc, assembly_operand AO1, assembly_operand AO2,
         case aloadb_gc: vr = RT__ChLDB_VR; break;
         case aload_gc: vr = RT__ChLDW_VR; break;
         case astoreb_gc: vr = RT__ChSTB_VR; break;
-        case astore_gc: vr = RT__ChSTW_VR; break; 
+        case astore_gc: vr = RT__ChSTW_VR; break;
+        default: compiler_error("unknown array opcode");
     }
 
     if ((oc == aloadb_gc) || (oc == aload_gc)) 
@@ -1119,7 +1122,7 @@ static void compile_conditional_g(condclass *cc,
     assembly_operand AO1, assembly_operand AO2, int label, int flag)
 {   assembly_operand AO4; 
     int the_zc, error_label = label,
-    va_flag = FALSE, va_label;
+    va_flag = FALSE, va_label = 0;
 
     ASSERT_GLULX(); 
 

@@ -1737,9 +1737,8 @@ static assembly_operand check_conditions(assembly_operand AO, int context)
         ET[n].up = -1;
         ET[n].right = -1;
         ET[n].value = AO;
-        AO.type = EXPRESSION_OT;
+        INITAOT(&AO, EXPRESSION_OT);
         AO.value = n;
-        AO.marker = 0;
     }
 
     insert_exp_to_cond(AO.value, context);

@@ -25,74 +25,30 @@ assembly_operand stack_pointer, temp_var1, temp_var2, temp_var3,
 static void make_operands(void)
 {
   if (!glulx_mode) {
-    stack_pointer.type = VARIABLE_OT;
-    stack_pointer.value = 0;
-    stack_pointer.marker = 0;
-    temp_var1.type = VARIABLE_OT;
-    temp_var1.value = 255;
-    temp_var1.marker = 0;
-    temp_var2.type = VARIABLE_OT;
-    temp_var2.value = 254;
-    temp_var2.marker = 0;
-    temp_var3.type = VARIABLE_OT;
-    temp_var3.value = 253;
-    temp_var3.marker = 0;
-    temp_var4.type = VARIABLE_OT;
-    temp_var4.value = 252;
-    temp_var4.marker = 0;
-    zero_operand.type = SHORT_CONSTANT_OT;
-    zero_operand.value = 0;
-    zero_operand.marker = 0;
-    one_operand.type = SHORT_CONSTANT_OT;
-    one_operand.value = 1;
-    one_operand.marker = 0;
-    two_operand.type = SHORT_CONSTANT_OT;
-    two_operand.value = 2;
-    two_operand.marker = 0;
-    three_operand.type = SHORT_CONSTANT_OT;
-    three_operand.value = 3;
-    three_operand.marker = 0;
-    four_operand.type = SHORT_CONSTANT_OT;
-    four_operand.value = 4;
-    four_operand.marker = 0;
-    valueless_operand.type = OMITTED_OT;
-    valueless_operand.value = 0;
-    valueless_operand.marker = 0;
+    INITAOTV(&stack_pointer, VARIABLE_OT, 0);
+    INITAOTV(&temp_var1, VARIABLE_OT, 255);
+    INITAOTV(&temp_var2, VARIABLE_OT, 254);
+    INITAOTV(&temp_var3, VARIABLE_OT, 253);
+    INITAOTV(&temp_var4, VARIABLE_OT, 252);
+    INITAOTV(&zero_operand, SHORT_CONSTANT_OT, 0);
+    INITAOTV(&one_operand, SHORT_CONSTANT_OT, 1);
+    INITAOTV(&two_operand, SHORT_CONSTANT_OT, 2);
+    INITAOTV(&three_operand, SHORT_CONSTANT_OT, 3);
+    INITAOTV(&four_operand, SHORT_CONSTANT_OT, 4);
+    INITAOTV(&valueless_operand, OMITTED_OT, 0);
   }
   else {
-    stack_pointer.type = LOCALVAR_OT;
-    stack_pointer.value = 0;
-    stack_pointer.marker = 0;
-    temp_var1.type = GLOBALVAR_OT;
-    temp_var1.value = MAX_LOCAL_VARIABLES+0;
-    temp_var1.marker = 0;
-    temp_var2.type = GLOBALVAR_OT;
-    temp_var2.value = MAX_LOCAL_VARIABLES+1;
-    temp_var2.marker = 0;
-    temp_var3.type = GLOBALVAR_OT;
-    temp_var3.value = MAX_LOCAL_VARIABLES+2;
-    temp_var3.marker = 0;
-    temp_var4.type = GLOBALVAR_OT;
-    temp_var4.value = MAX_LOCAL_VARIABLES+3;
-    temp_var4.marker = 0;
-    zero_operand.type = ZEROCONSTANT_OT;
-    zero_operand.value = 0;
-    zero_operand.marker = 0;
-    one_operand.type = BYTECONSTANT_OT;
-    one_operand.value = 1;
-    one_operand.marker = 0;
-    two_operand.type = BYTECONSTANT_OT;
-    two_operand.value = 2;
-    two_operand.marker = 0;
-    three_operand.type = BYTECONSTANT_OT;
-    three_operand.value = 3;
-    three_operand.marker = 0;
-    four_operand.type = BYTECONSTANT_OT;
-    four_operand.value = 4;
-    four_operand.marker = 0;
-    valueless_operand.type = OMITTED_OT;
-    valueless_operand.value = 0;
-    valueless_operand.marker = 0;
+    INITAOTV(&stack_pointer, LOCALVAR_OT, 0);
+    INITAOTV(&temp_var1, GLOBALVAR_OT, MAX_LOCAL_VARIABLES+0);
+    INITAOTV(&temp_var2, GLOBALVAR_OT, MAX_LOCAL_VARIABLES+1);
+    INITAOTV(&temp_var3, GLOBALVAR_OT, MAX_LOCAL_VARIABLES+2);
+    INITAOTV(&temp_var4, GLOBALVAR_OT, MAX_LOCAL_VARIABLES+3);
+    INITAOTV(&zero_operand, ZEROCONSTANT_OT, 0);
+    INITAOTV(&one_operand, BYTECONSTANT_OT, 1);
+    INITAOTV(&two_operand, BYTECONSTANT_OT, 2);
+    INITAOTV(&three_operand, BYTECONSTANT_OT, 3);
+    INITAOTV(&four_operand, BYTECONSTANT_OT, 4);
+    INITAOTV(&valueless_operand, OMITTED_OT, 0);
   }
 }
 

@@ -759,6 +759,10 @@ typedef struct assembly_operand_t
     int   marker;
 } assembly_operand;
 
+#define INITAOTV(aop, typ, val) ((aop)->type=(typ), (aop)->value=(val), (aop)->marker=0, (aop)->symtype=0, (aop)->symflags=0)
+#define INITAOT(aop, typ) INITAOTV(aop, typ, 0)
+#define INITAO(aop) INITAOTV(aop, 0, 0)
+
 #define  MAX_LINES_PER_VERB 32
 typedef struct verbt {
     int lines;

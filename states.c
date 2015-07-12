@@ -1205,12 +1205,8 @@ static void parse_statement_z(int break_label, int continue_label)
     /*  -------------------------------------------------------------------- */
 
         case INVERSION_CODE:
-                 AO.marker = 0;
-                 AO.type   = SHORT_CONSTANT_OT;
-                 AO.value  = 0;
-
-                 AO2.marker = 0;
-                 AO2.type   = SHORT_CONSTANT_OT;
+                 INITAOTV(&AO, SHORT_CONSTANT_OT, 0);
+                 INITAOT(&AO2, SHORT_CONSTANT_OT);
 
                  AO2.value  = 60;
                  assemblez_2_to(loadb_zc, AO, AO2, temp_var1);
@@ -1281,6 +1277,7 @@ static void parse_statement_z(int break_label, int continue_label)
 
                  match_open_bracket();
                  get_next_token();
+                 INITAOT(&AO, VARIABLE_OT);
                  if (token_type == LOCAL_VARIABLE_TT)
                      AO.value = token_value;
                  else
@@ -1291,11 +1288,9 @@ static void parse_statement_z(int break_label, int continue_label)
                  {   ebf_error("'objectloop' variable", token_text);
                      panic_mode_error_recovery(); break;
                  }
-                 AO.type = VARIABLE_OT;
                  if ((module_switch) && (AO.value >= MAX_LOCAL_VARIABLES)
                      && (AO.value < LOWEST_SYSTEM_VAR_NUMBER))
                      AO.marker = VARIABLE_MV;
-                 else AO.marker = 0;
                  misc_keywords.enabled = TRUE;
                  get_next_token(); flag = TRUE;
                  misc_keywords.enabled = FALSE;
@@ -1329,7 +1324,7 @@ static void parse_statement_z(int break_label, int continue_label)
                          QUANTITY_CONTEXT, -1);
                      match_close_bracket();
                      if (ln == 1)
-                     {   AO3.type = VARIABLE_OT; AO3.value = 0; AO3.marker = 0;
+                     {   INITAOTV(&AO3, VARIABLE_OT, 0);
                          if (runtime_error_checking_switch)
                                  AO2 = check_nonzero_at_runtime(AO2, -1,
                                      OBJECTLOOP_RTE);
@@ -1338,7 +1333,7 @@ static void parse_statement_z(int break_label, int continue_label)
                          AO2 = AO3;
                      }
                      if (ln == 3)
-                     {   AO3.type = VARIABLE_OT; AO3.value = 0; AO3.marker = 0;
+                     {   INITAOTV(&AO3, VARIABLE_OT, 0);
                          if (runtime_error_checking_switch)
                          {   AO4 = AO2;
                              AO2 = check_nonzero_at_runtime(AO2, -1,
@@ -1361,9 +1356,7 @@ static void parse_statement_z(int break_label, int continue_label)
                              && ((AO4.type != VARIABLE_OT)
                                  ||(AO4.value != AO.value)))
                          {   assembly_operand en_ao;
-                             en_ao.value = OBJECTLOOP_BROKEN_RTE;
-                             en_ao.marker = 0;
-                             en_ao.type = SHORT_CONSTANT_OT;
+                             INITAOTV(&en_ao, SHORT_CONSTANT_OT, OBJECTLOOP_BROKEN_RTE);
                              assemblez_2_branch(jin_zc, AO, AO4,
                                  next_label, TRUE);
                              assemblez_3(call_vn_zc, veneer_routine(RT__Err_VR),
@@ -1379,7 +1372,7 @@ static void parse_statement_z(int break_label, int continue_label)
                  }
 
                  sequence_point_follows = TRUE;
-                 AO2.type = SHORT_CONSTANT_OT; AO2.value = 1; AO2.marker = 0;
+                 INITAOTV(&AO2, SHORT_CONSTANT_OT, 1);
                  assemblez_store(AO, AO2);
 
                  assemble_label_no(ln = next_label++);
@@ -1398,7 +1391,7 @@ static void parse_statement_z(int break_label, int continue_label)
                  sequence_point_follows = FALSE;
                  assemble_label_no(ln3);
                  assemblez_inc(AO);
-                 AO2.type = LONG_CONSTANT_OT; AO2.value = no_objects;
+                 INITAOTV(&AO2, LONG_CONSTANT_OT, no_objects);
                  AO2.marker = NO_OBJS_MV;
                  assemblez_2_branch(jg_zc, AO, AO2, ln2, TRUE);
                  assemblez_jump(ln);
@@ -1427,13 +1420,13 @@ static void parse_statement_z(int break_label, int continue_label)
     /*  -------------------------------------------------------------------- */
 
         case READ_CODE:
-                 AO.type = VARIABLE_OT; AO.value = 252; AO.marker = 0;
+                 INITAOTV(&AO, VARIABLE_OT, 252);
                  assemblez_store(AO,
                      code_generate(parse_expression(QUANTITY_CONTEXT),
                                    QUANTITY_CONTEXT, -1));
                  if (version_number > 3)
-                 {   AO3.type = SHORT_CONSTANT_OT; AO3.value = 1;AO3.marker = 0;
-                     AO4.type = SHORT_CONSTANT_OT; AO4.value = 0;AO4.marker = 0;
+                 {   INITAOTV(&AO3, SHORT_CONSTANT_OT, 1);
+                     INITAOTV(&AO4, SHORT_CONSTANT_OT, 0);
                      assemblez_3(storeb_zc, AO, AO3, AO4);
                  }
                  AO2 = code_generate(parse_expression(QUANTITY_CONTEXT),
@@ -1496,8 +1489,7 @@ static void parse_statement_z(int break_label, int continue_label)
                  if (version_number < 5)
                      assemblez_0_branch(restore_zc, parse_label(), TRUE);
                  else
-                 {   AO2.type = SHORT_CONSTANT_OT; AO2.value = 2;
-                     AO2.marker = 0;
+                 {   INITAOTV(&AO2, SHORT_CONSTANT_OT, 2);
                      assemblez_0_to(restore_zc, temp_var1);
                      assemblez_2_branch(je_zc, temp_var1, AO2, parse_label(), TRUE);
                  }
@@ -1545,7 +1537,7 @@ static void parse_statement_z(int break_label, int continue_label)
                  if (version_number < 5)
                      assemblez_0_branch(save_zc, parse_label(), TRUE);
                  else
-                 {   AO.type = VARIABLE_OT; AO.value = 255; AO.marker = 0;
+                 {   INITAOTV(&AO, VARIABLE_OT, 255);
                      assemblez_0_to(save_zc, AO);
                      assemblez_1_branch(jz_zc, AO, parse_label(), FALSE);
                  }
@@ -1558,12 +1550,12 @@ static void parse_statement_z(int break_label, int continue_label)
         case SPACES_CODE:
                  AO = code_generate(parse_expression(QUANTITY_CONTEXT),
                      QUANTITY_CONTEXT, -1);
-                 AO2.type = VARIABLE_OT; AO2.value = 255; AO2.marker = 0;
+                 INITAOTV(&AO2, VARIABLE_OT, 255);
 
                  assemblez_store(AO2, AO);
 
-                 AO.type = SHORT_CONSTANT_OT; AO.value = 32; AO.marker = 0;
-                 AO3.type = SHORT_CONSTANT_OT; AO3.value = 1; AO3.marker = 0;
+                 INITAOTV(&AO, SHORT_CONSTANT_OT, 32);
+                 INITAOTV(&AO3, SHORT_CONSTANT_OT, 1);
 
                  assemblez_2_branch(jl_zc, AO2, AO3, ln = next_label++, TRUE);
                  assemble_label_no(ln2 = next_label++);
@@ -1578,17 +1570,16 @@ static void parse_statement_z(int break_label, int continue_label)
     /*  -------------------------------------------------------------------- */
 
         case STRING_CODE:
-                 AO.type = SHORT_CONSTANT_OT; AO.value = 0; AO.marker = 0;
-                 AO2.type = SHORT_CONSTANT_OT; AO2.value = 12; AO2.marker = 0;
-                 AO3.type = VARIABLE_OT; AO3.value = 252; AO3.marker = 0;
+                 INITAOTV(&AO, SHORT_CONSTANT_OT, 0);
+                 INITAOTV(&AO2, SHORT_CONSTANT_OT, 12);
+                 INITAOTV(&AO3, VARIABLE_OT, 252);
                  assemblez_2_to(loadw_zc, AO, AO2, AO3);
                  AO2 = code_generate(parse_expression(QUANTITY_CONTEXT),
                      QUANTITY_CONTEXT, -1);
                  get_next_token();
                  if (token_type == DQ_TT)
-                 {   AO4.value = compile_string(token_text, TRUE, TRUE);
-                     AO4.marker = 0;
-                     AO4.type = LONG_CONSTANT_OT;
+                 {   INITAOT(&AO4, LONG_CONSTANT_OT);
+                     AO4.value = compile_string(token_text, TRUE, TRUE);
                  }
                  else
                  {   put_token_back();
@@ -1625,7 +1616,7 @@ static void parse_statement_z(int break_label, int continue_label)
                      break;
                  }
 
-                 AO.type = SHORT_CONSTANT_OT; AO.marker = 0;
+                 INITAOT(&AO, SHORT_CONSTANT_OT);
                  switch(token_value)
                  {   case ROMAN_MK: AO.value = 0; break;
                      case REVERSE_MK: AO.value = 1; break;
@@ -1645,7 +1636,7 @@ static void parse_statement_z(int break_label, int continue_label)
                      QUANTITY_CONTEXT, -1);
                  match_close_bracket();
 
-                 AO2.type = VARIABLE_OT; AO2.value = 255; AO2.marker =  0;
+                 INITAOTV(&AO2, VARIABLE_OT, 255);
                  assemblez_store(AO2, AO);
 
                  parse_code_block(ln = next_label++, continue_label, 1);

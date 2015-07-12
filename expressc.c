@@ -802,7 +802,7 @@ static void access_memory_g(int oc, assembly_operand AO1, assembly_operand AO2,
 
     if (AO1.marker == ARRAY_MV)
     {   
-        zero_ao.value = 0; zero_ao.marker = 0;
+        INITAO(&zero_ao);
 
         size_ao = zero_ao; size_ao.value = -1;
         for (x=0; x<no_arrays; x++)
@@ -1009,7 +1009,7 @@ static assembly_operand check_nonzero_at_runtime_g(assembly_operand AO1,
     assembleg_1_branch(jz_gc, AO, failed_label);
     /* Test if first byte is 0x70... */
     assembleg_3(aloadb_gc, AO, zero_operand, stack_pointer);
-    AO3.marker = 0;
+    INITAO(&AO3);
     AO3.value = 0x70; /* type byte -- object */
     set_constant_ot(&AO3);
     assembleg_2_branch(jeq_gc, stack_pointer, AO3, passed_label);
@@ -1019,7 +1019,7 @@ static assembly_operand check_nonzero_at_runtime_g(assembly_operand AO1,
     assembleg_1_branch(jz_gc, AO, failed_label);
     /* Test if first byte is 0x70... */
     assembleg_3(aloadb_gc, AO, zero_operand, stack_pointer);
-    AO3.marker = 0;
+    INITAO(&AO3);
     AO3.value = 0x70; /* type byte -- object */
     set_constant_ot(&AO3);
     assembleg_2_branch(jne_gc, stack_pointer, AO3, failed_label);
@@ -1036,7 +1036,7 @@ static assembly_operand check_nonzero_at_runtime_g(assembly_operand AO1,
   }
   
   assemble_label_no(failed_label);
-  AO2.marker = 0;
+  INITAO(&AO2);
   AO2.value = rte_number; 
   set_constant_ot(&AO2);
   assembleg_call_2(veneer_routine(RT__Err_VR), AO2, AO1, zero_operand);
@@ -1121,13 +1121,13 @@ static void compile_conditional_g(condclass *cc,
               }
             }
 
-            max_ao.marker = 0;
+            INITAO(&max_ao);
             max_ao.value = NUM_ATTR_BYTES*8;
             set_constant_ot(&max_ao);
             assembleg_2_branch(jlt_gc, temp_var2, zero_operand, fa_label);
             assembleg_2_branch(jlt_gc, temp_var2, max_ao, pa_label);
             assemble_label_no(fa_label);
-            en_ao.marker = 0;
+            INITAO(&en_ao);
             en_ao.value = 19; /* INVALIDATTR_RTE */
             set_constant_ot(&en_ao);
             assembleg_store(stack_pointer, temp_var2);
@@ -1146,8 +1146,8 @@ static void compile_conditional_g(condclass *cc,
           set_constant_ot(&AO2);
         }
         else {
+          INITAO(&AO4);
           AO4.value = 8;
-          AO4.marker = 0;
           AO4.type = BYTECONSTANT_OT;
           if ((AO1.type == LOCALVAR_OT) && (AO1.value == 0)) {
             if ((AO2.type == LOCALVAR_OT) && (AO2.value == 0)) 
@@ -1171,8 +1171,8 @@ static void compile_conditional_g(condclass *cc,
             error_label = next_label++;
           AO1 = check_nonzero_at_runtime(AO1, error_label, IN_RTE);
         }
+        INITAO(&AO4);
         AO4.value = GOBJFIELD_PARENT();
-        AO4.marker = 0;
         AO4.type = BYTECONSTANT_OT;
         assembleg_3(aload_gc, AO1, AO4, stack_pointer);
         AO1 = stack_pointer;
@@ -2178,7 +2178,7 @@ static void generate_code_from(int n, int void_flag)
                     assembleg_store(temp_var2, by_ao);
                     ln = next_label++;
                     assembleg_1_branch(jnz_gc, temp_var2, ln);
-                    error_ao.marker = 0;
+                    INITAO(&error_ao);
                     error_ao.value = DBYZERO_RTE;
                     set_constant_ot(&error_ao);
                     assembleg_call_1(veneer_routine(RT__Err_VR),
@@ -2503,11 +2503,10 @@ static void generate_code_from(int n, int void_flag)
                          if (j>1)
                          {  assembly_operand AO, AO2; 
                             int arg_c, arg_et;
+                            INITAO(&AO);
                             AO.value = j; 
-                            AO.marker = 0;
                             set_constant_ot(&AO);
-                            AO2.type = CONSTANT_OT;
-                            AO2.value = begin_word_array();
+                            INITAOTV(&AO2, CONSTANT_OT, begin_word_array());
                             AO2.marker = ARRAY_MV;
 
                             for (arg_c=0, arg_et = ET[below].right;arg_c<j;
@@ -2735,8 +2734,8 @@ static void generate_code_from(int n, int void_flag)
                  if (offstack > 1)
                      error("*** Function call cannot be generated with more than one nonstack argument ***");
 
+                 INITAO(&AO);
                  AO.value = j;
-                 AO.marker = 0;
                  set_constant_ot(&AO);
 
                  if (void_flag)

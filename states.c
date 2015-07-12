@@ -815,7 +815,8 @@ static void parse_statement_z(int break_label, int continue_label)
 
         case BOX_CODE:
              if (version_number == 3)
-             warning("The 'box' statement has no effect in a version 3 game");
+                 warning("The 'box' statement has no effect in a version 3 game");
+             INITAO(&AO3);
                  AO3.type = LONG_CONSTANT_OT;
                  AO3.value = begin_table_array();
                  AO3.marker = ARRAY_MV;
@@ -1801,6 +1802,7 @@ static void parse_statement_g(int break_label, int continue_label)
     /*  -------------------------------------------------------------------- */
 
         case BOX_CODE:
+                 INITAO(&AO3);
                  AO3.type = CONSTANT_OT;
                  AO3.value = begin_table_array();
                  AO3.marker = ARRAY_MV;
@@ -1835,7 +1837,8 @@ static void parse_statement_g(int break_label, int continue_label)
                  if (ln == 0)
                      error("No lines of text given for 'box' display");
 
-                 AO2.value = ln2; AO2.marker = 0; set_constant_ot(&AO2);
+                 INITAO(&AO2);
+                 AO2.value = ln2; set_constant_ot(&AO2);
                  assembleg_call_2(veneer_routine(Box__Routine_VR),
                      AO2, AO3, zero_operand);
                  return;
@@ -1902,8 +1905,8 @@ static void parse_statement_g(int break_label, int continue_label)
                  }
 
                  /* Call glk_set_style(normal or preformatted) */
+                 INITAO(&AO);
                  AO.value = 0x0086;
-                 AO.marker = 0;
                  set_constant_ot(&AO);
                  if (token_value == ON_MK)
                    AO2 = zero_operand;
@@ -2207,9 +2210,7 @@ static void parse_statement_g(int break_label, int continue_label)
     /*  -------------------------------------------------------------------- */
 
         case INVERSION_CODE:
-                 AO2.marker = 0;
-                 AO2.type   = DEREFERENCE_OT;
-                 AO2.value  = GLULX_HEADER_SIZE+8; 
+                 INITAOTV(&AO2, DEREFERENCE_OT, GLULX_HEADER_SIZE+8);
                  assembleg_2(copyb_gc, AO2, stack_pointer);
                  assembleg_1(streamchar_gc, stack_pointer);
                  AO2.value  = GLULX_HEADER_SIZE+9; 
@@ -2223,7 +2224,7 @@ static void parse_statement_g(int break_label, int continue_label)
                  assembleg_1(streamchar_gc, stack_pointer);
 
                  if (/* DISABLES CODE */ (0)) {
-                     AO.marker = 0;
+                     INITAO(&AO);
                      AO.value = '(';
                      set_constant_ot(&AO);
                      assembleg_1(streamchar_gc, AO);
@@ -2395,8 +2396,8 @@ static void parse_statement_g(int break_label, int continue_label)
                              && ((AO5.type != LOCALVAR_OT)||(AO5.value != 0))
                              && ((AO5.type != LOCALVAR_OT)||(AO5.value != AO.value)))
                          {   assembly_operand en_ao;
+                             INITAO(&en_ao);
                              en_ao.value = OBJECTLOOP_BROKEN_RTE;
-                             en_ao.marker = 0;
                              set_constant_ot(&en_ao);
                              AO4.type = BYTECONSTANT_OT;
                              AO4.value = GOBJFIELD_PARENT();
@@ -2528,7 +2529,8 @@ static void parse_statement_g(int break_label, int continue_label)
 
                  assembleg_store(temp_var1, AO);
 
-                 AO.value = 32; AO.marker = 0; set_constant_ot(&AO);
+                 INITAO(&AO);
+                 AO.value = 32; set_constant_ot(&AO);
 
                  assembleg_2_branch(jlt_gc, temp_var1, one_operand, 
                      ln = next_label++);
@@ -2583,21 +2585,21 @@ static void parse_statement_g(int break_label, int continue_label)
 
                  /* Call glk_set_style() */
 
+                 INITAO(&AO);
                  AO.value = 0x0086;
-                 AO.marker = 0;
                  set_constant_ot(&AO);
                  switch(token_value)
                  {   case ROMAN_MK: 
                          AO2 = zero_operand; /* normal */
                          break;
                      case REVERSE_MK: 
+                         INITAO(&AO2);
                          AO2.value = 5; /* alert */
-                         AO2.marker = 0;
                          set_constant_ot(&AO2);
                          break;
                      case BOLD_MK: 
+                         INITAO(&AO2);
                          AO2.value = 4; /* subheader */
-                         AO2.marker = 0;
                          set_constant_ot(&AO2);
                          break;
                      case UNDERLINE_MK: 

@@ -849,8 +849,8 @@ static void parse_statement_z(int break_label, int continue_label)
 
                  if (version_number == 3) return;
 
-                 AO2.type = SHORT_CONSTANT_OT; AO2.value = ln2; AO2.marker = 0;
-                 AO4.type = VARIABLE_OT; AO4.value = 255; AO4.marker = 0;
+                 INITAOTV(&AO2, SHORT_CONSTANT_OT, ln2);
+                 INITAOTV(&AO4, VARIABLE_OT, 255);
                  assemblez_3_to(call_vs_zc, veneer_routine(Box__Routine_VR),
                      AO2, AO3, AO4);
                  return;
@@ -919,7 +919,7 @@ static void parse_statement_z(int break_label, int continue_label)
                  if (version_number >= 5)
                  {   /* Use the V5 @set_font opcode, setting font 4
                         (for font off) or 1 (for font on). */
-                     AO.type = SHORT_CONSTANT_OT; AO.marker = 0;
+                     INITAOT(&AO, SHORT_CONSTANT_OT);
                      if (token_value == ON_MK)
                          AO.value = 1;
                      else
@@ -929,27 +929,17 @@ static void parse_statement_z(int break_label, int continue_label)
                  }
 
                  /* Set the fixed-pitch header bit. */
-                 AO.type = SHORT_CONSTANT_OT;
-                 AO.value = 0;
-                 AO.marker = 0;
-                 AO2.type = SHORT_CONSTANT_OT;
-                 AO2.value = 8;
-                 AO2.marker = 0;
-                 AO3.type = VARIABLE_OT;
-                 AO3.value = 255;
-                 AO3.marker = 0;
+                 INITAOTV(&AO, SHORT_CONSTANT_OT, 0);
+                 INITAOTV(&AO2, SHORT_CONSTANT_OT, 8);
+                 INITAOTV(&AO3, VARIABLE_OT, 255);
                  assemblez_2_to(loadw_zc, AO, AO2, AO3);
 
                  if (token_value == ON_MK)
-                 {   AO4.type = LONG_CONSTANT_OT;
-                     AO4.value = 0xfffd;
-                     AO4.marker = 0;
+                 {   INITAOTV(&AO4, LONG_CONSTANT_OT, 0xfffd);
                      assemblez_2_to(and_zc, AO4, AO3, AO3);
                  }
                  else
-                 {   AO4.type = SHORT_CONSTANT_OT;
-                     AO4.value = 2;
-                     AO4.marker = 0;
+                 {   INITAOTV(&AO4, SHORT_CONSTANT_OT, 2);
                      assemblez_2_to(or_zc, AO4, AO3, AO3);
                  }
 
@@ -1076,21 +1066,17 @@ static void parse_statement_z(int break_label, int continue_label)
                      sequence_point_follows = TRUE;
                      statement_debug_location = spare_debug_location2;
                      if (flag > 0)
-                     {   AO3.type = SHORT_CONSTANT_OT;
-                         AO3.value = flag;
+                     {   INITAOTV(&AO3, SHORT_CONSTANT_OT, flag);
                          if (module_switch
                              && (flag>=MAX_LOCAL_VARIABLES) && (flag<LOWEST_SYSTEM_VAR_NUMBER))
                              AO3.marker = VARIABLE_MV;
-                         else AO3.marker = 0;
                          assemblez_1(inc_zc, AO3);
                      }
                      else
-                     {   AO3.type = SHORT_CONSTANT_OT;
-                         AO3.value = -flag;
+                     {   INITAOTV(&AO3, SHORT_CONSTANT_OT, -flag);
                          if ((module_switch) && (flag>=MAX_LOCAL_VARIABLES)
                              && (flag<LOWEST_SYSTEM_VAR_NUMBER))
                              AO3.marker = VARIABLE_MV;
-                         else AO3.marker = 0;
                          assemblez_1(dec_zc, AO3);
                      }
                      assemblez_jump(ln);
@@ -1118,9 +1104,7 @@ static void parse_statement_z(int break_label, int continue_label)
                  AO = code_generate(parse_expression(QUANTITY_CONTEXT),
                           QUANTITY_CONTEXT, -1);
                  if ((AO.type == VARIABLE_OT) && (AO.value == 0))
-                 {   AO.value = 252;
-                     AO.marker = 0;
-                     AO.type = SHORT_CONSTANT_OT;
+                 {   INITAOTV(&AO, SHORT_CONSTANT_OT, 252);
                      if (version_number != 6) assemblez_1(pull_zc, AO);
                      else assemblez_0_to(pull_zc, AO);
                      AO.type = VARIABLE_OT;

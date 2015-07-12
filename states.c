@@ -293,8 +293,8 @@ static void parse_print_z(int finally_return)
         switch(token_type)
         {   case DQ_TT:
               if (strlen(token_text) > 32)
-              {   AO.marker = STRING_MV;
-                  AO.type   = LONG_CONSTANT_OT;
+              {   INITAOT(&AO, LONG_CONSTANT_OT);
+                  AO.marker = STRING_MV;
                   AO.value  = compile_string(token_text, FALSE, FALSE);
                   assemblez_1(print_paddr_zc, AO);
                   if (finally_return)
@@ -417,12 +417,12 @@ static void parse_print_z(int finally_return)
 
                         case SYMBOL_TT:
                           if (sflags[token_value] & UNKNOWN_SFLAG)
-                          {   AO.type = LONG_CONSTANT_OT;
+                          {   INITAOT(&AO, LONG_CONSTANT_OT);
                               AO.value = token_value;
                               AO.marker = SYMBOL_MV;
                           }
                           else
-                          {   AO.type = LONG_CONSTANT_OT;
+                          {   INITAOT(&AO, LONG_CONSTANT_OT);
                               AO.value = svals[token_value];
                               AO.marker = IROUTINE_MV;
                               if (stypes[token_value] != ROUTINE_T)
@@ -522,19 +522,17 @@ static void parse_print_g(int finally_return)
         {   case DQ_TT:
               /* We can't compile a string into the instruction,
                  so this always goes into the string area. */
-              {   AO.marker = STRING_MV;
-                  AO.type   = CONSTANT_OT;
+              {   INITAOT(&AO, CONSTANT_OT);
+                  AO.marker = STRING_MV;
                   AO.value  = compile_string(token_text, FALSE, FALSE);
                   assembleg_1(streamstr_gc, AO);
                   if (finally_return)
                   {   get_next_token();
                       if ((token_type == SEP_TT)
                           && (token_value == SEMICOLON_SEP))
-                      {   AO.type = BYTECONSTANT_OT; 
-                          AO.value = 0x0A; AO.marker = 0;
+                      {   INITAOTV(&AO, BYTECONSTANT_OT, 0x0A);
                           assembleg_1(streamchar_gc, AO); 
-                          AO.type = BYTECONSTANT_OT; 
-                          AO.value = 1; AO.marker = 0;
+                          INITAOTV(&AO, BYTECONSTANT_OT, 1);
                           assembleg_1(return_gc, AO); 
                           return;
                       }
@@ -582,7 +580,7 @@ static void parse_print_g(int finally_return)
                                   {   assembleg_2(stkpeek_gc, zero_operand, 
                                       stack_pointer);
                                   }
-                                  AO2.type = HALFCONSTANT_OT; AO2.value = 0x100; AO2.marker = 0;
+                                  INITAOTV(&AO2, HALFCONSTANT_OT, 0x100);
                                   assembleg_2_branch(jgeu_gc, AO1, AO2, 
                                       ln = next_label++);
                                   ln2 = next_label++;
@@ -618,9 +616,8 @@ static void parse_print_g(int finally_return)
                                   AO1 = code_generate(
                                       parse_expression(QUANTITY_CONTEXT),
                                       QUANTITY_CONTEXT, -1);
-                                  AO2.type = BYTECONSTANT_OT;
+                                  INITAOT(&AO2, BYTECONSTANT_OT);
                                   AO2.value = GOBJFIELD_NAME();
-                                  AO2.marker = 0;
                                   assembleg_3(aload_gc, AO1, AO2, 
                                     stack_pointer);
                                   assembleg_1(streamstr_gc, stack_pointer);
@@ -655,12 +652,12 @@ static void parse_print_g(int finally_return)
 
                         case SYMBOL_TT:
                           if (sflags[token_value] & UNKNOWN_SFLAG)
-                          {   AO.type = CONSTANT_OT;
+                          {   INITAOT(&AO, CONSTANT_OT);
                               AO.value = token_value;
                               AO.marker = SYMBOL_MV;
                           }
                           else
-                          {   AO.type = CONSTANT_OT;
+                          {   INITAOT(&AO, CONSTANT_OT);
                               AO.value = svals[token_value];
                               AO.marker = IROUTINE_MV;
                               if (stypes[token_value] != ROUTINE_T)
@@ -671,8 +668,7 @@ static void parse_print_g(int finally_return)
                           PrintByRoutine:
 
                           get_next_token();
-                          AO2.type = ZEROCONSTANT_OT;
-                          AO2.value = 0; AO2.marker = 0;
+                          INITAOT(&AO2, ZEROCONSTANT_OT);
                           assembleg_call_1(AO,
                             code_generate(parse_expression(QUANTITY_CONTEXT),
                               QUANTITY_CONTEXT, -1),
@@ -718,9 +714,9 @@ static void parse_print_g(int finally_return)
     if (count == 0) ebf_error("something to print", token_text);
     if (finally_return)
     {
-        AO.type = BYTECONSTANT_OT; AO.value = 0x0A; AO.marker = 0;
+        INITAOTV(&AO, BYTECONSTANT_OT, 0x0A);
         assembleg_1(streamchar_gc, AO); 
-        AO.type = BYTECONSTANT_OT; AO.value = 1; AO.marker = 0;
+        INITAOTV(&AO, BYTECONSTANT_OT, 1);
         assembleg_1(return_gc, AO); 
     }
 }

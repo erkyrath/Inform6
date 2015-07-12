@@ -1318,6 +1318,7 @@ static void parse_statement_z(int break_label, int continue_label)
                          the new way, and there may be existing Inform code
                          relying on this.                                    */
                      assembly_operand AO4;
+                     INITAO(&AO4);
 
                      sequence_point_follows = TRUE;
                      AO2 = code_generate(parse_expression(QUANTITY_CONTEXT),

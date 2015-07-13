@@ -424,7 +424,7 @@ static void pop_zm_stack(void)
 {   assembly_operand st;
     if (version_number < 5) assemblez_0(pop_zc);
     else
-    {   st.marker = 0; st.type = VARIABLE_OT; st.value = 0;
+    {   INITAOTV(&st, VARIABLE_OT, 0);
         assemblez_1_branch(jz_zc, st, -2, TRUE);
     }
 }
@@ -439,6 +439,8 @@ static void access_memory_z(int oc, assembly_operand AO1, assembly_operand AO2,
 
     if (AO1.marker == ARRAY_MV)
     {   
+        INITAO(&zero_ao);
+
         if ((oc == loadb_zc) || (oc == storeb_zc)) byte_flag=TRUE;
         else byte_flag = FALSE;
         if ((oc == loadb_zc) || (oc == loadw_zc)) read_flag=TRUE;
@@ -609,10 +611,9 @@ static assembly_operand check_nonzero_at_runtime_z(assembly_operand AO1,
 
     passed_label = next_label++;
     failed_label = next_label++;
-    AO2.type = LONG_CONSTANT_OT;
-    AO2.value = actual_largest_object_SC;
+    INITAOTV(&AO2, LONG_CONSTANT_OT, actual_largest_object_SC);
     AO2.marker = INCON_MV;
-    AO3.value = 5; AO3.type = SHORT_CONSTANT_OT; AO3.marker = 0;
+    INITAOTV(&AO3, SHORT_CONSTANT_OT, 5);
 
     if ((rte_number == IN_RTE) || (rte_number == HAS_RTE)
         || (rte_number == PROPERTY_RTE) || (rte_number == PROP_NUM_RTE)
@@ -2535,9 +2536,7 @@ static void generate_code_from(int n, int void_flag)
                             if (runtime_error_checking_switch)
                                 AO = check_nonzero_at_runtime(AO, -1,
                                     PARENT_RTE);
-                            AO2.type = BYTECONSTANT_OT;
-                            AO2.value = GOBJFIELD_PARENT();
-                            AO2.marker = 0; 
+                            INITAOTV(&AO2, BYTECONSTANT_OT, GOBJFIELD_PARENT());
                             assembleg_3(aload_gc, AO, AO2, Result);
                          }
                          break;
@@ -2549,9 +2548,7 @@ static void generate_code_from(int n, int void_flag)
                             if (runtime_error_checking_switch)
                                AO = check_nonzero_at_runtime(AO, -1,
                                (sf_number==CHILD_SYSF)?CHILD_RTE:ELDEST_RTE);
-                            AO2.type = BYTECONSTANT_OT;
-                            AO2.value = GOBJFIELD_CHILD();
-                            AO2.marker = 0;
+                            INITAOTV(&AO2, BYTECONSTANT_OT, GOBJFIELD_CHILD());
                             assembleg_3(aload_gc, AO, AO2, Result);
                          }
                          break;
@@ -2564,9 +2561,7 @@ static void generate_code_from(int n, int void_flag)
                                AO = check_nonzero_at_runtime(AO, -1,
                                (sf_number==SIBLING_SYSF)
                                    ?SIBLING_RTE:YOUNGER_RTE);
-                            AO2.type = BYTECONSTANT_OT;
-                            AO2.value = GOBJFIELD_SIBLING();
-                            AO2.marker = 0;
+                            INITAOTV(&AO2, BYTECONSTANT_OT, GOBJFIELD_SIBLING());
                             assembleg_3(aload_gc, AO, AO2, Result);
                          }
                          break;
@@ -2577,9 +2572,7 @@ static void generate_code_from(int n, int void_flag)
                             if (runtime_error_checking_switch)
                                 AO = check_nonzero_at_runtime(AO, -1,
                                     CHILDREN_RTE);
-                            AO2.type = BYTECONSTANT_OT;
-                            AO2.value = GOBJFIELD_CHILD();
-                            AO2.marker = 0;
+                            INITAOTV(&AO2, BYTECONSTANT_OT, GOBJFIELD_CHILD());
                             assembleg_store(temp_var1, zero_operand);
                             assembleg_3(aload_gc, AO, AO2, temp_var2);
                             AO2.value = GOBJFIELD_SIBLING();
@@ -2615,9 +2608,7 @@ static void generate_code_from(int n, int void_flag)
                          if (runtime_error_checking_switch)
                            AO = check_nonzero_at_runtime(AO, -1,
                              YOUNGEST_RTE);
-                         AO2.marker = 0;
-                         AO2.value = GOBJFIELD_CHILD();
-                         AO2.type = BYTECONSTANT_OT;
+                         INITAOTV(&AO2, BYTECONSTANT_OT, GOBJFIELD_CHILD());
                          assembleg_3(aload_gc, AO, AO2, temp_var1);
                          AO2.value = GOBJFIELD_SIBLING();
                          assembleg_1_branch(jz_gc, temp_var1, next_label+1);
@@ -2638,9 +2629,7 @@ static void generate_code_from(int n, int void_flag)
                            AO = check_nonzero_at_runtime(AO, -1,
                              YOUNGEST_RTE);
                          assembleg_store(temp_var3, AO);
-                         AO2.marker = 0;
-                         AO2.value = GOBJFIELD_PARENT();
-                         AO2.type = BYTECONSTANT_OT;
+                         INITAOTV(&AO2, BYTECONSTANT_OT, GOBJFIELD_PARENT());
                          assembleg_3(aload_gc, temp_var3, AO2, temp_var1);
                          assembleg_1_branch(jz_gc, temp_var1, next_label+2);
                          AO2.value = GOBJFIELD_CHILD();

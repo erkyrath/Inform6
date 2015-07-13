@@ -2313,6 +2313,7 @@ static void parse_statement_g(int break_label, int continue_label)
                        the new way, and there may be existing Inform code
                        relying on this.                                    */
                      assembly_operand AO4, AO5;
+                     INITAO(&AO5);
 
                      sequence_point_follows = TRUE;
                      AO2 = code_generate(parse_expression(QUANTITY_CONTEXT),
@@ -2445,8 +2446,7 @@ static void parse_statement_g(int break_label, int continue_label)
         case RETURN_CODE:
           get_next_token();
           if ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)) {
-            AO.type = BYTECONSTANT_OT; AO.value = 1; AO.marker = 0;
-            assembleg_1(return_gc, AO); 
+            assembleg_1(return_gc, one_operand); 
             return; 
           }
           put_token_back();
@@ -2502,9 +2502,9 @@ static void parse_statement_g(int break_label, int continue_label)
                      QUANTITY_CONTEXT, -1);
                  get_next_token();
                  if (token_type == DQ_TT)
-                 {   AO4.value = compile_string(token_text, TRUE, TRUE);
+                 {   INITAOT(&AO4, CONSTANT_OT);
+                     AO4.value = compile_string(token_text, TRUE, TRUE);
                      AO4.marker = STRING_MV;
-                     AO4.type = CONSTANT_OT;
                  }
                  else
                  {   put_token_back();
@@ -2541,7 +2541,8 @@ static void parse_statement_g(int break_label, int continue_label)
                  AO.value = 0x0086;
                  set_constant_ot(&AO);
                  switch(token_value)
-                 {   case ROMAN_MK: 
+                 {   case ROMAN_MK:
+                     default: 
                          AO2 = zero_operand; /* normal */
                          break;
                      case REVERSE_MK: 

@@ -447,7 +447,7 @@ static void access_memory_z(int oc, assembly_operand AO1, assembly_operand AO2,
         else read_flag = FALSE;
 
         zero_ao.type = SHORT_CONSTANT_OT;
-        zero_ao.value = 0; zero_ao.marker = 0;
+        zero_ao.value = 0;
 
         size_ao = zero_ao; size_ao.value = -1;
         for (x=0; x<no_arrays; x++)
@@ -653,7 +653,7 @@ static assembly_operand check_nonzero_at_runtime_z(assembly_operand AO1,
     }
 
     assemble_label_no(failed_label);
-    AO2.type = SHORT_CONSTANT_OT; AO2.value = rte_number; AO2.marker = 0;
+    INITAOTV(&AO2, SHORT_CONSTANT_OT, rte_number);
     if (version_number >= 5)
       assemblez_3(call_vn_zc, veneer_routine(RT__Err_VR), AO2, AO1);
     else
@@ -668,13 +668,13 @@ static assembly_operand check_nonzero_at_runtime_z(assembly_operand AO1,
     else
     {   if (check_sp)
         {   /* Push the short constant 2 */
-            AO2.type = SHORT_CONSTANT_OT; AO2.value = 2; AO2.marker = 0;
+            INITAOTV(&AO2, SHORT_CONSTANT_OT, 2);
             assemblez_store(AO1, AO2);
         }
         else
         {   /* Store either short constant 2 or the operand's value in
                the temporary variable */
-            AO2.type = SHORT_CONSTANT_OT; AO2.value = 2; AO2.marker = 0;
+            INITAOTV(&AO2, SHORT_CONSTANT_OT, 2);
             AO3 = temp_var2; assemblez_store(AO3, AO2);
             last_label = next_label++;
             assemblez_jump(last_label);
@@ -1026,9 +1026,7 @@ static assembly_operand check_nonzero_at_runtime_g(assembly_operand AO1,
     set_constant_ot(&AO3);
     assembleg_2_branch(jne_gc, stack_pointer, AO3, failed_label);
     /* Test if inside the "Class" object... */
-    AO3.type = BYTECONSTANT_OT;
-    AO3.value = GOBJFIELD_PARENT();
-    AO3.marker = 0;
+    INITAOTV(&AO3, BYTECONSTANT_OT, GOBJFIELD_PARENT());
     assembleg_3(aload_gc, AO, AO3, stack_pointer);
     ln = symbol_index("Class", -1);
     AO3.value = svals[ln];
@@ -1379,9 +1377,7 @@ static void generate_code_from(int n, int void_flag)
                 if (((ET[below].value.type == VARIABLE_OT)
                      && (ET[below].value.value == 0))
                     && ((oc != je_zc) || (arity>4)) )
-                {   left_operand.type = VARIABLE_OT;
-                    left_operand.value = 255;
-                    left_operand.marker = 0;
+                {   INITAOTV(&left_operand, VARIABLE_OT, 255);
                     assemblez_store(left_operand, ET[below].value);
                 }
                 else left_operand = ET[below].value;
@@ -1624,7 +1620,7 @@ static void generate_code_from(int n, int void_flag)
                     assemblez_store(temp_var2, by_ao);
                     ln = next_label++;
                     assemblez_1_branch(jz_zc, temp_var2, ln, FALSE);
-                    error_ao.type = SHORT_CONSTANT_OT; error_ao.marker = 0;
+                    INITAOT(&error_ao, SHORT_CONSTANT_OT);
                     error_ao.value = DBYZERO_RTE;
                     assemblez_2(call_vn_zc, veneer_routine(RT__Err_VR),
                         error_ao);
@@ -1770,9 +1766,8 @@ static void generate_code_from(int n, int void_flag)
                  {   case RANDOM_SYSF:
                          if (j>1)
                          {  assembly_operand AO, AO2; int arg_c, arg_et;
-                            AO.value = j; AO.marker = 0;
-                                AO.type = SHORT_CONSTANT_OT;
-                            AO2.type = LONG_CONSTANT_OT;
+                            INITAOTV(&AO, SHORT_CONSTANT_OT, j);
+                            INITAOT(&AO2, LONG_CONSTANT_OT);
                             AO2.value = begin_word_array();
                             AO2.marker = ARRAY_MV;
 

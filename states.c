@@ -812,8 +812,7 @@ static void parse_statement_z(int break_label, int continue_label)
         case BOX_CODE:
              if (version_number == 3)
                  warning("The 'box' statement has no effect in a version 3 game");
-             INITAO(&AO3);
-                 AO3.type = LONG_CONSTANT_OT;
+             INITAOT(&AO3, LONG_CONSTANT_OT);
                  AO3.value = begin_table_array();
                  AO3.marker = ARRAY_MV;
                  ln = 0; ln2 = 0;
@@ -1774,8 +1773,7 @@ static void parse_statement_g(int break_label, int continue_label)
     /*  -------------------------------------------------------------------- */
 
         case BOX_CODE:
-                 INITAO(&AO3);
-                 AO3.type = CONSTANT_OT;
+            INITAOT(&AO3, CONSTANT_OT);
                  AO3.value = begin_table_array();
                  AO3.marker = ARRAY_MV;
                  ln = 0; ln2 = 0;
@@ -2008,21 +2006,21 @@ static void parse_statement_g(int break_label, int continue_label)
                      sequence_point_follows = TRUE;
                      statement_debug_location = spare_debug_location2;
                      if (flag > 0)
-                     {   AO3.value = flag;
+                     {   INITAO(&AO3);
+                         AO3.value = flag;
                          if (AO3.value >= MAX_LOCAL_VARIABLES)
                            AO3.type = GLOBALVAR_OT;
                          else
                            AO3.type = LOCALVAR_OT;
-                         AO3.marker = 0;
                          assembleg_3(add_gc, AO3, one_operand, AO3);
                      }
                      else
-                     {   AO3.value = -flag;
+                     {   INITAO(&AO3);
+                         AO3.value = -flag;
                          if (AO3.value >= MAX_LOCAL_VARIABLES)
                            AO3.type = GLOBALVAR_OT;
                          else
                            AO3.type = LOCALVAR_OT;
-                         AO3.marker = 0;
                          assembleg_3(sub_gc, AO3, one_operand, AO3);
                      }
                      assembleg_jump(ln);
@@ -2096,9 +2094,7 @@ static void parse_statement_g(int break_label, int continue_label)
                            set_constant_ot(&AO2);
                          }
                          else {
-                           AO3.value = 8;
-                           AO3.marker = 0;
-                           AO3.type = BYTECONSTANT_OT;
+                           INITAOTV(&AO3, BYTECONSTANT_OT, 8);
                            assembleg_3(add_gc, AO2, AO3, stack_pointer);
                            AO2 = stack_pointer;
                          }
@@ -2266,7 +2262,7 @@ static void parse_statement_g(int break_label, int continue_label)
     /*  -------------------------------------------------------------------- */
 
         case NEW_LINE_CODE:  
-              AO.type = BYTECONSTANT_OT; AO.value = 0x0A; AO.marker = 0;
+              INITAOTV(&AO, BYTECONSTANT_OT, 0x0A);
               assembleg_1(streamchar_gc, AO); 
               break;
 
@@ -2279,15 +2275,11 @@ static void parse_statement_g(int break_label, int continue_label)
                  match_open_bracket();
                  get_next_token();
                  if (token_type == LOCAL_VARIABLE_TT) {
-                     AO.value = token_value;
-                     AO.type = LOCALVAR_OT;
-                     AO.marker = 0;
+                     INITAOTV(&AO, LOCALVAR_OT, token_value);
                  }
                  else if ((token_type == SYMBOL_TT) &&
                    (stypes[token_value] == GLOBAL_VARIABLE_T)) {
-                     AO.value = svals[token_value];  
-                     AO.type = GLOBALVAR_OT;
-                     AO.marker = 0;
+                     INITAOTV(&AO, GLOBALVAR_OT, svals[token_value]);
                  }
                  else {
                      ebf_error("'objectloop' variable", token_text);
@@ -2330,13 +2322,9 @@ static void parse_statement_g(int break_label, int continue_label)
                          if (runtime_error_checking_switch)
                              AO2 = check_nonzero_at_runtime(AO2, -1,
                                  OBJECTLOOP_RTE);
-                         AO4.type = BYTECONSTANT_OT;
-                         AO4.value = GOBJFIELD_PARENT();
-                         AO4.marker = 0;
+                         INITAOTV(&AO4, BYTECONSTANT_OT, GOBJFIELD_PARENT());
                          assembleg_3(aload_gc, AO2, AO4, stack_pointer);
-                         AO4.type = BYTECONSTANT_OT;
-                         AO4.value = GOBJFIELD_CHILD();
-                         AO4.marker = 0;
+                         INITAOTV(&AO4, BYTECONSTANT_OT, GOBJFIELD_CHILD());
                          assembleg_3(aload_gc, stack_pointer, AO4, stack_pointer);
                          AO2 = stack_pointer;
                      }
@@ -2346,9 +2334,7 @@ static void parse_statement_g(int break_label, int continue_label)
                              AO2 = check_nonzero_at_runtime(AO2, -1,
                                  CHILD_RTE);
                          }
-                         AO4.type = BYTECONSTANT_OT;
-                         AO4.value = GOBJFIELD_CHILD();
-                         AO4.marker = 0;
+                         INITAOTV(&AO4, BYTECONSTANT_OT, GOBJFIELD_CHILD());
                          assembleg_3(aload_gc, AO2, AO4, stack_pointer);
                          AO2 = stack_pointer;
                      }
@@ -2371,9 +2357,7 @@ static void parse_statement_g(int break_label, int continue_label)
                              INITAO(&en_ao);
                              en_ao.value = OBJECTLOOP_BROKEN_RTE;
                              set_constant_ot(&en_ao);
-                             AO4.type = BYTECONSTANT_OT;
-                             AO4.value = GOBJFIELD_PARENT();
-                             AO4.marker = 0;
+                             INITAOTV(&AO4, BYTECONSTANT_OT, GOBJFIELD_PARENT());
                              assembleg_3(aload_gc, AO, AO4, stack_pointer);
                              assembleg_2_branch(jeq_gc, stack_pointer, AO5, 
                                  next_label);
@@ -2386,9 +2370,7 @@ static void parse_statement_g(int break_label, int continue_label)
                      else {
                          AO2 = AO;
                      }
-                     AO4.type = BYTECONSTANT_OT;
-                     AO4.value = GOBJFIELD_SIBLING();
-                     AO4.marker = 0;
+                     INITAOTV(&AO4, BYTECONSTANT_OT, GOBJFIELD_SIBLING());
                      assembleg_3(aload_gc, AO2, AO4, AO);
                      assembleg_1_branch(jnz_gc, AO, ln4);
                      assemble_label_no(ln2);
@@ -2397,9 +2379,9 @@ static void parse_statement_g(int break_label, int continue_label)
 
                  sequence_point_follows = TRUE;
                  ln = symbol_index("Class", -1);
+                 INITAOT(&AO2, CONSTANT_OT);
                  AO2.value = svals[ln];
                  AO2.marker = OBJECT_MV;
-                 AO2.type = CONSTANT_OT;
                  assembleg_store(AO, AO2);
 
                  assemble_label_no(ln = next_label++);
@@ -2417,9 +2399,7 @@ static void parse_statement_g(int break_label, int continue_label)
 
                  sequence_point_follows = FALSE;
                  assemble_label_no(ln3);
-                 AO4.type = BYTECONSTANT_OT;
-                 AO4.value = GOBJFIELD_CHAIN();
-                 AO4.marker = 0;
+                 INITAOTV(&AO4, BYTECONSTANT_OT, GOBJFIELD_CHAIN());
                  assembleg_3(aload_gc, AO, AO4, AO);
                  assembleg_1_branch(jnz_gc, AO, ln);
                  assemble_label_no(ln2);

@@ -720,8 +720,9 @@ static void compile_conditional_z(int oc,
                     assemblez_store(temp_var2, AO2);
                     if ((AO2.type == VARIABLE_OT)&&(AO2.value == 0))
                         assemblez_store(AO2, temp_var2);
-                    zero_ao.type = SHORT_CONSTANT_OT; zero_ao.marker = 0;
-                    zero_ao.value = 0; max_ao = zero_ao; max_ao.value = 48;
+                    INITAOT(&zero_ao, SHORT_CONSTANT_OT);
+                    zero_ao.value = 0; 
+                    max_ao = zero_ao; max_ao.value = 48;
                     assemblez_2_branch(jl_zc,temp_var2,zero_ao,fa_label,TRUE);
                     assemblez_2_branch(jl_zc,temp_var2,max_ao,pa_label,TRUE);
                     assemble_label_no(fa_label);
@@ -740,7 +741,7 @@ static void compile_conditional_z(int oc,
         return;
     }
 
-    AO3.type = VARIABLE_OT; AO3.value = 0; AO3.marker = 0; 
+    INITAOTV(&AO3, VARIABLE_OT, 0);
 
     the_zc = (version_number == 3)?call_zc:call_vs_zc;
     if (oc == 201)

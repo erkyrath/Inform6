@@ -668,12 +668,10 @@ static int32 unique_task_id(void)
 #define TRUE -1
 #define FALSE 0
 
-#define ASSERT_ZCODE()   \
-  ((!glulx_mode) ?       \
-    0 : compiler_error("assertion violated (not in Z-code compiler)"))
-#define ASSERT_GLULX()   \
-  ((glulx_mode)  ?       \
-    0 : compiler_error("assertion violated (not in Glulx compiler)"))
+/* These checked the glulx_mode global during development, but are no
+   longer needed. */
+#define ASSERT_ZCODE() (0)
+#define ASSERT_GLULX() (0)
 
 
 #define ReadInt32(ptr)                               \

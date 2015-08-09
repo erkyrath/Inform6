@@ -1107,7 +1107,7 @@ static void emit_token(token_data t)
             {   int index = emitter_stack[emitter_sp-arity].value;
                 if(!glulx_mode)
                     index -= 256;
-                if(index > 0 && index < NUMBER_SYSTEM_FUNCTIONS)
+                if(index >= 0 && index < NUMBER_SYSTEM_FUNCTIONS)
                     error_named("System function name used as a value:", system_functions.keywords[index]);
                 else
                     compiler_error("Found unnamed system function used as a value");

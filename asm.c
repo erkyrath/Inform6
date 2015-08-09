@@ -921,7 +921,10 @@ extern void assemblez_instruction(assembly_instruction *AI)
     /* 4. Assemble a Store destination, if needed */
 
     if ((AI->store_variable_number) != -1)
-    {   o1.type = VARIABLE_OT;
+    {   if (AI->store_variable_number >= MAX_LOCAL_VARIABLES+MAX_GLOBAL_VARIABLES) {
+            goto OpcodeSyntaxError;
+        }
+        o1.type = VARIABLE_OT;
         o1.value = AI->store_variable_number;
         variable_usage[o1.value] = TRUE;
         o1.marker = 0;

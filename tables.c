@@ -1158,7 +1158,7 @@ printf("        +---------------------+   %05lx\n", (long int) Out_Size);
         {   printf("How frequently abbreviations were used, and roughly\n");
             printf("how many bytes they saved:  ('_' denotes spaces)\n");
             for (i=0; i<no_abbreviations; i++)
-            {   char abbrev_string[64];
+            {   char abbrev_string[MAX_ABBREV_LENGTH];
                 strcpy(abbrev_string,
                     (char *)abbreviations_at+i*MAX_ABBREV_LENGTH);
                 for (j=0; abbrev_string[j]!=0; j++)
@@ -1848,7 +1848,7 @@ printf("  extn  +---------------------+   %06lx\n", (long int) Out_Size+MEMORY_M
         {   printf("How frequently abbreviations were used, and roughly\n");
             printf("how many bytes they saved:  ('_' denotes spaces)\n");
             for (i=0; i<no_abbreviations; i++)
-            {   char abbrev_string[64];
+            {   char abbrev_string[MAX_ABBREV_LENGTH];
                 strcpy(abbrev_string,
                     (char *)abbreviations_at+i*MAX_ABBREV_LENGTH);
                 for (j=0; abbrev_string[j]!=0; j++)

@@ -1156,7 +1156,7 @@ typedef struct optab_s
     int32  popularity;
     int32  score;
     int32  location;
-    char text[64];
+    char text[MAX_ABBREV_LENGTH];
 } optab;
 static optab *bestyet, *bestyet2;
 

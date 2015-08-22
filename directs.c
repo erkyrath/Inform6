@@ -83,6 +83,12 @@ extern int parse_given_directive(int internal_flag)
            {   error_named("It's not worth abbreviating", token_text);
                continue;
            }
+           /* Abbreviation string with null must fit in a MAX_ABBREV_LENGTH
+              array. */
+           if (strlen(token_text)>=MAX_ABBREV_LENGTH)
+           {   error_named("Abbreviation too long", token_text);
+               continue;
+           }
            make_abbreviation(token_text);
         } while (TRUE);
 

@@ -926,10 +926,14 @@ Inform translates plain filenames (such as \"xyzzy\") into full pathnames\n\
 "   The four input path variables can be set to lists of alternative paths\n\
    separated by '%c' characters: these alternatives are always tried in\n\
    the order they are specified in, that is, left to right through the text\n\
-   in the path variable.\n\
-   (Modules are written to the first alternative in the module_path list;\n\
-   it is an error to give alternatives at all for purely output paths.)\n\n",
+   in the path variable.\n\n",
    FN_ALT);
+    printf(
+"   If two '+' signs are used (\"inform ++include_path=dir jigsaw\") then\n\
+   the path or paths are added to the existing list.\n\n");
+    printf(
+"   (Modules are written to the first alternative in the module_path list;\n\
+   it is an error to give alternatives at all for purely output paths.)\n\n");
 
 #ifdef FILE_EXTENSIONS
     printf("3. The following file extensions are added:\n\n\

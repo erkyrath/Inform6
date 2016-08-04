@@ -58,7 +58,6 @@
 /*     #define PC_QUICKC   -  for small IBM PCs under QuickC                 */
 /*     #define PC_WIN32    -  for Borland C++ or Microsoft Visual C++        */
 /*     #define UNIX        -  for Unix under gcc (or big IBM PC under djgpp) */
-/*     #define UNIX64      -  for 64-bit Unix under gcc                      */
 /*     #define VMS         -  for VAX or ALPHA under DEC C, but not VAX C    */
 /*                                                                           */
 /*     In most cases executables are already available at                    */
@@ -415,29 +414,6 @@ static int32 unique_task_id(void)
 /* ------------------------------------------------------------------------- */
 #ifdef UNIX
 /* 1 */
-#define MACHINE_STRING   "Unix"
-/* 2 */
-#define USE_TEMPORARY_FILES
-#define HAS_REALPATH
-/* 3 */
-#define DEFAULT_MEMORY_SIZE HUGE_SIZE
-/* 4 */
-#define FN_SEP '/'
-/* 5 */
-#define PATHLEN 512
-#define Temporary_Directory "/tmp"
-#define INCLUDE_TASK_ID
-#ifdef MAIN_INFORM_FILE
-static int32 unique_task_id(void)
-{   return (int32)getpid();
-}
-#endif
-#endif
-/* ------------------------------------------------------------------------- */
-/*   UNIX64 block                                                            */
-/* ------------------------------------------------------------------------- */
-#ifdef UNIX64
-/* 1 */
 #ifndef MACHINE_STRING
 #define MACHINE_STRING   "Unix"
 #endif
@@ -449,10 +425,11 @@ static int32 unique_task_id(void)
 /* 4 */
 #define FN_SEP '/'
 /* 5 */
-#define Temporary_Directory "/tmp"
 #define PATHLEN 512
+#define Temporary_Directory "/tmp"
 #define INCLUDE_TASK_ID
 #ifdef MAIN_INFORM_FILE
+#include <unistd.h>
 static int32 unique_task_id(void)
 {   return (int32)getpid();
 }

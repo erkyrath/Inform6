@@ -418,7 +418,6 @@ static int32 unique_task_id(void)
 #define MACHINE_STRING   "Unix"
 #endif
 /* 2 */
-#define USE_TEMPORARY_FILES
 #define HAS_REALPATH
 /* 3 */
 #define DEFAULT_MEMORY_SIZE HUGE_SIZE

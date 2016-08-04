@@ -50,7 +50,7 @@
 /*     #define ATARIST     -  for the Atari ST                               */
 /*     #define BEOS        -  for the BeBox                                  */
 /*     #define LINUX       -  for Linux under gcc (essentially as Unix)      */
-/*     #define MACINTOSH   -  for the Apple Mac under Think C or Codewarrior */
+/*     #define MAC_CLASSIC -  for the Apple Mac under Think C or Codewarrior */
 /*     #define MAC_MPW     -  for MPW under Codewarrior (and maybe Think C)  */
 /*     #define OS2         -  for OS/2 32-bit mode under IBM's C Set++       */
 /*     #define OSX         -  for the Apple Mac with OS X (another Unix)     */
@@ -290,10 +290,10 @@ static int32 unique_task_id(void)
 /*   Macintosh block                                                         */
 /* ------------------------------------------------------------------------- */
 #ifdef MAC_MPW
-#define MACINTOSH
+#define MAC_CLASSIC
 #endif
 
-#ifdef MACINTOSH
+#ifdef MAC_CLASSIC
 /* 1 */
 #ifdef MAC_MPW
 #define MACHINE_STRING   "Macintosh Programmer's Workshop"

@@ -50,10 +50,10 @@
 /*     #define ATARIST     -  for the Atari ST                               */
 /*     #define BEOS        -  for the BeBox                                  */
 /*     #define LINUX       -  for Linux under gcc (essentially as Unix)      */
+/*     #define MACOS       -  for the Apple Mac with OS X (another Unix)     */
 /*     #define MAC_CLASSIC -  for the Apple Mac under Think C or Codewarrior */
 /*     #define MAC_MPW     -  for MPW under Codewarrior (and maybe Think C)  */
 /*     #define OS2         -  for OS/2 32-bit mode under IBM's C Set++       */
-/*     #define OSX         -  for the Apple Mac with OS X (another Unix)     */
 /*     #define PC          -  for 386+ IBM PCs, eg. Microsoft Visual C/C++   */
 /*     #define PC_QUICKC   -  for small IBM PCs under QuickC                 */
 /*     #define PC_WIN32    -  for Borland C++ or Microsoft Visual C++        */
@@ -339,11 +339,11 @@ static int32 unique_task_id(void)
 #define FN_SEP '/'
 #endif
 /* ------------------------------------------------------------------------- */
-/*   OSX block                                                              */
+/*   MACOS block                                                              */
 /* ------------------------------------------------------------------------- */
-#ifdef OSX
+#ifdef MACOS
 /* 1 */
-#define MACHINE_STRING   "Mac OS X"
+#define MACHINE_STRING   "MacOS"
 /* 2 */
 #define HAS_REALPATH
 /* 3 */

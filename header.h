@@ -347,7 +347,7 @@ static int32 unique_task_id(void)
 /* 2 */
 #define HAS_REALPATH
 /* 3 */
-#define DEFAULT_MEMORY_SIZE LARGE_SIZE
+#define DEFAULT_MEMORY_SIZE HUGE_SIZE
 /* 4 */
 #define FN_SEP '/'
 /* 5 */

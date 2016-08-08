@@ -658,8 +658,8 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
     case ORIGSOURCE_CODE:
         {
             char *origsource_file = NULL;
-            int origsource_line = 0;
-            int origsource_char = 0;
+            int32 origsource_line = 0;
+            int32 origsource_char = 0;
 
             /* Parse some optional tokens followed by a mandatory semicolon. */
 
@@ -694,7 +694,7 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
 
             put_token_back();
 
-            printf("### origsource %s %d %d\n", origsource_file, origsource_line, origsource_char);
+            set_error_report_origsource(origsource_file, origsource_line, origsource_char);
         }
         break;
 

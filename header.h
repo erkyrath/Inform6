@@ -843,6 +843,9 @@ typedef struct ErrorPosition_s
     char *source;
     int  line_number;
     int  main_flag;
+    char *orig_source;
+    int32 orig_line;
+    int32 orig_char;
 } ErrorPosition;
 
 /*  A memory block can hold at most ALLOC_CHUNK_SIZE * 72:  */
@@ -2462,6 +2465,7 @@ extern void report_errors_at_current_line(void);
 extern debug_location get_current_debug_location(void);
 extern debug_location get_error_report_debug_location(void);
 extern int32 get_current_line_start(void);
+extern void set_error_report_origsource(char *source, int32 line, int32 charnum);
 
 extern void put_token_back(void);
 extern void get_next_token(void);

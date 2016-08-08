@@ -41,6 +41,16 @@ static void print_preamble(void)
 
             if (!(ErrorReport.main_flag)) printf("\"%s\", ", p);
             printf("line %d: ", ErrorReport.line_number);
+            if (ErrorReport.orig_source) {
+                printf("(\"%s\"", ErrorReport.orig_source);
+                if (ErrorReport.orig_line) {
+                    printf(", %d", ErrorReport.orig_line);
+                    if (ErrorReport.orig_char) {
+                        printf(":%d", ErrorReport.orig_char);
+                    }
+                }
+                printf("): ");
+            }
             break;
 
         case 1:  /* Microsoft error message format */
@@ -210,6 +220,9 @@ extern void error_named_at(char *s1, char *s2, int32 report_line)
     {   ErrorReport.file_number = report_line/FILE_LINE_SCALE_FACTOR;
         ErrorReport.line_number = report_line%FILE_LINE_SCALE_FACTOR;
         ErrorReport.main_flag = (ErrorReport.file_number == 1);
+        ErrorReport.orig_source = NULL;
+        ErrorReport.orig_line = 0;
+        ErrorReport.orig_char = 0;
     }
 
     snprintf(error_message_buff, ERROR_BUFLEN,"%s \"%s\"",s1,s2);
@@ -315,6 +328,9 @@ extern void dbnu_warning(char *type, char *name, int32 report_line)
     {   ErrorReport.file_number = report_line/FILE_LINE_SCALE_FACTOR;
         ErrorReport.line_number = report_line%FILE_LINE_SCALE_FACTOR;
         ErrorReport.main_flag = (ErrorReport.file_number == 1);
+        ErrorReport.orig_source = NULL;
+        ErrorReport.orig_line = 0;
+        ErrorReport.orig_char = 0;
     }
     snprintf(error_message_buff, ERROR_BUFLEN, "%s \"%s\" declared but not used", type, name);
     ellipsize_error_message_buff();
@@ -336,6 +352,9 @@ extern void uncalled_routine_warning(char *type, char *name, int32 report_line)
     {   ErrorReport.file_number = report_line/FILE_LINE_SCALE_FACTOR;
         ErrorReport.line_number = report_line%FILE_LINE_SCALE_FACTOR;
         ErrorReport.main_flag = (ErrorReport.file_number == 1);
+        ErrorReport.orig_source = NULL;
+        ErrorReport.orig_line = 0;
+        ErrorReport.orig_char = 0;
     }
     if (OMIT_UNUSED_ROUTINES)
         snprintf(error_message_buff, ERROR_BUFLEN, "%s \"%s\" unused and omitted", type, name);
@@ -472,6 +491,9 @@ extern void errors_begin_pass(void)
     ErrorReport.file_number = -1;
     ErrorReport.source = "<no text read yet>";
     ErrorReport.main_flag = FALSE;
+    ErrorReport.orig_source = NULL;
+    ErrorReport.orig_line = 0;
+    ErrorReport.orig_char = 0;
 }
 
 extern void errors_allocate_arrays(void)

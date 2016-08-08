@@ -913,6 +913,8 @@ extern int is_systemfile(void)
 {   return ((CurrentLB->sys_flag)?1:0);
 }
 
+/* Error locations. */
+
 extern debug_location get_current_debug_location(void)
 {   debug_location result;
     /* Assume that all input characters are one byte. */
@@ -946,6 +948,13 @@ extern debug_location get_error_report_debug_location(void)
 
 extern int32 get_current_line_start(void)
 {   return CurrentLB->line_start;
+}
+
+extern void set_error_report_origsource(char *source, int32 line, int32 charnum)
+{
+    ErrorReport.orig_source = source; /*###*/
+    ErrorReport.orig_line = line;
+    ErrorReport.orig_char = charnum;
 }
 
 /* ------------------------------------------------------------------------- */

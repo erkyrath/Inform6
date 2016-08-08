@@ -1182,7 +1182,7 @@ static int File_sp;                              /*  Stack pointer           */
 
 static Sourcefile *CF;                           /*  Top entry on stack      */
 
-static int last_no_files;
+static int last_input_file;
 
 static void begin_buffering_file(int i, int file_no)
 {   int j, cnt; uchar *p;
@@ -1238,20 +1238,29 @@ static void create_char_pipeline(void)
 {
     File_sp = 0;
     begin_buffering_file(File_sp++, 1);
-    pipeline_made = TRUE; last_no_files = input_file;
+    pipeline_made = TRUE;
+    last_input_file = current_input_file;
 }
 
 static int get_next_char_from_pipeline(void)
 {   uchar *p;
 
-    while (last_no_files < input_file)
+    while (last_input_file < current_input_file)
     {
         /*  An "Include" file must have opened since the last character
-            was read...                                                      */
+            was read. Perhaps more than one. We run forward through the
+            list and add them to the include stack. But we ignore
+            "Origsource" files (which were never actually opened for
+            reading). */
 
-        begin_buffering_file(File_sp++, ++last_no_files);
+        last_input_file++;
+        if (!InputFiles[last_input_file-1].is_input)
+            continue;
+
+        begin_buffering_file(File_sp++, last_input_file);
     }
-    last_no_files = input_file;
+    if (last_input_file != current_input_file)
+        compiler_error("last_input_file did not match after Include");
 
     if (File_sp == 0)
     {   lookahead  = 0; lookahead2 = 0; lookahead3 = 0; return 0;

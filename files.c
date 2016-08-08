@@ -14,7 +14,11 @@
 
 #include "header.h"
 
-int input_file;                         /* Number of source files so far     */
+int total_files;                        /* Number of files so far, including 
+                                           #include and #origsource files    */
+int total_input_files;                  /* Number of source files so far
+                                           (excludes #origsource)            */
+int current_input_file;                 /* Most recently-opened source file  */
 
 int32 total_chars_read;                 /* Characters read in (from all
                                            source files put together)        */
@@ -100,12 +104,12 @@ extern void load_sourcefile(char *filename_given, int same_directory_flag)
     int x = 0;
     FILE *handle;
 
-    if (input_file == MAX_SOURCE_FILES)
+    if (total_files == MAX_SOURCE_FILES)
         memoryerror("MAX_SOURCE_FILES", MAX_SOURCE_FILES);
 
     do
     {   x = translate_in_filename(x, name, filename_given, same_directory_flag,
-                (input_file==0)?1:0);
+                (total_files==0)?1:0);
         handle = fopen(name,"r");
     } while ((handle == NULL) && (x != 0));
 
@@ -114,12 +118,12 @@ extern void load_sourcefile(char *filename_given, int same_directory_flag)
 
     filename_storage_left -= strlen(name)+1;
     strcpy(filename_storage_p, name);
-    InputFiles[input_file].filename = filename_storage_p;
+    InputFiles[total_files].filename = filename_storage_p;
 
     filename_storage_p += strlen(name)+1;
 
     if (debugfile_switch)
-    {   debug_file_printf("<source index=\"%d\">", input_file);
+    {   debug_file_printf("<source index=\"%d\">", total_files);
         debug_file_printf("<given-path>");
         debug_file_print_with_entities(filename_given);
         debug_file_printf("</given-path>");
@@ -134,13 +138,17 @@ extern void load_sourcefile(char *filename_given, int same_directory_flag)
         debug_file_printf("</source>");
     }
 
-    InputFiles[input_file].handle = handle;
-    if (InputFiles[input_file].handle==NULL)
+    InputFiles[total_files].handle = handle;
+    if (InputFiles[total_files].handle==NULL)
         fatalerror_named("Couldn't open source file", name);
+
+    InputFiles[total_files].is_input = TRUE;
 
     if (line_trace_level > 0) printf("\nOpening file \"%s\"\n",name);
 
-    input_file++;
+    total_files++;
+    total_input_files++;
+    current_input_file = total_files;
 }
 
 static void close_sourcefile(int file_number)
@@ -162,7 +170,7 @@ static void close_sourcefile(int file_number)
 
 extern void close_all_source(void)
 {   int i;
-    for (i=0; i<input_file; i++) close_sourcefile(i+1);
+    for (i=0; i<total_files; i++) close_sourcefile(i+1);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -174,7 +182,7 @@ extern int file_load_chars(int file_number, char *buffer, int length)
 {
     int read_in; FILE *handle;
 
-    if (file_number-1 > input_file)
+    if (file_number-1 > total_files)
     {   buffer[0] = 0; return 1; }
 
     handle = InputFiles[file_number-1].handle;
@@ -1711,7 +1719,10 @@ extern void init_files_vars(void)
 }
 
 extern void files_begin_prepass(void)
-{   input_file = 0;
+{   
+    total_files = 0;
+    total_input_files = 0;
+    current_input_file = 0;
 }
 
 extern void files_begin_pass(void)

@@ -836,6 +836,10 @@ typedef struct FileId_s                 /*  Source code file identifier:     */
 {   char *filename;                     /*  The filename (after translation) */
     FILE *handle;                       /*  Handle of file (when open), or
                                             NULL when closed                 */
+    int is_input;                       /*  Is this a source file that we are
+                                            parsing? If not, this is an
+                                            origsource filename (and handle
+                                            is NULL).                        */
 } FileId;
 
 typedef struct ErrorPosition_s
@@ -2316,7 +2320,9 @@ extern int test_for_incdec(assembly_operand AO);
 /*   Extern definitions for "files"                                          */
 /* ------------------------------------------------------------------------- */
 
-extern int  input_file;
+extern int  total_files;
+extern int  current_input_file;
+extern int  total_input_files;
 extern FileId *InputFiles;
 
 extern FILE *Temp1_fp, *Temp2_fp, *Temp3_fp;

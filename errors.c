@@ -30,7 +30,7 @@ static void print_preamble(void)
     int j, with_extension_flag = FALSE; char *p;
 
     j = ErrorReport.file_number;
-    if (j <= 0 || j > input_file) p = ErrorReport.source;
+    if (j <= 0 || j > total_files) p = ErrorReport.source;
     else p = InputFiles[j-1].filename;
 
     if (!p) p = "";

@@ -430,7 +430,7 @@ keyword_group directives =
     "default", "dictionary", "end", "endif", "extend", "fake_action",
     "global", "ifdef", "ifndef", "ifnot", "ifv3", "ifv5", "iftrue",
     "iffalse", "import", "include", "link", "lowstring", "message",
-    "nearby", "object", "property", "release", "replace",
+    "nearby", "object", "origsource", "property", "release", "replace",
     "serial", "switches", "statusline", "stub", "system_file", "trace",
     "undef", "verb", "version", "zcharacter",
     "" },

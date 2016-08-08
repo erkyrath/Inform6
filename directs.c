@@ -649,6 +649,17 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
         return FALSE;                                     /* See "objects.c" */
 
     /* --------------------------------------------------------------------- */
+    /*   Origsource <file>                                                   */
+    /*   Origsource <file> <line>                                            */
+    /*   Origsource <file> <line> <char>                                     */
+    /*   Origsource                                                          */
+    /* --------------------------------------------------------------------- */
+
+    case ORIGSOURCE_CODE:
+        error("### not implemented");
+        break;
+
+    /* --------------------------------------------------------------------- */
     /*   Property [long] [additive] name [alias oldname]                     */
     /* --------------------------------------------------------------------- */
 

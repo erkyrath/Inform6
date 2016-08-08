@@ -656,7 +656,46 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
     /* --------------------------------------------------------------------- */
 
     case ORIGSOURCE_CODE:
-        error("### not implemented");
+        {
+            char *origsource_file = NULL;
+            int origsource_line = 0;
+            int origsource_char = 0;
+
+            /* Parse some optional tokens followed by a mandatory semicolon. */
+
+            get_next_token();
+            if (!((token_type == SEP_TT) && (token_value == SEMICOLON_SEP))) {
+                if (token_type != DQ_TT) {
+                    return ebf_error_recover("a file name in double-quotes",
+                        token_text);
+                }
+                origsource_file = token_text;
+
+                get_next_token();
+                if (!((token_type == SEP_TT) && (token_value == SEMICOLON_SEP))) {
+                    if (token_type != NUMBER_TT) {
+                        return ebf_error_recover("a file line number",
+                            token_text);
+                    }
+                    origsource_line = token_value;
+
+                    get_next_token();
+                    if (!((token_type == SEP_TT) && (token_value == SEMICOLON_SEP))) {
+                        if (token_type != NUMBER_TT) {
+                            return ebf_error_recover("a file line number",
+                                token_text);
+                        }
+                        origsource_char = token_value;
+                        
+                        get_next_token();
+                    }
+                }
+            }
+
+            put_token_back();
+
+            printf("### origsource %s %d %d\n", origsource_file, origsource_line, origsource_char);
+        }
         break;
 
     /* --------------------------------------------------------------------- */

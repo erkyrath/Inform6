@@ -847,6 +847,7 @@ typedef struct ErrorPosition_s
     char *source;
     int  line_number;
     int  main_flag;
+    int  orig_file;
     char *orig_source;
     int32 orig_line;
     int32 orig_char;
@@ -2374,6 +2375,7 @@ extern void add_to_checksum(void *address);
 extern void load_sourcefile(char *story_name, int style);
 extern int file_load_chars(int file_number, char *buffer, int length);
 extern void close_all_source(void);
+extern int register_orig_sourcefile(char *filename);
 
 extern void output_file(void);
 

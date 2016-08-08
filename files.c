@@ -174,6 +174,45 @@ extern void close_all_source(void)
 }
 
 /* ------------------------------------------------------------------------- */
+/*   Register an #origsource filename. This goes in the InputFiles table,    */
+/*   but we do not open the file or advance current_input_file.              */
+/* ------------------------------------------------------------------------- */
+
+extern int register_orig_sourcefile(char *filename)
+{
+    /*### check for cached or dup! */
+
+    char *name = filename; /* no translation */
+
+    if (total_files == MAX_SOURCE_FILES)
+        memoryerror("MAX_SOURCE_FILES", MAX_SOURCE_FILES);
+
+    if (filename_storage_left <= (int)strlen(name))
+        memoryerror("MAX_SOURCE_FILES", MAX_SOURCE_FILES);
+
+    filename_storage_left -= strlen(name)+1;
+    strcpy(filename_storage_p, name);
+    InputFiles[total_files].filename = filename_storage_p;
+
+    filename_storage_p += strlen(name)+1;
+
+    if (debugfile_switch)
+    {   debug_file_printf("<source index=\"%d\">", total_files);
+        debug_file_printf("<given-path>");
+        debug_file_print_with_entities(filename);
+        debug_file_printf("</given-path>");
+        debug_file_printf("<language>Inform 7</language>");
+        debug_file_printf("</source>");
+    }
+
+    InputFiles[total_files].handle = NULL;
+    InputFiles[total_files].is_input = FALSE;
+
+    total_files++;
+    return (total_files-1);
+}
+
+/* ------------------------------------------------------------------------- */
 /*   Feeding source code up into the lexical analyser's buffer               */
 /*   (see "lexer.c" for its specification)                                   */
 /* ------------------------------------------------------------------------- */

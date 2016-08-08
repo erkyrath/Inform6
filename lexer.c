@@ -892,18 +892,19 @@ typedef struct LexicalBlock_s
                                                      file; used for debug
                                                      information             */
     char *orig_source;                           /* From #origsource direct  */
+    int orig_file;
     int32 orig_line;
     int32 orig_char;
 } LexicalBlock;
 
 static LexicalBlock NoFileOpen =
-    {   "<before compilation>", FALSE, FALSE, 0, 0, 0, 255, NULL, 0, 0 };
+    {   "<before compilation>",  FALSE, FALSE, 0, 0, 0, 255, NULL, 0, 0, 0 };
 
 static LexicalBlock MakingOutput =
-{   "<constructing output>", FALSE, FALSE, 0, 0, 0, 255, NULL, 0, 0 };
+    {   "<constructing output>", FALSE, FALSE, 0, 0, 0, 255, NULL, 0, 0, 0 };
 
 static LexicalBlock StringLB =
-{   "<veneer routine>", FALSE, TRUE, 0, 0, 0, 255, NULL, 0, 0 };
+    {   "<veneer routine>",      FALSE, TRUE,  0, 0, 0, 255, NULL, 0, 0, 0 };
 
 static LexicalBlock *CurrentLB;                  /*  The current lexical
                                                      block of input text     */
@@ -918,7 +919,18 @@ extern int is_systemfile(void)
 
 extern void set_origsource_location(char *source, int32 line, int32 charnum)
 {
-    CurrentLB->orig_source = source; /*###store*/
+    if (!source) {
+        CurrentLB->orig_file = 0;
+        CurrentLB->orig_source = NULL;
+        CurrentLB->orig_line = 0;
+        CurrentLB->orig_char = 0;
+        return;
+    }
+
+    int file_no = register_orig_sourcefile(source);
+
+    CurrentLB->orig_file = file_no;
+    CurrentLB->orig_source = InputFiles[file_no].filename;
     CurrentLB->orig_line = line;
     CurrentLB->orig_char = charnum;
 }
@@ -950,6 +962,7 @@ extern void report_errors_at_current_line(void)
     ErrorReport.main_flag   = CurrentLB->main_flag;
     if (debugfile_switch)
         ErrorReport_debug_location = get_current_debug_location();
+    ErrorReport.orig_file = CurrentLB->orig_file;
     ErrorReport.orig_source = CurrentLB->orig_source;
     ErrorReport.orig_line = CurrentLB->orig_line;
     ErrorReport.orig_char = CurrentLB->orig_char;
@@ -1217,7 +1230,7 @@ static void begin_buffering_file(int i, int file_no)
     FileStack[i].LB.chars_read = LOOKAHEAD_SIZE;
     FileStack[i].LB.filename = InputFiles[file_no-1].filename;
     FileStack[i].LB.file_no = file_no;
-    FileStack[i].LB.orig_source = NULL;
+    FileStack[i].LB.orig_source = NULL; FileStack[i].LB.orig_file = 0; 
     FileStack[i].LB.orig_line = 0; FileStack[i].LB.orig_char = 0;
 
     CurrentLB = &(FileStack[i].LB);

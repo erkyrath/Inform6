@@ -221,6 +221,7 @@ extern void error_named_at(char *s1, char *s2, int32 report_line)
         ErrorReport.line_number = report_line%FILE_LINE_SCALE_FACTOR;
         ErrorReport.main_flag = (ErrorReport.file_number == 1);
         ErrorReport.orig_source = NULL;
+        ErrorReport.orig_file = 0;
         ErrorReport.orig_line = 0;
         ErrorReport.orig_char = 0;
     }
@@ -329,6 +330,7 @@ extern void dbnu_warning(char *type, char *name, int32 report_line)
         ErrorReport.line_number = report_line%FILE_LINE_SCALE_FACTOR;
         ErrorReport.main_flag = (ErrorReport.file_number == 1);
         ErrorReport.orig_source = NULL;
+        ErrorReport.orig_file = 0;
         ErrorReport.orig_line = 0;
         ErrorReport.orig_char = 0;
     }
@@ -353,6 +355,7 @@ extern void uncalled_routine_warning(char *type, char *name, int32 report_line)
         ErrorReport.line_number = report_line%FILE_LINE_SCALE_FACTOR;
         ErrorReport.main_flag = (ErrorReport.file_number == 1);
         ErrorReport.orig_source = NULL;
+        ErrorReport.orig_file = 0;
         ErrorReport.orig_line = 0;
         ErrorReport.orig_char = 0;
     }
@@ -492,6 +495,7 @@ extern void errors_begin_pass(void)
     ErrorReport.source = "<no text read yet>";
     ErrorReport.main_flag = FALSE;
     ErrorReport.orig_source = NULL;
+    ErrorReport.orig_file = 0;
     ErrorReport.orig_line = 0;
     ErrorReport.orig_char = 0;
 }

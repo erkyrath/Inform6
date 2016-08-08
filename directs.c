@@ -694,7 +694,7 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
 
             put_token_back();
 
-            set_error_report_origsource(origsource_file, origsource_line, origsource_char);
+            set_origsource_location(origsource_file, origsource_line, origsource_char);
         }
         break;
 

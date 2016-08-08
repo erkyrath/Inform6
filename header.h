@@ -2465,7 +2465,7 @@ extern void report_errors_at_current_line(void);
 extern debug_location get_current_debug_location(void);
 extern debug_location get_error_report_debug_location(void);
 extern int32 get_current_line_start(void);
-extern void set_error_report_origsource(char *source, int32 line, int32 charnum);
+extern void set_origsource_location(char *source, int32 line, int32 charnum);
 
 extern void put_token_back(void);
 extern void get_next_token(void);

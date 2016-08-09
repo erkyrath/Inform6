@@ -128,6 +128,10 @@ extern debug_location_beginning get_token_location_beginning(void)
         last_token_location->location.end_line_number;
     result.beginning_character_number =
         last_token_location->location.end_character_number;
+    result.orig_file_index = last_token_location->location.orig_file_index;
+    result.orig_beg_line_number = last_token_location->location.orig_beg_line_number;
+    result.orig_beg_char_number = last_token_location->location.orig_beg_char_number;
+
     return result;
 }
 
@@ -189,6 +193,14 @@ extern debug_locations get_token_location_end
         result.location.beginning_character_number =
             beginning.beginning_character_number;
     }
+
+    result.location.orig_file_index =
+        beginning.orig_file_index;
+    result.location.orig_beg_line_number =
+        beginning.orig_beg_line_number;
+    result.location.orig_beg_char_number =
+        beginning.orig_beg_char_number;
+    
     result.next = beginning.head->next;
     result.reference_count = 0;
     return result;

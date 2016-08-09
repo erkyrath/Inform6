@@ -816,6 +816,9 @@ typedef struct debug_location_beginning_s
     int32 beginning_byte_index;
     int32 beginning_line_number;
     int32 beginning_character_number;
+    int32 orig_file_index;
+    int32 orig_beg_line_number;
+    int32 orig_beg_char_number;
 } debug_location_beginning;
 
 typedef struct keyword_group_s

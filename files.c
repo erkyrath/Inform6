@@ -19,7 +19,7 @@ int total_files;                        /* Number of files so far, including
 int total_input_files;                  /* Number of source files so far
                                            (excludes #origsource)            */
 int current_input_file;                 /* Most recently-opened source file  */
-int current_origsource_file;            /* Most recently-used #origsource    */
+static int current_origsource_file;     /* Most recently-used #origsource    */
 
 int32 total_chars_read;                 /* Characters read in (from all
                                            source files put together)        */
@@ -186,8 +186,8 @@ extern int register_orig_sourcefile(char *filename)
     /* If the filename has already been used as an origsource filename,
        return that entry. We check the most-recently-used file first, and
        then search the list. */
-    if (current_origsource_file >= 0 && current_origsource_file < total_files) {
-        if (!strcmp(filename, InputFiles[current_origsource_file].filename))
+    if (current_origsource_file > 0 && current_origsource_file <= total_files) {
+        if (!strcmp(filename, InputFiles[current_origsource_file-1].filename))
             return current_origsource_file;
     }
 
@@ -195,7 +195,7 @@ extern int register_orig_sourcefile(char *filename)
         if (InputFiles[ix].is_input)
             continue;
         if (!strcmp(filename, InputFiles[ix].filename)) {
-            current_origsource_file = ix;
+            current_origsource_file = ix+1;
             return current_origsource_file;
         }
     }
@@ -229,8 +229,8 @@ extern int register_orig_sourcefile(char *filename)
     InputFiles[total_files].handle = NULL;
     InputFiles[total_files].is_input = FALSE;
 
-    current_origsource_file = total_files;
     total_files++;
+    current_origsource_file = total_files;
     return current_origsource_file;
 }
 
@@ -1784,7 +1784,7 @@ extern void files_begin_prepass(void)
     total_files = 0;
     total_input_files = 0;
     current_input_file = 0;
-    current_origsource_file = -1;
+    current_origsource_file = 0;
 }
 
 extern void files_begin_pass(void)

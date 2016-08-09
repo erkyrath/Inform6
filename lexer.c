@@ -920,6 +920,7 @@ extern int is_systemfile(void)
 extern void set_origsource_location(char *source, int32 line, int32 charnum)
 {
     if (!source) {
+        /* Clear the Origsource declaration. */
         CurrentLB->orig_file = 0;
         CurrentLB->orig_source = NULL;
         CurrentLB->orig_line = 0;
@@ -927,10 +928,11 @@ extern void set_origsource_location(char *source, int32 line, int32 charnum)
         return;
     }
 
+    /* Get the file number for a new or existing InputFiles entry. */
     int file_no = register_orig_sourcefile(source);
 
     CurrentLB->orig_file = file_no;
-    CurrentLB->orig_source = InputFiles[file_no].filename;
+    CurrentLB->orig_source = InputFiles[file_no-1].filename;
     CurrentLB->orig_line = line;
     CurrentLB->orig_char = charnum;
 }

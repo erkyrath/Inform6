@@ -42,7 +42,12 @@ static void print_preamble(void)
             if (!(ErrorReport.main_flag)) printf("\"%s\", ", p);
             printf("line %d: ", ErrorReport.line_number);
             if (ErrorReport.orig_source) {
-                printf("(\"%s\"", ErrorReport.orig_source);
+                char *op;
+                if (ErrorReport.orig_file <= 0 || ErrorReport.orig_file > total_files)
+                    op = ErrorReport.orig_source;
+                else
+                    op = InputFiles[ErrorReport.orig_file-1].filename;
+                printf("(\"%s\"", op);
                 if (ErrorReport.orig_line) {
                     printf(", %d", ErrorReport.orig_line);
                     if (ErrorReport.orig_char) {

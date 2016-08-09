@@ -690,6 +690,8 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
                             token_text);
                     }
                     origsource_line = token_value;
+                    if (origsource_line < 0)
+                        origsource_line = 0;
 
                     get_next_token();
                     if (!((token_type == SEP_TT) && (token_value == SEMICOLON_SEP))) {
@@ -698,6 +700,8 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
                                 token_text);
                         }
                         origsource_char = token_value;
+                        if (origsource_char < 0)
+                            origsource_char = 0;
                         
                         get_next_token();
                     }

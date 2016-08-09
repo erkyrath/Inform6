@@ -1427,10 +1427,12 @@ static void write_debug_location_internals(debug_location location)
 static void write_debug_location_origsource_internals(debug_location location)
 {   debug_file_printf
         ("<file-index>%d</file-index>", location.orig_file_index - 1);
-    debug_file_printf
-        ("<line>%d</line>", location.orig_beg_line_number);
-    debug_file_printf
-        ("<character>%d</character>", location.orig_beg_char_number);
+    if (location.orig_beg_line_number)
+        debug_file_printf
+            ("<line>%d</line>", location.orig_beg_line_number);
+    if (location.orig_beg_char_number)
+        debug_file_printf
+            ("<character>%d</character>", location.orig_beg_char_number);
 }
 
 extern void write_debug_location(debug_location location)

@@ -77,6 +77,9 @@ extern debug_location get_token_location(void)
     result.end_line_number = location->end_line_number;
     result.beginning_character_number = location->end_character_number;
     result.end_character_number = location->end_character_number;
+    result.orig_file_index = location->orig_file_index;
+    result.orig_beg_line_number = location->orig_beg_line_number;
+    result.orig_beg_char_number = location->orig_beg_char_number;
     return result;
 }
 
@@ -950,6 +953,9 @@ extern debug_location get_current_debug_location(void)
     result.beginning_character_number =
         CurrentLB->chars_read - CurrentLB->line_start;
     result.end_character_number = result.beginning_character_number;
+    result.orig_file_index = CurrentLB->orig_file;
+    result.orig_beg_line_number = CurrentLB->orig_line;
+    result.orig_beg_char_number = CurrentLB->orig_char;
     return result;
 }
 
@@ -1817,6 +1823,9 @@ extern void lexer_allocate_arrays(void)
     first_token_locations->location.end_line_number = 0;
     first_token_locations->location.beginning_character_number = 0;
     first_token_locations->location.end_character_number = 0;
+    first_token_locations->location.orig_file_index = 0;
+    first_token_locations->location.orig_beg_line_number = 0;
+    first_token_locations->location.orig_beg_char_number = 0;
     first_token_locations->next = NULL;
     first_token_locations->reference_count = 0;
     last_token_location = first_token_locations;

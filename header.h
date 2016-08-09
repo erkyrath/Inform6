@@ -800,6 +800,9 @@ typedef struct debug_location_s
     int32 end_line_number;
     int32 beginning_character_number;
     int32 end_character_number;
+    int32 orig_file_index;
+    int32 orig_beg_line_number;
+    int32 orig_beg_char_number;
 } debug_location;
 
 typedef struct debug_locations_s

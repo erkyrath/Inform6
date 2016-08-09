@@ -99,6 +99,12 @@ static void set_token_location(debug_location location)
             location.end_line_number;
         last_token_location->location.end_character_number =
             location.end_character_number;
+        last_token_location->location.orig_file_index =
+            location.orig_file_index;
+        last_token_location->location.orig_beg_line_number =
+            location.orig_beg_line_number;
+        last_token_location->location.orig_beg_char_number =
+            location.orig_beg_char_number;
     } else
     {   debug_locations*successor =
             my_malloc

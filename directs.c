@@ -653,6 +653,13 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
     /*   Origsource <file> <line>                                            */
     /*   Origsource <file> <line> <char>                                     */
     /*   Origsource                                                          */
+    /*                                                                       */
+    /*   The first three forms declare that all following lines (up to the   */
+    /*   next Origsource directive) are derived from the named Inform 7      */
+    /*   source file (with an optional line number and character number).    */
+    /*   This will be reported in error messages and in debug output.        */
+    /*                                                                       */
+    /*   The fourth form, with no arguments, clears the declaration.         */
     /* --------------------------------------------------------------------- */
 
     case ORIGSOURCE_CODE:

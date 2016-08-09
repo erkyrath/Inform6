@@ -654,12 +654,17 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
     /*   Origsource <file> <line> <char>                                     */
     /*   Origsource                                                          */
     /*                                                                       */
-    /*   The first three forms declare that all following lines (up to the   */
-    /*   next Origsource directive) are derived from the named Inform 7      */
-    /*   source file (with an optional line number and character number).    */
-    /*   This will be reported in error messages and in debug output.        */
+    /*   The first three forms declare that all following lines are derived  */
+    /*   from the named Inform 7 source file (with an optional line number   */
+    /*   and character number). This will be reported in error messages and  */
+    /*   in debug output. The declaration holds through the next Origsource  */
+    /*   directive (but does not apply to included files).                   */
     /*                                                                       */
     /*   The fourth form, with no arguments, clears the declaration.         */
+    /*                                                                       */
+    /*   Unlike the Include directive, Origsource does not open the named    */
+    /*   file or even verify that it exists. The filename is treated as an   */
+    /*   opaque string.                                                      */
     /* --------------------------------------------------------------------- */
 
     case ORIGSOURCE_CODE:

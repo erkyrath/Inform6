@@ -41,7 +41,7 @@ static void print_preamble(void)
 
             if (!(ErrorReport.main_flag)) printf("\"%s\", ", p);
             printf("line %d: ", ErrorReport.line_number);
-            if (ErrorReport.orig_source) {
+            if (ErrorReport.orig_file) {
                 char *op;
                 if (ErrorReport.orig_file <= 0 || ErrorReport.orig_file > total_files)
                     op = ErrorReport.orig_source;

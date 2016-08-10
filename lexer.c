@@ -1002,6 +1002,31 @@ extern int32 get_current_line_start(void)
 {   return CurrentLB->line_start;
 }
 
+brief_location blank_brief_location;
+
+extern brief_location get_brief_location(ErrorPosition *errpos)
+{
+    brief_location loc;
+    loc.file_index = errpos->file_number;
+    loc.line_number = errpos->line_number;
+    loc.orig_file_index = errpos->orig_file;
+    loc.orig_line_number = errpos->orig_line;
+    return loc;
+}
+
+extern void export_brief_location(brief_location loc, ErrorPosition *errpos)
+{
+    if (loc.file_index != -1)
+    {   errpos->file_number = loc.file_index;
+        errpos->line_number = loc.line_number;
+        errpos->main_flag = (errpos->file_number == 1);
+        errpos->orig_source = NULL;
+        errpos->orig_file = loc.orig_file_index;
+        errpos->orig_line = loc.orig_line_number;
+        errpos->orig_char = 0;
+    }
+}
+
 /* ------------------------------------------------------------------------- */
 /*   Hash printing and line counting                                         */
 /* ------------------------------------------------------------------------- */
@@ -1779,6 +1804,10 @@ extern void restart_lexer(char *lexical_source, char *name)
 
 extern void init_lexer_vars(void)
 {
+    blank_brief_location.file_index = -1;
+    blank_brief_location.line_number = 0;
+    blank_brief_location.orig_file_index = 0;
+    blank_brief_location.orig_line_number = 0;
 }
 
 extern void lexer_begin_prepass(void)

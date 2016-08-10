@@ -217,19 +217,11 @@ extern void error_numbered(char *s1, int val)
     error(error_message_buff);
 }
 
-extern void error_named_at(char *s1, char *s2, int32 report_line)
+extern void error_named_at(char *s1, char *s2, brief_location report_line)
 {   int i;
 
     ErrorPosition E = ErrorReport;
-    if (report_line != -1)
-    {   ErrorReport.file_number = report_line/FILE_LINE_SCALE_FACTOR;
-        ErrorReport.line_number = report_line%FILE_LINE_SCALE_FACTOR;
-        ErrorReport.main_flag = (ErrorReport.file_number == 1);
-        ErrorReport.orig_source = NULL;
-        ErrorReport.orig_file = 0;
-        ErrorReport.orig_line = 0;
-        ErrorReport.orig_char = 0;
-    }
+    export_brief_location(report_line, &ErrorReport);
 
     snprintf(error_message_buff, ERROR_BUFLEN,"%s \"%s\"",s1,s2);
     ellipsize_error_message_buff();
@@ -326,19 +318,11 @@ extern void warning_named(char *s1, char *s2)
     message(2,error_message_buff);
 }
 
-extern void dbnu_warning(char *type, char *name, int32 report_line)
+extern void dbnu_warning(char *type, char *name, brief_location report_line)
 {   int i;
     ErrorPosition E = ErrorReport;
     if (nowarnings_switch) { no_suppressed_warnings++; return; }
-    if (report_line != -1)
-    {   ErrorReport.file_number = report_line/FILE_LINE_SCALE_FACTOR;
-        ErrorReport.line_number = report_line%FILE_LINE_SCALE_FACTOR;
-        ErrorReport.main_flag = (ErrorReport.file_number == 1);
-        ErrorReport.orig_source = NULL;
-        ErrorReport.orig_file = 0;
-        ErrorReport.orig_line = 0;
-        ErrorReport.orig_char = 0;
-    }
+    export_brief_location(report_line, &ErrorReport);
     snprintf(error_message_buff, ERROR_BUFLEN, "%s \"%s\" declared but not used", type, name);
     ellipsize_error_message_buff();
     i = concise_switch; concise_switch = TRUE;
@@ -347,7 +331,7 @@ extern void dbnu_warning(char *type, char *name, int32 report_line)
     ErrorReport = E;
 }
 
-extern void uncalled_routine_warning(char *type, char *name, int32 report_line)
+extern void uncalled_routine_warning(char *type, char *name, brief_location report_line)
 {   int i;
     /* This is called for functions which have been detected by the
        track-unused-routines module. These will often (but not always)
@@ -355,15 +339,7 @@ extern void uncalled_routine_warning(char *type, char *name, int32 report_line)
        than routine addresses. */
     ErrorPosition E = ErrorReport;
     if (nowarnings_switch) { no_suppressed_warnings++; return; }
-    if (report_line != -1)
-    {   ErrorReport.file_number = report_line/FILE_LINE_SCALE_FACTOR;
-        ErrorReport.line_number = report_line%FILE_LINE_SCALE_FACTOR;
-        ErrorReport.main_flag = (ErrorReport.file_number == 1);
-        ErrorReport.orig_source = NULL;
-        ErrorReport.orig_file = 0;
-        ErrorReport.orig_line = 0;
-        ErrorReport.orig_char = 0;
-    }
+    export_brief_location(report_line, &ErrorReport);
     if (OMIT_UNUSED_ROUTINES)
         snprintf(error_message_buff, ERROR_BUFLEN, "%s \"%s\" unused and omitted", type, name);
     else

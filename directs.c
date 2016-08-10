@@ -14,7 +14,7 @@ int no_routines,                   /* Number of routines compiled so far     */
     no_termcs;                     /* Number of terminating characters       */
 int terminating_characters[32];
 
-int32 routine_starts_line;         /* Source code line on which the current
+brief_location routine_starts_line; /* Source code location where the current
                                       routine starts.  (Useful for reporting
                                       "unused variable" warnings on the start
                                       line rather than the end line.)        */

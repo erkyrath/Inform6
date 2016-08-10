@@ -812,6 +812,13 @@ typedef struct debug_locations_s
     int reference_count;
 } debug_locations;
 
+typedef struct brief_location_s
+{   int32 file_index;
+    int32 line_number;
+    int32 orig_file_index;
+    int32 orig_line_number;
+} brief_location;
+
 typedef struct debug_location_beginning_s
 {   debug_locations *head;
     int32 beginning_byte_index;
@@ -2243,7 +2250,7 @@ extern void  make_upper_case(char *str);
 /*   Extern definitions for "directs"                                        */
 /* ------------------------------------------------------------------------- */
 
-extern int32 routine_starts_line;
+extern brief_location routine_starts_line;
 
 extern int  no_routines, no_named_routines, no_locals, no_termcs;
 extern int  terminating_characters[];
@@ -2268,7 +2275,7 @@ extern void memoryerror(char *s, int32 size) NORETURN;
 extern void error(char *s);
 extern void error_named(char *s1, char *s2);
 extern void error_numbered(char *s1, int val);
-extern void error_named_at(char *s1, char *s2, int32 report_line);
+extern void error_named_at(char *s1, char *s2, brief_location report_line);
 extern void ebf_error(char *s1, char *s2);
 extern void char_error(char *s, int ch);
 extern void unicode_char_error(char *s, int32 uni);
@@ -2276,8 +2283,8 @@ extern void no_such_label(char *lname);
 extern void warning(char *s);
 extern void warning_numbered(char *s1, int val);
 extern void warning_named(char *s1, char *s2);
-extern void dbnu_warning(char *type, char *name, int32 report_line);
-extern void uncalled_routine_warning(char *type, char *name, int32 report_line);
+extern void dbnu_warning(char *type, char *name, brief_location report_line);
+extern void uncalled_routine_warning(char *type, char *name, brief_location report_line);
 extern void obsolete_warning(char *s1);
 extern void link_error(char *s);
 extern void link_error_named(char *s1, char *s2);
@@ -2481,6 +2488,9 @@ extern debug_location get_current_debug_location(void);
 extern debug_location get_error_report_debug_location(void);
 extern int32 get_current_line_start(void);
 extern void set_origsource_location(char *source, int32 line, int32 charnum);
+extern brief_location get_brief_location(ErrorPosition *errpos);
+extern void export_brief_location(brief_location loc, ErrorPosition *errpos);
+extern brief_location blank_brief_location;
 
 extern void put_token_back(void);
 extern void get_next_token(void);
@@ -2603,7 +2613,7 @@ extern int no_symbols;
 extern int32 **symbs;
 extern int32 *svals;
 extern int   *smarks;
-extern int32 *slines;
+extern brief_location *slines;
 extern int   *sflags;
 #ifdef VAX
   extern char *stypes;
@@ -2634,7 +2644,7 @@ extern void issue_unused_warnings(void);
 extern void add_symbol_replacement_mapping(int original, int renamed);
 extern int find_symbol_replacement(int *value);
 extern void df_note_function_start(char *name, uint32 address, 
-    int embedded_flag, int32 source_line);
+    int embedded_flag, brief_location source_line);
 extern void df_note_function_end(uint32 endaddress);
 extern void df_note_function_symbol(int symbol);
 extern void locate_dead_functions(void);

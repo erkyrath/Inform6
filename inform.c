@@ -3,7 +3,7 @@
 /*               conventions, ICL (Inform Command Line) files, main          */
 /*                                                                           */
 /*   Part of Inform 6.34                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2018                                 */
+/*   copyright (c) Graham Nelson 1993 - 2020                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -588,7 +588,7 @@ static void set_default_paths(void)
     set_path_value(Temporary_Path,  Temporary_Directory);
     set_path_value(Debugging_Name,  Debugging_File);
     set_path_value(Transcript_Name, Transcript_File);
-    set_path_value(Language_Name,   "English");
+    set_path_value(Language_Name,   Default_Language);
     set_path_value(Charset_Map,     "");
 }
 
@@ -1222,7 +1222,7 @@ static void cli_print_help(int help_level)
 {
     printf(
 "\nThis program is a compiler of Infocom format (also called \"Z-machine\")\n\
-story files: copyright (c) Graham Nelson 1993 - 2018.\n\n");
+story files: copyright (c) Graham Nelson 1993 - 2020.\n\n");
 
    /* For people typing just "inform", a summary only: */
 
@@ -1504,6 +1504,8 @@ extern void switches(char *p, int cmode)
                   r_e_c_s_set = TRUE; break;
         case 'G': if (cmode == 0)
                       error("The switch '-G' can't be set with 'Switches'");
+                  else if (version_set_switch)
+                      error("The '-G' switch cannot follow the '-v' switch");
                   else
                   {   glulx_mode = state;
                       adjust_memory_sizes();

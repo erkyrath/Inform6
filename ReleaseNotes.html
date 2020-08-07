@@ -76,6 +76,12 @@ e.g.
 <li><p>It has always been possible to replace the paths used by the compiler with a command line option of the
 form <tt>+include_path=foo</tt>. It is now possible to add to an existing path without replacing it by using
 an additional '+' character, like so: <tt>++include_path=foo</tt>.
+<li><p>The <tt>Replace</tt> directive can now be applied to routines in any file, whether it has the <tt>System_file</tt> directive or not. <tt>Replace</tt> also now works on recursive functions, which it previously did not. Its behavior can now be described this way:
+<pre>
+  Replace Func;
+  Replace Func OriginalFunc;
+</pre>
+Multiple definitions of <tt>Func()</tt> may follow this directive. <tt>Func</tt> will refer to the last-defined version, except that definitions in normal files are preferred over definitions in <tt>System_file</tt> files or the veneer. With the two-symbol form (introduced in 6.33), the latter symbol will refer to the <em>first</em>-defined version of the function.
 <li><p>A new <tt>Origsource</tt> directive has been added to allow a record of the location of the relevant in
 a higher-level language that has been converted to Inform 6. (In practice, this will very likely be the location in
 an Inform 7 source.) The syntax is
@@ -93,6 +99,12 @@ form, with no arguments, clears the declaration.
 Unlike the <tt>Include</tt> directive, <tt>Origsource</tt> does not open the named file or even verify that it exists.
 The filename is treated as an opaque string.
 <li><p>The constant <tt>$INDIV_PROP_START</tt> is now a setting that can be changed for Glulx.
+<li><p>Arrays that are never modified can be declared as "static": in Z-code, this places the array at the end of
+readable memory (after the dictionary and before the beginning of code storage); in Glulx, it places the array at
+the end of ROM (after string storage). The syntax is
+<pre>
+  Array arrayname static --> 1 3 5 7 9 11 13 15;
+</pre>
 </ul>
 <h3>Bugs fixed</h3>
 Items of the form [Mantis N] quote the bug&rsquo;s reference number in Inform 7&rsquo;s Mantis bug tracker. 
@@ -125,7 +137,11 @@ removed, since it was identical to "UNIX"; and "UNIX" no longer implies "USE_TEM
 now "MAC_CLASSIC"; "OSX" is now "MACOS", and "MACOS" now uses "HUGE_SIZE" for the default array sizes. [Mantis 1937]
 <li><p>The maximum length of a verb is now limited to 120 (which can be changed in the source code). Previously
 very long verbs would crash the compiler. [Mantis 2023]
-<li><p>Diverted actions, of the form <tt>&lt;&lt;ACTION&gt;&gt;</tt>, now work when compiling to Z-code version 3.
+<li><p>Compiling to Z-code version 3 has shown a number of regressions since Inform 6.15:
+ <ul>
+ <li>Diverted actions, of the form <tt>&lt;&lt;ACTION&gt;&gt;</tt>, are fixed.
+ <li>The veneer routine <tt>RA__Pr()</tt> can be used.
+ </ul>
 </ul>
 
 <h2>Compiler 6.33</h2>

@@ -7,7 +7,7 @@
 /*                    specifications for the object-maker.                   */
 /*                                                                           */
 /*   Part of Inform 6.34                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2018                                 */
+/*   copyright (c) Graham Nelson 1993 - 2020                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -1262,7 +1262,7 @@ the names '%s' and '%s' actually refer to the same property",
        warning_named("Version 3 limit of 4 values per property exceeded \
 (use -v5 to get 32), so truncating property",
                     (char *) symbs[property_name_symbol]);
-                full_object.pp[next_prop].l=4;
+                length = 8;
             }
         }
 

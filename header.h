@@ -4,7 +4,7 @@
 /*                              Inform 6.34                                  */
 /*                                                                           */
 /*   This header file and the others making up the Inform source code are    */
-/*   copyright (c) Graham Nelson 1993 - 2018                                 */
+/*   copyright (c) Graham Nelson 1993 - 2020                                 */
 /*                                                                           */
 /*   Manuals for this language are available from the IF-Archive at          */
 /*   http://www.ifarchive.org/                                               */
@@ -30,7 +30,7 @@
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
-#define RELEASE_DATE "28th June 2018"
+#define RELEASE_DATE "21st May 2020"
 #define RELEASE_NUMBER 1634
 #define GLULX_RELEASE_NUMBER 38
 #define MODULE_VERSION_NUMBER 1
@@ -476,12 +476,17 @@ static int32 unique_task_id(void)
 #define Transcript_File "gametext"
 #endif
 #endif
+
 #ifndef Debugging_File
 #ifdef FILE_EXTENSIONS
 #define Debugging_File "gameinfo.dbg"
 #else
 #define Debugging_File "gamedebug"
 #endif
+#endif
+
+#ifndef Default_Language
+#define Default_Language "English"
 #endif
 
 #ifdef FILE_EXTENSIONS

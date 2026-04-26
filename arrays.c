@@ -308,9 +308,9 @@ extern void ensure_builtin_globals(void)
 
 #define UNSPECIFIED_AI  -1
 #define NULLS_AI        0    /* length */
-#define DATA_AI         1    /* val val val */
+#define DATA_AI         1    /* val val val... */
 #define ASCII_AI        2    /* "string" */
-#define BRACKET_AI      3    /* [ val val val ] */
+#define BRACKET_AI      3    /* [ val val val... ] */
 
 extern void make_global()
 {

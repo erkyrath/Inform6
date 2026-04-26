@@ -644,14 +644,6 @@ extern void make_array()
             
             /*  In this case we are given the array size, and the array
                 is initialised to null values                                */
-            
-            get_next_token();
-            if ((token_type == SEP_TT) && (token_value == OPEN_SQUARE_SEP))
-            {   put_token_back();
-                data_type = DATA_AI;
-                goto CalculatedArraySize;
-            }
-            put_token_back();
 
             AO = parse_expression(CONSTANT_CONTEXT);
 

@@ -641,8 +641,6 @@ extern void make_array()
     switch(data_type)
     {
         case NULLS_AI:
-            printf("DEBUG: data_type is NULLS_AI\n");
-
             get_next_token();
             if ((token_type == SEP_TT) && (token_value == OPEN_SQUARE_SEP))
             {   put_token_back();

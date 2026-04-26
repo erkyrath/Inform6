@@ -674,7 +674,8 @@ extern void make_array()
         case DATA_AI:
 
             /*  In this case the array is initialised to the sequence of
-                constant values supplied on the same line                    */
+                constant values supplied on the same line. A semicolon ends
+                the array. */
 
             i=0;
             do
@@ -766,7 +767,8 @@ advance as part of 'Zcharacter table':", unicode);
 
             /*  In this case the array is initialised to the sequence of
                 constant values given over a whole range of compiler-lines,
-                between square brackets [ and ]                              */
+                between square brackets [ and ]. Semicolons between the values
+                are accepted but optional. */
 
             i = 0;
             while (TRUE)
@@ -790,7 +792,8 @@ advance as part of 'Zcharacter table':", unicode);
                     INITAOT(&AO, CONSTANT_OT);
                     /* parse_routine() releases lexer text! */
                     AO.value = parse_routine(NULL, TRUE, embedded_function_name.data, FALSE, -1);
-                    AO.type = LONG_CONSTANT_OT;
+                    if (!glulx_mode)
+                        AO.type = LONG_CONSTANT_OT;
                     AO.marker = IROUTINE_MV;
 
                     directives.enabled = FALSE;

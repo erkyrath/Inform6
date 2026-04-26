@@ -307,10 +307,10 @@ extern void ensure_builtin_globals(void)
 /*  There are four ways to initialise arrays:                                */
 
 #define UNSPECIFIED_AI  -1
-#define NULLS_AI        0
-#define DATA_AI         1
-#define ASCII_AI        2
-#define BRACKET_AI      3
+#define NULLS_AI        0    /* length */
+#define DATA_AI         1    /* val val val */
+#define ASCII_AI        2    /* "string" */
+#define BRACKET_AI      3    /* [ val val val ] */
 
 extern void make_global()
 {
@@ -641,6 +641,10 @@ extern void make_array()
     switch(data_type)
     {
         case NULLS_AI:
+            
+            /*  In this case we are given the array size, and the array
+                is initialised to null values                                */
+            
             get_next_token();
             if ((token_type == SEP_TT) && (token_value == OPEN_SQUARE_SEP))
             {   put_token_back();

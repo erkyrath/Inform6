@@ -791,6 +791,7 @@ advance as part of 'Zcharacter table':", unicode);
                     ensure_memory_list_available(&embedded_function_name, strlen(global_name)+16);
                     sprintf(embedded_function_name.data, "%s_R%d", global_name, i);
 
+                    INITAOT(&AO, CONSTANT_OT);
                     /* parse_routine() releases lexer text! */
                     AO.value = parse_routine(NULL, TRUE, embedded_function_name.data, FALSE, -1);
                     AO.type = LONG_CONSTANT_OT;

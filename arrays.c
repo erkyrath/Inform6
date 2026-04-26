@@ -797,6 +797,7 @@ advance as part of 'Zcharacter table':", unicode);
                     AO.marker = IROUTINE_MV;
 
                     directives.enabled = FALSE;
+                    directive_keywords.enabled = TRUE;
                     segment_markers.enabled = TRUE;
 
                     statements.enabled = FALSE;
